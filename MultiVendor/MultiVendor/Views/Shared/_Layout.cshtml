@@ -25,18 +25,28 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="BrowseShops">Browse Shops</a>
                         </li>
+                        @if (User.Identity is { IsAuthenticated: true })
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Shops" asp-action="Create">Create Shop</a>
+                            </li>
+                        }
                     </ul>
                     <ul class="navbar-nav">
                         @if (User.Identity is { IsAuthenticated: true })
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Shop" asp-action="Create">Create Shop</a>
+                                <a class="nav-link text-dark" asp-area="Vendor" asp-controller="Profile" asp-action="Index">Profile</a>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Vendor" asp-controller="Profile" asp-action="Index">Shop Profile</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="px-2">
                                             <button type="submit" class="btn btn-link dropdown-item">Logout</button>

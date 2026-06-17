@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MultiVendor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+79f03022b4a3f75ee891c0dd3326493f67a2263a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8da43e022ae12f8bc73f09aa3b3fbe8a563e59db")]
 [assembly: System.Reflection.AssemblyProductAttribute("MultiVendor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MultiVendor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

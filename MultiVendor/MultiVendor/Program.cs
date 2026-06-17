@@ -73,12 +73,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "vendor",
+    pattern: "{area=Vendor}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
-    name: "vendor",
-    pattern: "Vendor/{controller=Dashboard}/{action=Index}/{id?}");
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 
