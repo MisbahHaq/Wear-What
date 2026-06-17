@@ -1,4 +1,4 @@
-@model Product
+@model ProductFormViewModel
 @{
     ViewData["Title"] = "Create Product";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,7 +9,7 @@
     <form asp-action="Create" method="post">
         <div class="mb-3">
             <label class="form-label">Shop</label>
-            <select asp-for="ShopId" class="form-select"                 asp-items="@(new SelectList(ViewBag.Shops, nameof(Vendor.Models.Shop.Id), nameof(Vendor.Models.Shop.Name)))" required>
+            <select asp-for="ShopId" class="form-select" asp-items="@(new SelectList(ViewBag.Shops, nameof(Vendor.Models.Shop.Id), nameof(Vendor.Models.Shop.Name)))" required>
                 <option value="">-- Select Shop --</option>
             </select>
         </div>
@@ -30,10 +30,42 @@
                 <label class="form-label">Stock</label>
                 <input asp-for="Stock" class="form-control" type="number" min="0" required />
             </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">Image URL</label>
-                <input asp-for="ImageUrl" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Broad Category</label>
+                <select asp-for="BroadCategory" class="form-select">
+                    <option>Women</option>
+                    <option>Men</option>
+                    <option>Unisex</option>
+                </select>
             </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Category</label>
+                <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(ViewBag.Categories, nameof(Vendor.Models.ProductCategory.Id), nameof(Vendor.Models.ProductCategory.Name)))" required>
+                    <option value="">-- Select Category --</option>
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image 1 URL</label>
+            <input asp-for="Image1" class="form-control" placeholder="https://..." />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image 2 URL (optional)</label>
+            <input asp-for="Image2" class="form-control" placeholder="https://..." />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image 3 URL (optional)</label>
+            <input asp-for="Image3" class="form-control" placeholder="https://..." />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image 4 URL (optional)</label>
+            <input asp-for="Image4" class="form-control" placeholder="https://..." />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Image 5 URL (optional)</label>
+            <input asp-for="Image5" class="form-control" placeholder="https://..." />
         </div>
         <div class="text-danger">@Html.ValidationSummary(false)</div>
         <button type="submit" class="btn btn-success">Create</button>

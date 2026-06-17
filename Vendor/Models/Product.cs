@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Vendor.Models;
 
@@ -19,8 +20,14 @@ public class Product
     [Range(0, int.MaxValue)]
     public int Stock { get; set; }
 
-    [MaxLength(200)]
-    public string ImageUrl { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(20)]
+    public string BroadCategory { get; set; } = "Unisex";
+
+    public int CategoryId { get; set; }
+    public ProductCategory? Category { get; set; }
+
+    public List<ProductImage> Images { get; set; } = new();
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
