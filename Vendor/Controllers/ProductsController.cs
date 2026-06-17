@@ -23,7 +23,19 @@ public class ProductsController : Controller
         var products = await _db.Products
             .Include(p => p.Shop)
             .Include(p => p.Category)
+            .Include(p => p.Images)
             .Where(p => p.Shop!.OwnerId == CurrentUserId)
+            .ToListAsync();
+        return View(products);
+    }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> Catalog()
+    {
+        var products = await _db.Products
+            .Include(p => p.Shop)
+            .Include(p => p.Category)
+            .Include(p => p.Images)
             .ToListAsync();
         return View(products);
     }

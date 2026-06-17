@@ -20,6 +20,9 @@
         <li class="nav-item">
             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Products" asp-action="Catalog">Catalog</a>
+        </li>
         @if (User.Identity?.IsAuthenticated == true)
         {
             <li class="nav-item">
