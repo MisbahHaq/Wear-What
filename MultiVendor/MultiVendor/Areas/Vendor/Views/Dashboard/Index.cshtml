@@ -1,0 +1,64 @@
+@model List<MultiVendor.Models.Shop>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">Vendor Dashboard</h1>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">My Shops</h5>
+                    <p class="card-text fs-2 fw-bold">@Model.Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Products</h5>
+                    <p class="card-text fs-2 fw-bold">@Model.Sum(s => s.Products.Count)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-muted">Total Followers</h5>
+                    <p class="card-text fs-2 fw-bold">@Model.Sum(s => s.Followers.Count)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h3>Your Shops</h3>
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">You haven't created any shops yet. <a asp-controller="Shops" asp-action="Create">Create your first shop</a>.</div>
+        }
+        else
+        {
+            <div class="row g-4 mt-2">
+                @foreach (var shop in Model)
+                {
+                    <div class="col-md-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">@shop.Name</h5>
+                                <p class="text-muted small">@shop.Description</p>
+                                <small>@shop.Followers.Count followers · @shop.Products.Count products</small>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <a asp-area="Vendor" asp-controller="Products" asp-action="Index" class="btn btn-sm btn-primary w-100">Manage Products</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

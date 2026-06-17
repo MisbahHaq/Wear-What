@@ -35,22 +35,7 @@
                             <small class="text-muted">@shop.FollowerCount followers · @shop.ProductCount products</small>
                         </div>
                         <div class="d-flex gap-2 mt-2">
-                            <a asp-controller="Shop" asp-action="GetProducts" asp-route-id="@shop.Id" class="btn btn-sm btn-outline-primary flex-grow-1">View Shop</a>
-                            @if (User.Identity.IsAuthenticated)
-                            {
-                                @if (shop.IsFollowing)
-                                {
-                                    <form asp-controller="Shop" asp-action="UnfollowShop" asp-route-id="@shop.Id" method="post" class="d-inline">
-                                        <button class="btn btn-sm btn-outline-secondary">Unfollow</button>
-                                    </form>
-                                }
-                                else
-                                {
-                                    <form asp-controller="Shop" asp-action="FollowShop" asp-route-id="@shop.Id" method="post" class="d-inline">
-                                        <button class="btn btn-sm btn-primary">Follow</button>
-                                    </form>
-                                }
-                            }
+                            <a asp-controller="Shops" asp-action="Create" class="btn btn-sm btn-success flex-grow-1">Open Shop</a>
                         </div>
                     </div>
                 </div>

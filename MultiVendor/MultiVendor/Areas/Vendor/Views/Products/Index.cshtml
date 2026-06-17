@@ -1,0 +1,48 @@
+@model List<MultiVendor.Models.Product>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Products";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Products</h1>
+        <a asp-action="Create" class="btn btn-primary">+ Add Product</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No products yet. Click "Add Product" to get started.</div>
+    }
+
+    <table class="table table-hover shadow-sm">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.Name</td>
+                    <td>$@p.Price.ToString("F2")</td>
+                    <td>@p.Stock</td>
+                    <td>@p.Category</td>
+                    <td>@(p.IsActive ? "Active" : "Inactive")</td>
+                    <td class="text-end">
+                        <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form asp-action="Delete" asp-route-id="@p.Id" method="post" class="d-inline">
+                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this product?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
