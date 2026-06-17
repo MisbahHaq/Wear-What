@@ -1,0 +1,40 @@
+@model List<WishlistItem>
+@{
+    ViewData["Title"] = "My Wishlist";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>My Wishlist</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Your wishlist is empty.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                var product = item.Product;
+                var image = product?.Images.OrderBy(i => i.Id).FirstOrDefault()?.Url;
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow h-100">
+                        @if (!string.IsNullOrEmpty(image))
+                        {
+                            <img src="@image" class="card-img-top" alt="@product?.Name" style="height:200px;object-fit:cover;" />
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@product?.Name</h5>
+                            <p class="text-success">$@(product?.Price.ToString("F2") ?? "0.00")</p>
+                            <form asp-action="RemoveFromWishlist" method="post">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

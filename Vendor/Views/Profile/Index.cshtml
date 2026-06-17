@@ -1,0 +1,72 @@
+@model ApplicationUser
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <h2>My Profile</h2>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a asp-action="Index" class="list-group-item list-group-item-action">Overview</a>
+                <a asp-action="Settings" class="list-group-item list-group-item-action">Settings</a>
+                <a asp-action="Orders" class="list-group-item list-group-item-action">Orders</a>
+                <a asp-action="Wishlists" class="list-group-item list-group-item-action">Wishlist</a>
+                <a asp-action="Cancellations" class="list-group-item list-group-item-action">Cancellations</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@(string.IsNullOrEmpty(Model.FirstName) && string.IsNullOrEmpty(Model.LastName) ? User.Identity?.Name : $"{Model.FirstName} {Model.LastName}")</h5>
+                    <p class="card-text text-muted">@Model.Email</p>
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <img src="@Model.ProfileImageUrl" class="rounded-circle" alt="Profile" style="width:100px;height:100px;object-fit:cover;" />
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Addresses</h6>
+                            <h3 class="card-title">@Model.Addresses.Count</h3>
+                            <a asp-controller="Profile" asp-action="Settings" class="btn btn-sm btn-outline-primary">Manage</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Orders</h6>
+                            <h3 class="card-title">@Model.Orders.Count</h3>
+                            <a asp-action="Orders" class="btn btn-sm btn-outline-primary">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Wishlist</h6>
+                            <h3 class="card-title">@Model.WishlistItems.Count</h3>
+                            <a asp-action="Wishlists" class="btn btn-sm btn-outline-primary">View</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">Cancellations</h6>
+                            <h3 class="card-title">@Model.Orders.Count(o => o.Cancellation != null)</h3>
+                            <a asp-action="Cancellations" class="btn btn-sm btn-outline-primary">View</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

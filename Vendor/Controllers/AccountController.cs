@@ -28,16 +28,24 @@ public class AccountController : Controller
         if (!ModelState.IsValid) return View();
 
         var user = new ApplicationUser { UserName = email, Email = email };
-        var result = await _userManager.CreateAsync(user, password);
 
-        if (result.Succeeded)
+        try
         {
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            return RedirectToAction("Index", "Home");
-        }
+            var result = await _userManager.CreateAsync(user, password);
 
-        foreach (var error in result.Errors)
-            ModelState.AddModelError("", error.Description);
+            if (result.Succeeded)
+            {
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return RedirectToAction("Index", "Home");
+            }
+
+            foreach (var error in result.Errors)
+                ModelState.AddModelError("", $"{error.Code} : {error.Description}");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", $"Registration failed: {ex.Message}");
+        }
 
         return View();
     }
