@@ -1,0 +1,97 @@
+﻿@model HomePageViewModel
+@{
+    ViewData["Title"] = "MultiVendor Marketplace";
+}
+
+<div class="hero-section bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">Welcome to MultiVendor</h1>
+        <p class="lead text-muted">Discover unique products from independent shops around the world.</p>
+        <a asp-controller="Home" asp-action="BrowseShops" class="btn btn-primary btn-lg mt-3">Browse All Shops</a>
+    </div>
+</div>
+
+<div class="container">
+    <h2 class="mb-4">Featured Shops</h2>
+    <div class="row g-4 mb-5">
+        @foreach (var shop in Model.FeaturedShops)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shop-card shadow-sm">
+                    @if (!string.IsNullOrEmpty(shop.LogoUrl))
+                    {
+                        <img src="@shop.LogoUrl" class="card-img-top" alt="@shop.Name" style="height:160px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height:160px;">
+                            <span class="fs-2">@shop.Name.Substring(0,1).ToUpper()</span>
+                        </div>
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@shop.Name</h5>
+                        <p class="card-text text-muted small flex-grow-1">@shop.Description</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <small class="text-muted">@shop.FollowerCount followers · @shop.ProductCount products</small>
+                        </div>
+                        <div class="d-flex gap-2 mt-2">
+                            <a asp-controller="Shop" asp-action="GetProducts" asp-route-id="@shop.Id" class="btn btn-sm btn-outline-primary flex-grow-1">View Shop</a>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                @if (shop.IsFollowing)
+                                {
+                                    <form asp-controller="Shop" asp-action="UnfollowShop" asp-route-id="@shop.Id" method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-outline-secondary">Unfollow</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Shop" asp-action="FollowShop" asp-route-id="@shop.Id" method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-primary">Follow</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <h2 class="mb-4">New Arrivals</h2>
+    <div class="row g-4">
+        @foreach (var product in Model.NewArrivals)
+        {
+            <div class="col-md-3 col-sm-6">
+                <div class="card h-100 product-card shadow-sm">
+                    @if (!string.IsNullOrEmpty(product.CoverImageUrl))
+                    {
+                        <img src="@product.CoverImageUrl" class="card-img-top" alt="@product.Name" style="height:200px;object-fit:cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height:200px;">
+                            <span class="text-muted">No image</span>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h6 class="card-title text-truncate">@product.Name</h6>
+                        <p class="text-muted small mb-1">@product.ShopName</p>
+                        <p class="card-text fw-bold text-primary">$@product.Price.ToString("F2")</p>
+                        @if (product.Stock > 0)
+                        {
+                            <span class="badge bg-success">In Stock (@product.Stock)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Out of Stock</span>
+                        }
+                    </div>
+                    <div class="card-footer bg-white border-top-0">
+                        <a asp-controller="Product" asp-action="GetById" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
