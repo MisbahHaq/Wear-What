@@ -1,0 +1,31 @@
+@model IReadOnlyList<ShopDto>
+@{
+    ViewData["Title"] = "My Shops";
+}
+
+<h1>My Shops</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">You have not created a shop yet. <a asp-action="Create">Create one now</a>.</div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var shop in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5>@shop.Name</h5>
+                        <p class="text-muted">@shop.Description</p>
+                        <p>@shop.FollowerCount followers · @shop.ProductCount products</p>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <a asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-outline-primary">View Shop</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

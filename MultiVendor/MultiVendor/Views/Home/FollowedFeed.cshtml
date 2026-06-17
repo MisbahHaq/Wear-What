@@ -1,0 +1,23 @@
+@model IEnumerable<ProductDto>
+@{
+    ViewData["Title"] = "Following Feed";
+}
+
+<h1>Following Feed</h1>
+<p class="text-muted">New products from shops you follow.</p>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Follow shops to personalize this feed.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var product in Model)
+        {
+            <div class="col-xl-3 col-lg-4 col-md-6">
+                @await Html.PartialAsync("_ProductCard", product)
+            </div>
+        }
+    </div>
+}

@@ -3,28 +3,35 @@
     ViewData["Title"] = "Create Shop";
 }
 
-<div class="container py-4">
-    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary mb-3">← Back</a>
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body p-4">
-                    <h2 class="mb-4">Create Your Shop</h2>
-                    <form asp-action="Create" method="post">
-                        <div class="mb-3">
-                            <label asp-for="Name" class="form-label">Shop Name</label>
-                            <input asp-for="Name" class="form-control" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="mb-4">Create Your Shop</h2>
+                <form asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Shop Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LogoUrl" class="form-label">Logo URL</label>
+                            <input asp-for="LogoUrl" class="form-control" />
                         </div>
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Description</label>
-                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="BannerUrl" class="form-label">Banner URL</label>
+                            <input asp-for="BannerUrl" class="form-control" />
                         </div>
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                        <button type="submit" class="btn btn-primary w-100">Create Shop</button>
-                    </form>
-                </div>
+                    </div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <button type="submit" class="btn btn-warning w-100">Create Shop</button>
+                </form>
             </div>
         </div>
     </div>

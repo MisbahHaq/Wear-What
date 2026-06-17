@@ -1,76 +1,48 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MultiVendor.DTOs;
-using MultiVendor.Services.Interfaces;
 using MultiVendor.Data;
+using System.Security.Claims;
 
 namespace MultiVendor.Controllers;
 
-[ApiController]
-[Route("api/orders")]
 [Authorize]
-public class OrderController : ControllerBase
+public class OrderController : Controller
 {
-    private readonly ICheckoutService _checkoutService;
     private readonly ECommerceDbContext _context;
 
-    public OrderController(ICheckoutService checkoutService, ECommerceDbContext context)
+    public OrderController(ECommerceDbContext context)
     {
-        _checkoutService = checkoutService;
         _context = context;
     }
 
-    [HttpPost("checkout")]
-    public async Task<ActionResult<CheckoutResultDto>> Checkout([FromBody] CheckoutDto checkoutDto)
+    public async Task<IActionResult> Index(CancellationToken ct = default)
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId is null) return Unauthorized();
-
-        var result = await _checkoutService.ProcessCheckoutAsync(userId, checkoutDto);
-
-        if (!result.IsSuccess)
-            return BadRequest(result);
-
-        return Ok(result);
+        return RedirectToAction(nameof(CartController.MyOrders), "Cart");
     }
 
-    [HttpGet("my-orders")]
-    public async Task<ActionResult<IEnumerable<object>>> GetMyOrders(CancellationToken ct = default)
+    public async Task<IActionResult> Details(int id, CancellationToken ct = default)
     {
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId is null) return Unauthorized();
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId is null)
+        {
+            return Unauthorized();
+        }
 
-        var orders = await _context.Orders
-            .Where(o => o.CustomerId == userId)
-            .OrderByDescending(o => o.OrderDate)
-            .Select(o => new
-            {
-                o.Id,
-                o.OrderNumber,
-                o.OrderDate,
-                o.Status,
-                o.GrandTotal,
-                o.ShippingAddress,
-                o.TrackingNumber,
-                o.ShippedAt,
-                o.DeliveredAt,
-                ShopCount = o.ShopOrders.Count,
-                ShopOrders = o.ShopOrders.Select(so => new
-                {
-                    so.Id,
-                    so.VendorOrderNumber,
-                    so.Status,
-                    so.ShopId,
-                    ShopName = so.Shop.Name,
-                    so.TrackingNumber,
-                    so.ShippedAt,
-                    so.DeliveredAt,
-                    ItemCount = so.OrderItems.Count
-                })
-            })
-            .ToListAsync(ct);
+        var order = await _context.Orders
+            .AsNoTracking()
+            .Where(o => o.Id == id && o.CustomerId == userId)
+            .Include(o => o.ShopOrders)
+            .ThenInclude(so => so.Shop)
+            .Include(o => o.ShopOrders)
+            .ThenInclude(so => so.OrderItems)
+            .SingleOrDefaultAsync(ct);
 
-        return Ok(orders);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        return View(order);
     }
 }

@@ -6,80 +6,74 @@
     <title>@ViewData["Title"] - MultiVendor</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MultiVendor.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">MultiVendor</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="BrowseShops">Browse Shops</a>
-                        </li>
-                        @if (User.Identity is { IsAuthenticated: true })
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Shops" asp-action="Create">Create Shop</a>
-                            </li>
-                        }
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity is { IsAuthenticated: true })
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Vendor" asp-controller="Profile" asp-action="Index">Profile</a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    @User.Identity.Name
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="Vendor" asp-controller="Profile" asp-action="Index">Shop Profile</a>
-                                    </li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post" class="px-2">
-                                            <button type="submit" class="btn btn-link dropdown-item">Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
-                        }
-                    </ul>
+    <header class="amazon-header sticky-top">
+        <div class="container-fluid px-3 py-2">
+            <div class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <a class="brand-mark" asp-controller="Home" asp-action="Index">MultiVendor</a>
+                </div>
+                <div class="col-12 col-lg-7">
+                    <form asp-controller="Product" asp-action="Index" method="get" class="search-box">
+                        <input type="search" name="search" class="form-control" placeholder="Search products, shops, categories" value="@Context.Request.Query["search"]" />
+                        <button class="btn btn-warning" type="submit">Search</button>
+                    </form>
+                </div>
+                <div class="col col-lg-3 d-flex justify-content-end gap-2">
+                    <a asp-controller="Cart" asp-action="Index" class="cart-link">
+                        Cart
+                        <span class="badge rounded-pill text-bg-warning text-dark">
+                            @await Component.InvokeAsync("CartCount")
+                        </span>
+                    </a>
                 </div>
             </div>
-        </nav>
+        </div>
+        <div class="border-top border-secondary py-1">
+            <div class="container-fluid px-3 d-flex gap-3 small">
+                <a class="link-light text-decoration-none" asp-controller="Product" asp-action="Index">All</a>
+                <a class="link-light text-decoration-none" asp-controller="Home" asp-action="BrowseShops">Shops</a>
+                <a class="link-light text-decoration-none" asp-controller="Home" asp-action="FollowedFeed">Following</a>
+                <a class="link-light text-decoration-none" asp-controller="Cart" asp-action="MyOrders">Orders</a>
+                @if (User.IsInRole("Vendor") || User.IsInRole("Admin"))
+                {
+                    <a class="link-light text-decoration-none" asp-area="Vendor" asp-controller="Dashboard" asp-action="Index">Seller Central</a>
+                }
+                else
+                {
+                    <a class="link-light text-decoration-none" asp-controller="Shops" asp-action="Create">Sell on MultiVendor</a>
+                }
+            </div>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - MultiVendor
+    <main class="marketplace-bg">
+        <div class="container py-4">
+            @if (TempData["Success"] is not null)
+            {
+                <div class="alert alert-success alert-dismissible fade show">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] is not null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="amazon-footer mt-5 py-4">
+        <div class="container text-center text-light">
+            © 2026 MultiVendor Marketplace
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

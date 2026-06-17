@@ -10,6 +10,12 @@ public class CreateShopDto
 
     [MaxLength(1000)]
     public string? Description { get; set; }
+
+    [MaxLength(500)]
+    public string? LogoUrl { get; set; }
+
+    [MaxLength(500)]
+    public string? BannerUrl { get; set; }
 }
 
 public class UpdateShopDto

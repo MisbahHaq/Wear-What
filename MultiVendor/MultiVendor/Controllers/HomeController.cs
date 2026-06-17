@@ -100,6 +100,20 @@ public class HomeController : Controller
         return View(shops);
     }
 
+    public async Task<IActionResult> FollowedFeed(int page = 1, int pageSize = 24, CancellationToken ct = default)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId is null)
+        {
+            return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("FollowedFeed", "Home") });
+        }
+
+        var products = await _followService.GetFollowedShopsFeedAsync(userId, page, pageSize);
+        ViewBag.CurrentPage = Math.Max(1, page);
+        ViewBag.TotalPages = Math.Max(1, (int)Math.Ceiling(products.Count() / (double)Math.Clamp(pageSize, 1, 48)));
+        return View(products);
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

@@ -2,9 +2,11 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Shop Profile";
+    var shop = Model?.Shop;
+    var products = Model?.Products ?? new List<MultiVendor.DTOs.ProductDto>();
 }
 
-@if (ViewBag.NoShop ?? false)
+@if (ViewBag.NoShop ?? false || shop is null)
 {
     <div class="container-fluid">
         <div class="alert alert-info">
@@ -18,9 +20,9 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <h1>@Model.Shop.Name</h1>
-            <p class="text-muted mb-1">@Model.Shop.Description</p>
-            <small class="text-muted">Created @Model.Shop.CreatedAt:yyyy MMM dd · @Model.Shop.FollowerCount followers · @Model.Shop.ProductCount products</small>
+            <h1>@shop!.Name</h1>
+            <p class="text-muted mb-1">@shop.Description</p>
+            <small class="text-muted">Created @shop.CreatedAt:yyyy MMM dd · @shop.FollowerCount followers · @shop.ProductCount products</small>
         </div>
     </div>
 
@@ -35,7 +37,7 @@
 
     <h3 class="mb-3">Your Products</h3>
 
-    @if (!Model.Products.Any())
+    @if (!products.Any())
     {
         <div class="alert alert-light border">No products yet. Use the form below to add your first product.</div>
     }
@@ -53,7 +55,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var p in Model.Products)
+                @foreach (var p in products)
                 {
                     <tr>
                         <td>@p.Name</td>

@@ -1,0 +1,87 @@
+@model CartViewModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<h1>Shopping Cart</h1>
+
+@if (!Model.Items.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Add products from any shop and checkout once.</p>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-primary">Continue Shopping</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="row align-items-center border-bottom py-3">
+                            <div class="col-md-2">
+                                @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                {
+                                    <img src="@item.CoverImageUrl" class="img-fluid rounded" alt="@item.ProductName" />
+                                }
+                                else
+                                {
+                                    <div class="product-placeholder rounded">No image</div>
+                                }
+                            </div>
+                            <div class="col-md-4">
+                                <h5>@item.ProductName</h5>
+                                <p class="text-muted small mb-0">Sold by @item.ShopName</p>
+                            </div>
+                            <div class="col-md-2">
+                                <form asp-action="Update" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="ProductId" value="@item.ProductId" />
+                                    <input type="number" name="Quantity" value="@item.Quantity" min="1" max="@item.AvailableStock" class="form-control" />
+                                    <button class="btn btn-sm btn-outline-primary mt-2">Update</button>
+                                </form>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <strong>$@item.LineTotal.ToString("F2")</strong>
+                                <div class="small text-muted">$@item.UnitPrice.ToString("F2") each</div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <form asp-action="Remove" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3>Order Summary</h3>
+                    <div class="d-flex justify-content-between">
+                        <span>Items (@Model.ItemCount)</span>
+                        <strong>$@Model.Subtotal.ToString("F2")</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Shipping</span>
+                        <strong>@(Model.Shipping == 0 ? "Free" : $"${Model.Shipping.ToString("F2")}")</strong>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between fs-5">
+                        <strong>Total</strong>
+                        <strong>$@Model.GrandTotal.ToString("F2")</strong>
+                    </div>
+                    <a asp-action="Checkout" class="btn btn-warning w-100 btn-lg mt-3">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
