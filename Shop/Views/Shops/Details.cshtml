@@ -1,0 +1,46 @@
+@model Shop.Models.ShopItem
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<h1>@Model.Name</h1>
+
+<p>@Model.Description</p>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <p>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+        <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Add Product</a>
+    </p>
+}
+
+@if (Model.Products?.Any() == true)
+{
+    <h3>Products</h3>
+    <div class="row">
+        @foreach (var product in Model.Products!)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@product.Description</p>
+                        <p class="card-text"><strong>$@product.Price.ToString("0.00")</strong></p>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No products in this shop yet.</p>
+}

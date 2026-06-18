@@ -1,0 +1,24 @@
+@model Shop.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<h1>@Model.Name</h1>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Description</h5>
+        <p class="card-text">@Model.Description</p>
+        <h5 class="card-title">Price</h5>
+        <p class="card-text"><strong>$@Model.Price.ToString("0.00")</strong></p>
+        <h5 class="card-title">Shop</h5>
+        <p class="card-text">@Model.Shop?.Name</p>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+        }
+        <a asp-action="Index" class="btn btn-secondary">Back to Products</a>
+    </div>
+</div>
