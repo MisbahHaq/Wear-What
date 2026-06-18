@@ -48,10 +48,10 @@
     
     <div class="col-md-6">
         <h3>Your Shops</h3>
-        @if (Model.Shops.Any())
+        @if ((Model?.Shops?.Any() ?? false))
         {
             <div class="list-group">
-                @foreach (var shop in Model.Shops)
+                @foreach (var shop in Model!.Shops!)
                 {
                     <div class="list-group-item">
                         <h5>@shop.Name</h5>
@@ -66,22 +66,33 @@
             <p>You have no shops yet. <a asp-controller="Shops" asp-action="Create">Create one now</a>.</p>
         }
     </div>
-    
-    <div class="col-md-6">
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
         <h3>Your Wishlist</h3>
-        @if (Model.WishlistItems.Any())
+        @if ((Model?.WishlistItems?.Any() ?? false))
         {
-            <div class="list-group">
-                @foreach (var item in Model.WishlistItems)
+            <div class="row">
+                @foreach (var item in Model!.WishlistItems!)
                 {
-                    <div class="list-group-item">
-                        <h5>@item.Product?.Name</h5>
-                        <p class="mb-1">$@item.Product?.Price.ToString("0.00")</p>
-                        <p class="mb-1"><small>From: @item.Product?.Shop?.Name</small></p>
-                        <form asp-controller="Wishlist" asp-action="Remove" method="post" class="d-inline">
-                            <input type="hidden" name="productId" value="@item.ProductId" />
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
-                        </form>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
+                            {
+                                <img src="@item.Product.ImageUrl1" class="card-img-top" alt="@item.Product.Name" style="height: 200px; object-fit: cover;" />
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Product?.Name</h5>
+                                <p class="card-text"><strong>$@item.Product?.Price.ToString("0.00")</strong></p>
+                                <p class="card-text"><small>From: @item.Product?.Shop?.Name</small></p>
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary">View</a>
+                                <form asp-controller="Wishlist" asp-action="Remove" method="post" class="d-inline" asp-antiforgery="true">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 }
             </div>

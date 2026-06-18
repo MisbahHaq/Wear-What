@@ -70,6 +70,11 @@ namespace Shop.Controllers
 
             model.Email = user.Email;
             model.Shops = await _context.Shops.Where(s => s.OwnerId == user.Id).ToListAsync();
+            model.WishlistItems = await _context.WishlistItems
+                .Include(w => w.Product)
+                .ThenInclude(p => p!.Shop)
+                .Where(w => w.UserId == user.Id)
+                .ToListAsync();
             return View(model);
         }
 

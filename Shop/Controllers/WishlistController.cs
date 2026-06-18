@@ -42,6 +42,7 @@ namespace Shop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(int productId, string? returnUrl = null)
         {
             var userId = GetCurrentUserId();
@@ -59,6 +60,7 @@ namespace Shop.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(int productId, string? returnUrl = null)
         {
             var userId = GetCurrentUserId();

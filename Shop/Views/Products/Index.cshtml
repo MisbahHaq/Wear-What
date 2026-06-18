@@ -17,11 +17,23 @@
 @foreach (var item in Model) {
     <div class="col-md-4 mb-4">
         <div class="card">
+            @if (!string.IsNullOrEmpty(item.ImageUrl1))
+            {
+                <img src="@item.ImageUrl1" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;" />
+            }
             <div class="card-body">
                 <h5 class="card-title">@item.Name</h5>
                 <p class="card-text">@item.Description</p>
                 <p class="card-text"><strong>$@item.Price.ToString("0.00")</strong></p>
-                <p class="card-text"><small class="text-muted">Shop: @item.Shop?.Name</small></p>
+                @if (!string.IsNullOrEmpty(item.Category))
+                {
+                    <p class="card-text"><small class="text-muted">Category: @item.Category</small></p>
+                }
+                @if (!string.IsNullOrEmpty(item.Niche))
+                {
+                    <p class="card-text"><small class="text-muted">Niche: @item.Niche</small></p>
+                }
+                <p class="card-text"><small class="text-muted">Shop: <a asp-controller="Shops" asp-action="Details" asp-route-id="@item.ShopId">@item.Shop?.Name</a></small></p>
                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
             </div>
         </div>

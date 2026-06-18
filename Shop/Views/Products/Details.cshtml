@@ -7,26 +7,65 @@
 
 <h1>@Model.Name</h1>
 
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Description</h5>
-        <p class="card-text">@Model.Description</p>
-        <h5 class="card-title">Price</h5>
-        <p class="card-text"><strong>$@Model.Price.ToString("0.00")</strong></p>
-        <h5 class="card-title">Shop</h5>
-        <p class="card-text">@Model.Shop?.Name</p>
-        @if (Model.Shop?.OwnerId == currentUserId)
+@if (!string.IsNullOrEmpty(Model.Category))
+{
+    <p><strong>Category:</strong> @Model.Category</p>
+}
+@if (!string.IsNullOrEmpty(Model.Niche))
+{
+    <p><strong>Niche:</strong> @Model.Niche</p>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl1))
         {
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+            <img src="@Model.ImageUrl1" class="img-fluid mb-2" alt="Product Image 1" />
         }
-        else if (currentUserId != null)
+        @if (!string.IsNullOrEmpty(Model.ImageUrl2))
         {
-            <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline">
-                <input type="hidden" name="productId" value="@Model.Id" />
-                <button type="submit" class="btn btn-outline-primary">Add to Wishlist</button>
-            </form>
+            <img src="@Model.ImageUrl2" class="img-fluid mb-2" alt="Product Image 2" />
         }
-        <a asp-action="Index" class="btn btn-secondary">Back to Products</a>
+        @if (!string.IsNullOrEmpty(Model.ImageUrl3))
+        {
+            <img src="@Model.ImageUrl3" class="img-fluid mb-2" alt="Product Image 3" />
+        }
+        @if (!string.IsNullOrEmpty(Model.ImageUrl4))
+        {
+            <img src="@Model.ImageUrl4" class="img-fluid mb-2" alt="Product Image 4" />
+        }
+        @if (!string.IsNullOrEmpty(Model.ImageUrl5))
+        {
+            <img src="@Model.ImageUrl5" class="img-fluid mb-2" alt="Product Image 5" />
+        }
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Description</h5>
+                <p class="card-text">@Model.Description</p>
+                <h5 class="card-title">Price</h5>
+                <p class="card-text"><strong>$@Model.Price.ToString("0.00")</strong></p>
+                <h5 class="card-title">Shop</h5>
+                <p class="card-text"><a asp-controller="Shops" asp-action="Details" asp-route-id="@Model.ShopId">@Model.Shop?.Name</a></p>
+                @if (Model.Shop?.OwnerId == currentUserId)
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
+                }
+                else if (currentUserId != null)
+                {
+                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline" asp-antiforgery="true">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-outline-primary">Add to Wishlist</button>
+                    </form>
+                }
+                <a asp-action="Index" class="btn btn-secondary">Back to Products</a>
+            </div>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

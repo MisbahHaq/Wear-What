@@ -63,7 +63,7 @@ namespace Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,ShopId")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
@@ -101,7 +101,7 @@ namespace Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,ShopId")] Product product)
+        public async Task<IActionResult> Edit(int id, Product product)
         {
             if (id != product.Id) return NotFound();
 
@@ -156,6 +156,8 @@ namespace Shop.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
+                var wishlistItems = _context.WishlistItems.Where(w => w.ProductId == product.Id);
+                _context.WishlistItems.RemoveRange(wishlistItems);
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
             }

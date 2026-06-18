@@ -118,9 +118,16 @@ namespace Shop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var shop = await _context.Shops.FindAsync(id);
+            var shop = await _context.Shops
+                .Include(s => s.Products)
+                .FirstOrDefaultAsync(s => s.Id == id);
             if (shop != null)
             {
+                foreach (var product in shop.Products)
+                {
+                    var wishlistItems = _context.WishlistItems.Where(w => w.ProductId == product.Id);
+                    _context.WishlistItems.RemoveRange(wishlistItems);
+                }
                 _context.Shops.Remove(shop);
                 await _context.SaveChangesAsync();
             }
