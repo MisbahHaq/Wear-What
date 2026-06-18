@@ -14,9 +14,16 @@ namespace Shop.Data
 
             await context.Database.MigrateAsync();
 
-            if (!await roleManager.RoleExistsAsync("Admin"))
+            try
             {
-                await roleManager.CreateAsync(new IdentityRole("Admin"));
+                if (!await roleManager.RoleExistsAsync("Admin"))
+                {
+                    await roleManager.CreateAsync(new IdentityRole("Admin"));
+                }
+            }
+            catch
+            {
+                // Roles table may not exist yet in fresh DB - will be created on next request
             }
         }
     }
