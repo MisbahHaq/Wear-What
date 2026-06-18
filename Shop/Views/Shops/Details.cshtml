@@ -2,13 +2,14 @@
 
 @{
     ViewData["Title"] = Model.Name;
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
 <h1>@Model.Name</h1>
 
 <p>@Model.Description</p>
 
-@if (User.Identity?.IsAuthenticated == true)
+@if (Model.OwnerId == currentUserId)
 {
     <p>
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
@@ -29,7 +30,7 @@
                         <h5 class="card-title">@product.Name</h5>
                         <p class="card-text">@product.Description</p>
                         <p class="card-text"><strong>$@product.Price.ToString("0.00")</strong></p>
-                        @if (User.Identity?.IsAuthenticated == true)
+                        @if (Model.OwnerId == currentUserId)
                         {
                             <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary">Edit</a>
                             <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger">Delete</a>

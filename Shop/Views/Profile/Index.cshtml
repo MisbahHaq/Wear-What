@@ -1,0 +1,73 @@
+@model Shop.Models.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<h1>Profile</h1>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">@ViewBag.Message</div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Account Information</h3>
+        <form asp-action="Index">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label asp-for="FullName" class="control-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label"></label>
+                <input asp-for="Address" class="form-control" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" value="Save Changes" class="btn btn-primary" />
+            </div>
+        </form>
+        
+        <hr />
+        
+        <h3>Change Password</h3>
+        <a asp-action="ChangePassword" class="btn btn-warning">Change Password</a>
+        
+        <hr />
+        
+        <h3>Delete Account</h3>
+        <a asp-action="DeleteAccount" class="btn btn-danger">Delete Account</a>
+    </div>
+    
+    <div class="col-md-6">
+        <h3>Your Shops</h3>
+        @if (Model.Shops.Any())
+        {
+            <div class="list-group">
+                @foreach (var shop in Model.Shops)
+                {
+                    <div class="list-group-item">
+                        <h5>@shop.Name</h5>
+                        <p class="mb-1">@shop.Description</p>
+                        <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-outline-primary">View Products</a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>You have no shops yet. <a asp-controller="Shops" asp-action="Create">Create one now</a>.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

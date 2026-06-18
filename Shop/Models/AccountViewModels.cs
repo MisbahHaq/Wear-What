@@ -15,4 +15,19 @@ namespace Shop.Models
         public string FullName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
     }
+
+    public class ProfileViewModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public List<ShopItem> Shops { get; set; } = new();
+    }
+
+    public class ChangePasswordViewModel
+    {
+        public string CurrentPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
 }

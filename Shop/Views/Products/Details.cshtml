@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = Model.Name;
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
 <h1>@Model.Name</h1>
@@ -14,7 +15,7 @@
         <p class="card-text"><strong>$@Model.Price.ToString("0.00")</strong></p>
         <h5 class="card-title">Shop</h5>
         <p class="card-text">@Model.Shop?.Name</p>
-        @if (User.Identity?.IsAuthenticated == true)
+        @if (Model.Shop?.OwnerId == currentUserId)
         {
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
             <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
