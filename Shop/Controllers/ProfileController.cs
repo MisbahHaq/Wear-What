@@ -31,7 +31,12 @@ namespace Shop.Controllers
                 Email = user.Email,
                 FullName = user.FullName,
                 Address = user.Address,
-                Shops = await _context.Shops.Where(s => s.OwnerId == user.Id).ToListAsync()
+                Shops = await _context.Shops.Where(s => s.OwnerId == user.Id).ToListAsync(),
+                WishlistItems = await _context.WishlistItems
+                    .Include(w => w.Product)
+                    .ThenInclude(p => p!.Shop)
+                    .Where(w => w.UserId == user.Id)
+                    .ToListAsync()
             };
 
             return View(viewModel);

@@ -20,6 +20,13 @@
             <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
             <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
         }
+        else if (currentUserId != null)
+        {
+            <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline">
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <button type="submit" class="btn btn-outline-primary">Add to Wishlist</button>
+            </form>
+        }
         <a asp-action="Index" class="btn btn-secondary">Back to Products</a>
     </div>
 </div>

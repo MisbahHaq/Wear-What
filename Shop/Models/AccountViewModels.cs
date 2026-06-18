@@ -22,6 +22,7 @@ namespace Shop.Models
         public string FullName { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public List<ShopItem> Shops { get; set; } = new();
+        public List<WishlistItem> WishlistItems { get; set; } = new();
     }
 
     public class ChangePasswordViewModel

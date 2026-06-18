@@ -66,6 +66,31 @@
             <p>You have no shops yet. <a asp-controller="Shops" asp-action="Create">Create one now</a>.</p>
         }
     </div>
+    
+    <div class="col-md-6">
+        <h3>Your Wishlist</h3>
+        @if (Model.WishlistItems.Any())
+        {
+            <div class="list-group">
+                @foreach (var item in Model.WishlistItems)
+                {
+                    <div class="list-group-item">
+                        <h5>@item.Product?.Name</h5>
+                        <p class="mb-1">$@item.Product?.Price.ToString("0.00")</p>
+                        <p class="mb-1"><small>From: @item.Product?.Shop?.Name</small></p>
+                        <form asp-controller="Wishlist" asp-action="Remove" method="post" class="d-inline">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>Your wishlist is empty. <a asp-controller="Products" asp-action="Index">Browse products to add</a>.</p>
+        }
+    </div>
 </div>
 
 @section Scripts {
