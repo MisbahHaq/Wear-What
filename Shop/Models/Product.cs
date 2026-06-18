@@ -15,5 +15,6 @@ namespace Shop.Models
         public string ImageUrl5 { get; set; } = string.Empty;
         public int ShopId { get; set; }
         public ShopItem? Shop { get; set; }
+        public List<ProductComment> Comments { get; set; } = new();
     }
 }

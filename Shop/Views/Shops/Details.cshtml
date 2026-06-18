@@ -17,6 +17,13 @@
         <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Add Product</a>
     </p>
 }
+else if (currentUserId != null)
+{
+    <form asp-controller="ShopFollow" asp-action="Follow" method="post" class="d-inline">
+        <input type="hidden" name="shopId" value="@Model.Id" />
+        <button type="submit" class="btn btn-outline-primary">Follow Shop</button>
+    </form>
+}
 
 @if (Model.Products?.Any() == true)
 {

@@ -103,6 +103,7 @@ namespace Shop.Controllers
             if (id == null) return NotFound();
 
             var shop = await _context.Shops
+                .Include(s => s.Products)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (shop == null) return NotFound();
 
@@ -120,11 +121,13 @@ namespace Shop.Controllers
         {
             var shop = await _context.Shops
                 .Include(s => s.Products)
+                .ThenInclude(p => p.Comments)
                 .FirstOrDefaultAsync(s => s.Id == id);
             if (shop != null)
             {
                 foreach (var product in shop.Products)
                 {
+                    _context.ProductComments.RemoveRange(product.Comments);
                     var wishlistItems = _context.WishlistItems.Where(w => w.ProductId == product.Id);
                     _context.WishlistItems.RemoveRange(wishlistItems);
                 }

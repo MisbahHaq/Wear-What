@@ -46,6 +46,8 @@ namespace Shop.Controllers
 
             var product = await _context.Products
                 .Include(p => p.Shop)
+                .Include(p => p.Comments!)
+                .ThenInclude(c => c.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null) return NotFound();
 
@@ -153,9 +155,12 @@ namespace Shop.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Comments)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (product != null)
             {
+                _context.ProductComments.RemoveRange(product.Comments);
                 var wishlistItems = _context.WishlistItems.Where(w => w.ProductId == product.Id);
                 _context.WishlistItems.RemoveRange(wishlistItems);
                 _context.Products.Remove(product);

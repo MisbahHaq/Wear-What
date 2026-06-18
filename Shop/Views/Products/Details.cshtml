@@ -66,6 +66,50 @@
     </div>
 </div>
 
+@if (Model.Comments.Any())
+{
+    <hr />
+    <h3>Reviews</h3>
+    <div class="list-group">
+        @foreach (var comment in Model.Comments!)
+        {
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <h5>@comment.User?.FullName</h5>
+                    <span class="text-warning">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= comment.Rating)
+                            {
+                                <span>&#9733;</span>
+                            }
+                            else
+                            {
+                                <span>&#9734;</span>
+                            }
+                        }
+                    </span>
+                </div>
+                <p class="mb-1">@comment.Content</p>
+                <small class="text-muted">@comment.CreatedAt.ToString("g")</small>
+                @if (comment.UserId == currentUserId)
+                {
+                    <div class="mt-2">
+                        <a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a asp-controller="Comments" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@if (currentUserId != null)
+{
+    <hr />
+    <a asp-controller="Comments" asp-action="Create" asp-route-productId="@Model.Id" class="btn btn-primary">Add Review</a>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

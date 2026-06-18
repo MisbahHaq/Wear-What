@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Shop.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -188,6 +188,13 @@ namespace Shop.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Niche = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl1 = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl2 = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl3 = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl4 = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl5 = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ShopId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -199,6 +206,83 @@ namespace Shop.Migrations
                         principalTable: "Shops",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShopFollows",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ShopId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShopFollows", x => new { x.UserId, x.ShopId });
+                    table.ForeignKey(
+                        name: "FK_ShopFollows_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ShopFollows_Shops_ShopId",
+                        column: x => x.ShopId,
+                        principalTable: "Shops",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductComments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductComments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductComments_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductComments_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WishlistItems",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WishlistItems", x => new { x.UserId, x.ProductId });
+                    table.ForeignKey(
+                        name: "FK_WishlistItems_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WishlistItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -241,14 +325,34 @@ namespace Shop.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductComments_ProductId",
+                table: "ProductComments",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductComments_UserId",
+                table: "ProductComments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_ShopId",
                 table: "Products",
+                column: "ShopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShopFollows_ShopId",
+                table: "ShopFollows",
                 column: "ShopId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shops_OwnerId",
                 table: "Shops",
                 column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WishlistItems_ProductId",
+                table: "WishlistItems",
+                column: "ProductId");
         }
 
         /// <inheritdoc />
@@ -270,10 +374,19 @@ namespace Shop.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "ProductComments");
+
+            migrationBuilder.DropTable(
+                name: "ShopFollows");
+
+            migrationBuilder.DropTable(
+                name: "WishlistItems");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Shops");

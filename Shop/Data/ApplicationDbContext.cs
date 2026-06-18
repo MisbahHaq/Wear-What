@@ -15,6 +15,8 @@ namespace Shop.Data
         public DbSet<ShopItem> Shops { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
+        public DbSet<ShopFollow> ShopFollows { get; set; }
+        public DbSet<ProductComment> ProductComments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -31,6 +33,22 @@ namespace Shop.Data
                 .HasOne(w => w.Product)
                 .WithMany()
                 .HasForeignKey(w => w.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ShopFollow>()
+                .HasKey(f => new { f.UserId, f.ShopId });
+
+            builder.Entity<ShopFollow>()
+                .HasOne(f => f.Shop)
+                .WithMany()
+                .HasForeignKey(f => f.ShopId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ProductComment>()
+                .HasOne(c => c.Product)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.ProductId)
+                .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

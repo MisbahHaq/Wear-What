@@ -12,8 +12,8 @@ using Shop.Data;
 namespace Shop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260618060956_AddProductFields")]
-    partial class AddProductFields
+    [Migration("20260618065302_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -288,6 +288,55 @@ namespace Shop.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Shop.Models.ProductComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ProductComments");
+                });
+
+            modelBuilder.Entity("Shop.Models.ShopFollow", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ShopId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "ShopId");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("ShopFollows");
+                });
+
             modelBuilder.Entity("Shop.Models.ShopItem", b =>
                 {
                     b.Property<int>("Id")
@@ -392,6 +441,44 @@ namespace Shop.Migrations
                     b.Navigation("Shop");
                 });
 
+            modelBuilder.Entity("Shop.Models.ProductComment", b =>
+                {
+                    b.HasOne("Shop.Models.Product", "Product")
+                        .WithMany("Comments")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Shop.Models.ShopFollow", b =>
+                {
+                    b.HasOne("Shop.Models.ShopItem", "Shop")
+                        .WithMany()
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Shop");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Shop.Models.ShopItem", b =>
                 {
                     b.HasOne("Shop.Models.ApplicationUser", "Owner")
@@ -420,6 +507,11 @@ namespace Shop.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Shop.Models.Product", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("Shop.Models.ShopItem", b =>
