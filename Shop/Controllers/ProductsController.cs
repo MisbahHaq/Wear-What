@@ -29,18 +29,13 @@ namespace Shop.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(int? shopId, int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId)
         {
             var query = _context.Products.Include(p => p.Shop).Include(p => p.Category).AsQueryable();
-            if (shopId.HasValue)
-                query = query.Where(p => p.ShopId == shopId.Value);
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
             
             var products = await query.ToListAsync();
-            var shops = await _context.Shops.ToListAsync();
-            ViewBag.Shops = shops;
-            ViewBag.SelectedShopId = shopId;
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", categoryId);
             return View(products);
         }
@@ -65,7 +60,11 @@ namespace Shop.Controllers
             var userName = GetCurrentUserName();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             var currentUserId = user?.Id ?? string.Empty;
-            ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId), "Id", "Name");
+            var shop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == currentUserId);
+            if (shop != null)
+            {
+                ViewBag.ShopId = shop.Id;
+            }
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name");
             return View();
         }
@@ -76,6 +75,21 @@ namespace Shop.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (product.ShopId == 0)
+                {
+                    var userName = GetCurrentUserName();
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+                    var userId = user?.Id ?? string.Empty;
+                    var userShop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == userId);
+                    if (userShop == null)
+                    {
+                        ModelState.AddModelError("", "You must create a shop before adding products.");
+                        ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name");
+                        return View(product);
+                    }
+                    product.ShopId = userShop.Id;
+                }
+
                 var shop = await _context.Shops.FindAsync(product.ShopId);
                 var currentUserId = GetCurrentUserId();
                 if (shop?.OwnerId != currentUserId)
@@ -86,10 +100,6 @@ namespace Shop.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            var userName = GetCurrentUserName();
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
-            var currentUserId2 = user?.Id ?? string.Empty;
-            ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId2), "Id", "Name", product.ShopId);
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
             return View(product);
         }
@@ -108,7 +118,6 @@ namespace Shop.Controllers
                 return Forbid();
             }
 
-            ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId), "Id", "Name", product.ShopId);
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
             return View(product);
         }
@@ -153,7 +162,6 @@ namespace Shop.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId), "Id", "Name", product.ShopId);
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
             return View(product);
         }

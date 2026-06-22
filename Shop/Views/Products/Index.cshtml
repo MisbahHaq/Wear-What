@@ -15,16 +15,6 @@
 
 <form asp-action="Index" method="get" class="row g-3 mb-4">
     <div class="col-auto">
-        <label for="shopId" class="form-label">Shop</label>
-        <select name="shopId" id="shopId" class="form-select" onchange="this.form.submit()">
-            <option value="">-- All Shops --</option>
-            @foreach (var shop in ViewBag.Shops as IEnumerable<Shop.Models.ShopItem> ?? Enumerable.Empty<Shop.Models.ShopItem>())
-            {
-                <option value="@shop.Id" selected="@(ViewBag.SelectedShopId != null && ViewBag.SelectedShopId == shop.Id)">@shop.Name</option>
-            }
-        </select>
-    </div>
-    <div class="col-auto">
         <label for="categoryId" class="form-label">Category</label>
         <select name="categoryId" id="categoryId" class="form-select" onchange="this.form.submit()">
             <option value="">-- All Categories --</option>
