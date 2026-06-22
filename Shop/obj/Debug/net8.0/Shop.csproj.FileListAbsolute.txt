@@ -141,3 +141,4 @@ C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\refint\Shop.dll
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\Shop.pdb
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\Shop.genruntimeconfig.cache
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\ref\Shop.dll
+C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\scopedcss\Components\BentoGrid.razor.rz.scp.css

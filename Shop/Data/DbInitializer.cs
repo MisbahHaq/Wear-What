@@ -36,8 +36,9 @@ namespace Shop.Data
                     await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"DbInitializer error: {ex.Message}");
             }
         }
     }

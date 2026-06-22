@@ -1,0 +1,42 @@
+@model IEnumerable<Shop.Models.WishlistItem>
+
+@{
+    ViewData["Title"] = "My Wishlist";
+}
+
+<h1>My Wishlist</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Your wishlist is empty. <a asp-controller="Products" asp-action="Index">Browse products</a> to add items.</div>
+}
+else
+{
+    <div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ImageUrl1))
+                {
+                    <img src="@item.Product.ImageUrl1" class="card-img-top" alt="@item.Product.Name" style="height: 200px; object-fit: cover;" />
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@item.Product?.Name ?? "Unknown Product"</h5>
+                    <p class="card-text"><strong>$@item.Product?.Price.ToString("0.00")</strong></p>
+                    <p class="card-text"><small class="text-muted">Shop: <a asp-controller="Shops" asp-action="Details" asp-route-id="@item.Product?.ShopId">@item.Product?.Shop?.Name</a></small></p>
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary">View Details</a>
+                    <form asp-controller="Wishlist" asp-action="Remove" method="post" class="d-inline" asp-antiforgery="true">
+                        <input type="hidden" name="productId" value="@item.ProductId" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

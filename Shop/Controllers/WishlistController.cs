@@ -24,12 +24,14 @@ namespace Shop.Controllers
             return User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
 
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> Index(int? productId)
         {
+            var userId = GetCurrentUserId();
             var query = _context.WishlistItems
                 .Include(w => w.Product)
                 .ThenInclude(p => p!.Shop)
+                .Where(w => w.UserId == userId)
                 .AsQueryable();
 
             if (productId.HasValue)

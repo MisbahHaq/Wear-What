@@ -28,7 +28,7 @@ namespace Shop.Controllers
 
             var viewModel = new ProfileViewModel
             {
-                Email = user.Email,
+                Email = user.Email ?? string.Empty,
                 FullName = user.FullName,
                 Address = user.Address,
                 Shops = await _context.Shops.Where(s => s.OwnerId == user.Id).ToListAsync(),
@@ -68,7 +68,7 @@ namespace Shop.Controllers
                 }
             }
 
-            model.Email = user.Email;
+            model.Email = user.Email ?? string.Empty;
             model.Shops = await _context.Shops.Where(s => s.OwnerId == user.Id).ToListAsync();
             model.WishlistItems = await _context.WishlistItems
                 .Include(w => w.Product)
