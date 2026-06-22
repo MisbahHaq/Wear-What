@@ -24,7 +24,8 @@
                 <div class="d-flex align-items-center gap-3">
                     @if (User?.Identity?.IsAuthenticated == true)
                     {
-                        <a class="nav-link d-none d-sm-inline" asp-controller="Profile" asp-action="Index">Hello, @User.Identity.Name</a>
+                        var fullName = User.FindFirst("FullName")?.Value ?? User.Identity.Name ?? "";
+                        <a class="nav-link d-none d-sm-inline">@fullName</a>
                         <a class="nav-link" asp-controller="Wishlist" asp-action="Index">Wishlist</a>
                         <a class="nav-link" asp-controller="Orders" asp-action="Dashboard">Orders</a>
                         <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
@@ -41,17 +42,6 @@
             </div>
         </nav>
 
-        <div class="category-strip">
-            <div class="container d-flex gap-2 flex-wrap">
-                <a class="nav-link" asp-controller="Home" asp-action="Index">All</a>
-                <a class="nav-link" asp-controller="Products" asp-action="Index">Products</a>
-                <a class="nav-link" asp-controller="Shops" asp-action="Index">Shops</a>
-                @if (User != null && User.IsInRole("Admin"))
-                {
-                    <a class="nav-link" asp-controller="Categories" asp-action="Index">Categories</a>
-                }
-            </div>
-        </div>
     </header>
 
     <div class="container" style="max-width: 1400px;">

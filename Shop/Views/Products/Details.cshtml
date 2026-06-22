@@ -5,17 +5,6 @@
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
-<h1>@Model.Name</h1>
-
-@if (Model.Category != null)
-{
-    <p class="detail-meta"><strong>Category:</strong> @Model.Category.Name</p>
-}
-@if (!string.IsNullOrEmpty(Model.Niche))
-{
-    <p class="detail-meta"><strong>Niche:</strong> @Model.Niche</p>
-}
-
 <div class="row">
     <div class="col-md-6">
         @if (!string.IsNullOrEmpty(Model.ImageUrl1))
@@ -44,14 +33,19 @@
             <div class="card-body">
                 <h5 class="card-title">Description</h5>
                 <p class="card-text">@Model.Description</p>
+
                 <h5 class="card-title">Price</h5>
                 <p class="detail-price">$@Model.Price.ToString("0.00")</p>
+
                 <h5 class="card-title">Shop</h5>
                 <p class="card-text"><a asp-controller="Shops" asp-action="Details" asp-route-id="@Model.ShopId">@Model.Shop?.Name</a></p>
+
                 @if (Model.Shop?.OwnerId == currentUserId)
                 {
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete</a>
+                    <div class="d-flex gap-2 mt-3">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete</a>
+                    </div>
                 }
                 else if (currentUserId != null)
                 {
@@ -68,7 +62,7 @@
                         <button type="submit" class="btn btn-primary">Place Order</button>
                     </form>
                 }
-                <a asp-action="Index" class="btn btn-outline-secondary">Back to Products</a>
+                <a asp-action="Index" class="btn btn-outline-secondary mt-3">Back to Products</a>
             </div>
         </div>
     </div>
