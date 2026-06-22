@@ -25,6 +25,13 @@ namespace Shop.Models
         public List<WishlistItem> WishlistItems { get; set; } = new();
     }
 
+    public class OwnerDashboardViewModel
+    {
+        public List<ShopItem> Shops { get; set; } = new();
+        public List<OrderItem> OrderItems { get; set; } = new();
+        public decimal TotalSales { get; set; }
+    }
+
     public class ChangePasswordViewModel
     {
         public string CurrentPassword { get; set; } = string.Empty;

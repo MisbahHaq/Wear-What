@@ -52,6 +52,9 @@ namespace Shop.Controllers
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null) return NotFound();
 
+            var currentUserId = GetCurrentUserId();
+            ViewBag.IsWishlisted = currentUserId != null && await _context.WishlistItems.AnyAsync(w => w.UserId == currentUserId && w.ProductId == product.Id);
+
             return View(product);
         }
 

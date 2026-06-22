@@ -55,9 +55,17 @@
                 }
                 else if (currentUserId != null)
                 {
-                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline" asp-antiforgery="true">
+                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline mb-2" asp-antiforgery="true">
                         <input type="hidden" name="productId" value="@Model.Id" />
                         <button type="submit" class="btn btn-outline-primary">Add to Wishlist</button>
+                    </form>
+                    <form asp-controller="Orders" asp-action="Create" method="post" class="mt-2" asp-antiforgery="true">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <div class="mb-2">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" max="100" style="width: 100px;" />
+                        </div>
+                        <button type="submit" class="btn btn-success">Place Order</button>
                     </form>
                 }
                 <a asp-action="Index" class="btn btn-secondary">Back to Products</a>

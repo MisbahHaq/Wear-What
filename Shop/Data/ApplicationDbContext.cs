@@ -18,6 +18,8 @@ namespace Shop.Data
         public DbSet<WishlistItem> WishlistItems { get; set; }
         public DbSet<ShopFollow> ShopFollows { get; set; }
         public DbSet<ProductComment> ProductComments { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -51,6 +53,34 @@ namespace Shop.Data
                 .HasForeignKey(c => c.ProductId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Order>()
+                .Property(o => o.TotalAmount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<OrderItem>()
+                .Property(i => i.UnitPrice)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<OrderItem>()
+                .HasOne(i => i.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(i => i.OrderId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<OrderItem>()
+                .HasOne(i => i.Product)
+                .WithMany()
+                .HasForeignKey(i => i.ProductId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany()
+                .HasForeignKey(o => o.CustomerId)
+                .IsRequired();
 
             builder.Entity<Product>()
                 .HasOne(p => p.Category)
