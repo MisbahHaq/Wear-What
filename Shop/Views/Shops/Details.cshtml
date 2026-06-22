@@ -5,25 +5,111 @@
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 }
 
-<h1>@Model.Name</h1>
-
-<p>@Model.Description</p>
-
-@if (Model.OwnerId == currentUserId)
-{
-    <p>
+<div class="shop-profile">
+    @if (!string.IsNullOrEmpty(Model.ProfileBannerUrl))
+    {
+        <div class="shop-banner">
+            <img src="@Model.ProfileBannerUrl" alt="Shop banner" class="img-fluid w-100" style="max-height: 250px; object-fit: cover;" />
+        </div>
+    }
+    <div class="shop-header @(string.IsNullOrEmpty(Model.ProfileBannerUrl) ? "no-banner" : "")">
+        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+        {
+            <img src="@Model.ProfileImageUrl" alt="@Model.Name profile" class="shop-profile-image" />
+        }
+        else
+        {
+            <div class="shop-profile-image-placeholder">@Model.Name[0]</div>
+        }
+        <h1 class="shop-name">@Model.Name</h1>
+    </div>
+    <p class="shop-description">@Model.Description</p>
+<div class="shop-actions">
+    @if (Model.OwnerId == currentUserId)
+    {
         <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Delete</a>
         <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Add Product</a>
-    </p>
-}
-else if (currentUserId != null)
+        <a asp-controller="Categories" asp-action="Index" asp-route-shopId="@Model.Id" class="btn btn-outline-secondary">Manage Categories</a>
+    }
+    else if (currentUserId != null)
+    {
+        <form asp-controller="ShopFollow" asp-action="Follow" method="post" class="d-inline">
+            <input type="hidden" name="shopId" value="@Model.Id" />
+            <button type="submit" class="btn btn-outline-primary">Follow Shop</button>
+        </form>
+    }
+</div>
+
+@if (Model.Products?.Any() == true)
 {
-    <form asp-controller="ShopFollow" asp-action="Follow" method="post" class="d-inline">
-        <input type="hidden" name="shopId" value="@Model.Id" />
-        <button type="submit" class="btn btn-outline-primary">Follow Shop</button>
-    </form>
+    var grouped = Model.Products!.Where(p => p.Category != null).GroupBy(p => p.Category!).OrderBy(g => g.Key!.Name).ToList();
+    var uncategorized = Model.Products!.Where(p => p.Category == null).ToList();
+
+    if (grouped.Any())
+    {
+        @foreach (var group in grouped)
+        {
+            <h3>@group.Key!.Name</h3>
+            <div class="row">
+                @foreach (var product in group)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text">@product.Description</p>
+                                <p class="card-text"><strong>$@product.Price.ToString("0.00")</strong></p>
+                                @if (Model.OwnerId == currentUserId)
+                                {
+                                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+
+    if (uncategorized.Any())
+    {
+        <h3>Uncategorized</h3>
+        <div class="row">
+            @foreach (var product in uncategorized)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text">@product.Description</p>
+                            <p class="card-text"><strong>$@product.Price.ToString("0.00")</strong></p>
+                            @if (Model.OwnerId == currentUserId)
+                            {
+                                <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
 }
+else
+{
+    <p>No products in this shop yet.</p>
+}
+        else if (currentUserId != null)
+        {
+            <form asp-controller="ShopFollow" asp-action="Follow" method="post" class="d-inline">
+                <input type="hidden" name="shopId" value="@Model.Id" />
+                <button type="submit" class="btn btn-outline-primary">Follow Shop</button>
+            </form>
+        }
+    </div>
+</div>
 
 @if (Model.Products?.Any() == true)
 {

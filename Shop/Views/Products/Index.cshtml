@@ -13,6 +13,29 @@
     </p>
 }
 
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-auto">
+        <label for="shopId" class="form-label">Shop</label>
+        <select name="shopId" id="shopId" class="form-select" onchange="this.form.submit()">
+            <option value="">-- All Shops --</option>
+            @foreach (var shop in ViewBag.Shops as IEnumerable<Shop.Models.ShopItem> ?? Enumerable.Empty<Shop.Models.ShopItem>())
+            {
+                <option value="@shop.Id" selected="@(ViewBag.SelectedShopId != null && ViewBag.SelectedShopId == shop.Id)">@shop.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <label for="categoryId" class="form-label">Category</label>
+        <select name="categoryId" id="categoryId" class="form-select" onchange="this.form.submit()">
+            <option value="">-- All Categories --</option>
+            @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
+            {
+                <option value="@cat.Value" selected="@cat.Selected">@cat.Text</option>
+            }
+        </select>
+    </div>
+</form>
+
 <div class="row">
 @foreach (var item in Model) {
     <div class="col-md-4 mb-4">
@@ -25,9 +48,9 @@
                 <h5 class="card-title">@item.Name</h5>
                 <p class="card-text">@item.Description</p>
                 <p class="card-text"><strong>$@item.Price.ToString("0.00")</strong></p>
-                @if (!string.IsNullOrEmpty(item.Category))
+                @if (item.Category != null)
                 {
-                    <p class="card-text"><small class="text-muted">Category: @item.Category</small></p>
+                    <p class="card-text"><small class="text-muted">Category: @item.Category.Name</small></p>
                 }
                 @if (!string.IsNullOrEmpty(item.Niche))
                 {

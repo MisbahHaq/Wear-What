@@ -16,9 +16,25 @@
 <div class="row">
 @foreach (var item in Model) {
     <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">@item.Name</h5>
+        <div class="card shop-card">
+            @if (!string.IsNullOrEmpty(item.ProfileBannerUrl))
+            {
+                <img src="@item.ProfileBannerUrl" class="card-img-top shop-card-banner" alt="Banner" />
+            }
+            else
+            {
+                <div class="shop-card-banner-placeholder"></div>
+            }
+            <div class="card-body text-center">
+                @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
+                {
+                    <img src="@item.ProfileImageUrl" alt="@item.Name profile" class="shop-card-avatar" />
+                }
+                else
+                {
+                    <div class="shop-card-avatar-placeholder">@item.Name[0]</div>
+                }
+                <h5 class="card-title mt-3">@item.Name</h5>
                 <p class="card-text">@item.Description</p>
                 <p class="card-text"><small class="text-muted">Products: @(item.Products?.Count ?? 0)</small></p>
                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">View Products</a>

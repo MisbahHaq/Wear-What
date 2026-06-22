@@ -20,10 +20,24 @@ namespace Shop.Data
                 {
                     await roleManager.CreateAsync(new IdentityRole("Admin"));
                 }
+
+                var adminEmail = "admin@shop.com";
+                var adminUser = await userManager.FindByEmailAsync(adminEmail);
+                if (adminUser == null)
+                {
+                    adminUser = new ApplicationUser
+                    {
+                        UserName = adminEmail,
+                        Email = adminEmail,
+                        FullName = "Admin",
+                        EmailConfirmed = true
+                    };
+                    await userManager.CreateAsync(adminUser, "Admin@123");
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
             }
             catch
             {
-                // Roles table may not exist yet in fresh DB - will be created on next request
             }
         }
     }

@@ -14,6 +14,7 @@ namespace Shop.Data
 
         public DbSet<ShopItem> Shops { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ShopCategory> ShopCategories { get; set; }
         public DbSet<WishlistItem> WishlistItems { get; set; }
         public DbSet<ShopFollow> ShopFollows { get; set; }
         public DbSet<ProductComment> ProductComments { get; set; }
@@ -49,6 +50,18 @@ namespace Shop.Data
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.ProductId)
                 .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ShopCategory>()
+                .HasOne(c => c.Shop)
+                .WithMany()
+                .HasForeignKey(c => c.ShopId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

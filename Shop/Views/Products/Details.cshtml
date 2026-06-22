@@ -7,9 +7,9 @@
 
 <h1>@Model.Name</h1>
 
-@if (!string.IsNullOrEmpty(Model.Category))
+@if (Model.Category != null)
 {
-    <p><strong>Category:</strong> @Model.Category</p>
+    <p><strong>Category:</strong> @Model.Category.Name</p>
 }
 @if (!string.IsNullOrEmpty(Model.Niche))
 {

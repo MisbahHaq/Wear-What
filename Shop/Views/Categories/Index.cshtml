@@ -1,0 +1,29 @@
+@model IEnumerable<Shop.Models.ShopCategory>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<h1>Categories</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Category</a>
+</p>
+
+<div class="row">
+@foreach (var item in Model) {
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">@item.Name</h5>
+                <p class="card-text"><small class="text-muted">Shop: @item.Shop?.Name</small></p>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+                <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@item.Id" class="btn btn-sm btn-outline-secondary">View Products</a>
+            </div>
+        </div>
+    </div>
+}
+</div>

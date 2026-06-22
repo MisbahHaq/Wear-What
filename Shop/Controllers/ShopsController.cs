@@ -35,6 +35,7 @@ namespace Shop.Controllers
 
             var shop = await _context.Shops
                 .Include(s => s.Products)
+                .ThenInclude(p => p.Category)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (shop == null) return NotFound();
 
@@ -85,7 +86,14 @@ namespace Shop.Controllers
             {
                 try
                 {
-                    _context.Attach(shop).State = EntityState.Modified;
+                    var existingShop = await _context.Shops.FindAsync(id);
+                    if (existingShop == null) return NotFound();
+
+                    existingShop.Name = shop.Name;
+                    existingShop.Description = shop.Description;
+                    existingShop.ProfileBannerUrl = shop.ProfileBannerUrl;
+                    existingShop.ProfileImageUrl = shop.ProfileImageUrl;
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

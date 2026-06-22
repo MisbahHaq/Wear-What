@@ -6,7 +6,8 @@ namespace Shop.Models
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public string Category { get; set; } = string.Empty;
+        public int? CategoryId { get; set; }
+        public ShopCategory? Category { get; set; }
         public string Niche { get; set; } = string.Empty;
         public string ImageUrl1 { get; set; } = string.Empty;
         public string ImageUrl2 { get; set; } = string.Empty;
