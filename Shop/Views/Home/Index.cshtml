@@ -1,8 +1,58 @@
-﻿@{
+﻿@model IEnumerable<Shop.Models.Product>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Featured Products</h1>
 </div>
+
+<form asp-controller="Products" asp-action="Index" method="get" class="row g-2 mb-4">
+    <div class="col-auto">
+        <select name="categoryId" id="categoryId" class="form-select" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
+            {
+                <option value="@cat.Value" selected="@cat.Selected">@cat.Text</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary btn-sm">View All</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert">No products available yet. <a asp-controller="Products" asp-action="Index">Browse all products</a>.</div>
+}
+else
+{
+    <div class="product-grid">
+    @foreach (var item in Model)
+    {
+        <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id" class="product-card text-decoration-none">
+            @if (!string.IsNullOrEmpty(item.ImageUrl1))
+            {
+                <img src="@item.ImageUrl1" class="product-card-image" alt="@item.Name" />
+            }
+            else
+            {
+                <div class="product-card-image-placeholder">@(item.Name.Length > 0 ? item.Name[0].ToString().ToUpper() : "?")</div>
+            }
+            <div class="product-card-body">
+                <div class="product-card-title">@item.Name</div>
+                <div class="product-card-description">@item.Description</div>
+                <div class="product-card-price">$@item.Price.ToString("0.00")</div>
+                <div class="product-card-shop">@item.Shop?.Name</div>
+                <span class="btn btn-outline-primary btn-sm product-card-btn">Details</span>
+            </div>
+        </a>
+    }
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

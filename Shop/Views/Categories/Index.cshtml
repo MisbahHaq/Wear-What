@@ -4,25 +4,19 @@
     ViewData["Title"] = "Categories";
 }
 
-<h1>Categories</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Categories</h1>
+    <a asp-action="Create" class="btn btn-primary">Create Category</a>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Category</a>
-</p>
-
-<div class="row">
-@foreach (var item in Model) {
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">@item.Name</h5>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this category?');">
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                </form>
-                <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@item.Id" class="btn btn-sm btn-outline-secondary">View Products</a>
-            </div>
+<div class="product-grid">
+@foreach (var item in Model)
+{
+    <a asp-action="Edit" asp-route-id="@item.Id" class="product-card text-decoration-none">
+        <div class="product-card-body">
+            <div class="product-card-title">@item.Name</div>
+            <span class="btn btn-outline-primary btn-sm product-card-btn">Edit</span>
         </div>
-    </div>
+    </a>
 }
 </div>

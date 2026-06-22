@@ -9,75 +9,64 @@
     <link rel="stylesheet" href="~/Shop.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-sm">
+            <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Shop</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Shops" asp-action="Index">Shops</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
-                        </li>
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
-                            </li>
-                        }
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User?.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <span class="navbar-text me-2">Hello, @User.Identity.Name!</span>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index">Profile</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Orders" asp-action="Dashboard">Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm">
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
-                        }
-                    </ul>
+
+                <div class="search-wrapper d-none d-md-flex">
+                    <form class="search-input-group" asp-controller="Products" asp-action="Index" method="get">
+                        <input type="text" name="searchString" placeholder="Search products..." value="@Context.Request.Query["searchString"]" />
+                        <button type="submit">Search</button>
+                    </form>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="nav-link d-none d-sm-inline" asp-controller="Profile" asp-action="Index">Hello, @User.Identity.Name</a>
+                        <a class="nav-link" asp-controller="Wishlist" asp-action="Index">Wishlist</a>
+                        <a class="nav-link" asp-controller="Orders" asp-action="Dashboard">Orders</a>
+                        <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
+                            <button type="submit" class="nav-link btn btn-link">Logout</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                        <a class="nav-link d-none d-sm-inline" asp-controller="Account" asp-action="Register">Register</a>
+                    }
+                    <a class="nav-link" asp-controller="Orders" asp-action="Cart">Cart</a>
                 </div>
             </div>
         </nav>
+
+        <div class="category-strip">
+            <div class="container d-flex gap-2 flex-wrap">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">All</a>
+                <a class="nav-link" asp-controller="Products" asp-action="Index">Products</a>
+                <a class="nav-link" asp-controller="Shops" asp-action="Index">Shops</a>
+                @if (User != null && User.IsInRole("Admin"))
+                {
+                    <a class="nav-link" asp-controller="Categories" asp-action="Index">Categories</a>
+                }
+            </div>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container" style="max-width: 1400px;">
+        <main role="main" class="py-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Shop - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span>&copy; 2026 - Shop</span>
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

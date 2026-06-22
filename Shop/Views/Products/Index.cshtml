@@ -4,20 +4,18 @@
     ViewData["Title"] = "Products";
 }
 
-<h1>Products</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Products</h1>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="Create" class="btn btn-primary">Create Product</a>
+    }
+</div>
 
-@if (User.Identity?.IsAuthenticated == true)
-{
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New Product</a>
-    </p>
-}
-
-<form asp-action="Index" method="get" class="row g-3 mb-4">
+<form asp-action="Index" method="get" class="row g-2 mb-4">
     <div class="col-auto">
-        <label for="categoryId" class="form-label">Category</label>
         <select name="categoryId" id="categoryId" class="form-select" onchange="this.form.submit()">
-            <option value="">-- All Categories --</option>
+            <option value="">All Categories</option>
             @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
             {
                 <option value="@cat.Value" selected="@cat.Selected">@cat.Text</option>
@@ -26,30 +24,32 @@
     </div>
 </form>
 
-<div class="row">
-@foreach (var item in Model) {
-    <div class="col-md-4 mb-4">
-        <div class="card">
+@if (!Model.Any())
+{
+    <div class="alert">No products found.</div>
+}
+else
+{
+    <div class="product-grid">
+    @foreach (var item in Model)
+    {
+        <a asp-action="Details" asp-route-id="@item.Id" class="product-card text-decoration-none">
             @if (!string.IsNullOrEmpty(item.ImageUrl1))
             {
-                <img src="@item.ImageUrl1" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;" />
+                <img src="@item.ImageUrl1" class="product-card-image" alt="@item.Name" />
             }
-            <div class="card-body">
-                <h5 class="card-title">@item.Name</h5>
-                <p class="card-text">@item.Description</p>
-                <p class="card-text"><strong>$@item.Price.ToString("0.00")</strong></p>
-                @if (item.Category != null)
-                {
-                    <p class="card-text"><small class="text-muted">Category: @item.Category.Name</small></p>
-                }
-                @if (!string.IsNullOrEmpty(item.Niche))
-                {
-                    <p class="card-text"><small class="text-muted">Niche: @item.Niche</small></p>
-                }
-                <p class="card-text"><small class="text-muted">Shop: <a asp-controller="Shops" asp-action="Details" asp-route-id="@item.ShopId">@item.Shop?.Name</a></small></p>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Details</a>
+            else
+            {
+                <div class="product-card-image-placeholder">@(item.Name.Length > 0 ? item.Name[0].ToString().ToUpper() : "?")</div>
+            }
+            <div class="product-card-body">
+                <div class="product-card-title">@item.Name</div>
+                <div class="product-card-description">@item.Description</div>
+                <div class="product-card-price">$@item.Price.ToString("0.00")</div>
+                <div class="product-card-shop">@item.Shop?.Name</div>
+                <span class="btn btn-outline-primary btn-sm product-card-btn">Details</span>
             </div>
-        </div>
+        </a>
+    }
     </div>
 }
-</div>

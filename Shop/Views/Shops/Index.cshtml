@@ -4,46 +4,40 @@
     ViewData["Title"] = "Shops";
 }
 
-<h1>Shops</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Shops</h1>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="Create" class="btn btn-primary">Create Shop</a>
+    }
+</div>
 
-@if (User?.Identity?.IsAuthenticated == true)
+<div class="shop-grid">
+@foreach (var item in Model)
 {
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New Shop</a>
-    </p>
-}
-
-<div class="row">
-@foreach (var item in Model) {
-    <div class="col-md-4 mb-4">
-        <div class="card shop-card">
-            @if (!string.IsNullOrEmpty(item.ProfileBannerUrl))
+    <a asp-action="Details" asp-route-id="@item.Id" class="shop-card text-decoration-none">
+        @if (!string.IsNullOrEmpty(item.ProfileBannerUrl))
+        {
+            <img src="@item.ProfileBannerUrl" class="shop-card-banner" alt="Banner" />
+        }
+        else
+        {
+            <div class="shop-card-banner-placeholder"></div>
+        }
+        <div class="card-body text-center">
+            @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
             {
-                <img src="@item.ProfileBannerUrl" class="card-img-top shop-card-banner" alt="Banner" />
+                <img src="@item.ProfileImageUrl" alt="@item.Name profile" class="shop-card-avatar" />
             }
             else
             {
-                <div class="shop-card-banner-placeholder"></div>
+                <div class="shop-card-avatar-placeholder">@item.Name[0]</div>
             }
-            <div class="card-body text-center">
-                @if (!string.IsNullOrEmpty(item.ProfileImageUrl))
-                {
-                    <img src="@item.ProfileImageUrl" alt="@item.Name profile" class="shop-card-avatar" />
-                }
-                else
-                {
-                    <div class="shop-card-avatar-placeholder">@item.Name[0]</div>
-                }
-                <h5 class="card-title mt-3">@item.Name</h5>
-                <p class="card-text">@item.Description</p>
-                <p class="card-text"><small class="text-muted">Products: @(item.Products?.Count ?? 0)</small></p>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">View Products</a>
-                @if (User?.Identity?.IsAuthenticated == true)
-                {
-                    <a asp-controller="Products" asp-action="Index" asp-route-shopId="@item.Id" class="btn btn-sm btn-outline-secondary">Browse Products</a>
-                }
-            </div>
+            <h5 class="card-title mt-2">@item.Name</h5>
+            <p class="card-text text-muted">@item.Description</p>
+            <p class="card-text text-muted">Products: @(item.Products?.Count ?? 0)</p>
+            <span class="btn btn-outline-primary btn-sm">View Shop</span>
         </div>
-    </div>
+    </a>
 }
 </div>

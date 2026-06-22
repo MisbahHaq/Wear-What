@@ -127,6 +127,7 @@ C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\Shop.sourcelink.json
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\scopedcss\Components\BentoGrid.razor.rz.scp.css
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\scopedcss\bundle\Shop.styles.css
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\scopedcss\projectbundle\Shop.bundle.scp.css
@@ -141,4 +142,3 @@ C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\refint\Shop.dll
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\Shop.pdb
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\Shop.genruntimeconfig.cache
 C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\ref\Shop.dll
-C:\Users\Misbah\Desktop\Empty-Repo-4\Shop\obj\Debug\net8.0\scopedcss\Components\BentoGrid.razor.rz.scp.css

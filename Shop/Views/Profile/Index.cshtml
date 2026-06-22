@@ -16,36 +16,36 @@
         <h3>Account Information</h3>
         <form asp-action="Index">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
                 <input asp-for="Email" class="form-control" readonly />
             </div>
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
                 <input asp-for="FullName" class="form-control" />
                 <span asp-validation-for="FullName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group mt-3">
+            <div class="mt-3">
                 <input type="submit" value="Save Changes" class="btn btn-primary" />
             </div>
         </form>
-        
+
         <hr />
-        
+
         <h3>Change Password</h3>
-        <a asp-action="ChangePassword" class="btn btn-warning">Change Password</a>
-        
+        <a asp-action="ChangePassword" class="btn btn-outline-secondary">Change Password</a>
+
         <hr />
-        
+
         <h3>Delete Account</h3>
-        <a asp-action="DeleteAccount" class="btn btn-danger">Delete Account</a>
+        <a asp-action="DeleteAccount" class="btn btn-outline-danger">Delete Account</a>
     </div>
-    
+
     <div class="col-md-6">
         <h3>Your Shops</h3>
         @if ((Model?.Shops?.Any() ?? false))
@@ -54,8 +54,8 @@
                 @foreach (var shop in Model!.Shops!)
                 {
                     <div class="list-group-item">
-                        <h5>@shop.Name</h5>
-                        <p class="mb-1">@shop.Description</p>
+                        <h5 class="mb-1">@shop.Name</h5>
+                        <p class="mb-1 text-muted">@shop.Description</p>
                         <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-outline-primary">View Products</a>
                     </div>
                 }
@@ -73,28 +73,32 @@
         <h3>Your Wishlist</h3>
         @if ((Model?.WishlistItems?.Any() ?? false))
         {
-            <div class="row">
-                @foreach (var item in Model!.WishlistItems!)
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card">
-                            @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
-                            {
-                                <img src="@item.Product.ImageUrl1" class="card-img-top" alt="@item.Product.Name" style="height: 200px; object-fit: cover;" />
-                            }
-                            <div class="card-body">
-                                <h5 class="card-title">@item.Product?.Name</h5>
-                                <p class="card-text"><strong>$@item.Product?.Price.ToString("0.00")</strong></p>
-                                <p class="card-text"><small>From: @item.Product?.Shop?.Name</small></p>
-                                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary">View</a>
-                                <form asp-controller="Wishlist" asp-action="Remove" method="post" class="d-inline" asp-antiforgery="true">
-                                    <input type="hidden" name="productId" value="@item.ProductId" />
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
-                                </form>
-                            </div>
+            <div class="product-grid">
+            @foreach (var item in Model!.WishlistItems!)
+            {
+                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="product-card text-decoration-none">
+                    @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
+                    {
+                        <img src="@item.Product.ImageUrl1" class="product-card-image" alt="@item.Product.Name" />
+                    }
+                    else
+                    {
+                        <div class="product-card-image-placeholder">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
+                    }
+                    <div class="product-card-body">
+                        <div class="product-card-title">@item.Product?.Name</div>
+                        <div class="product-card-price">$@item.Product?.Price.ToString("0.00")</div>
+                        <div class="product-card-shop">From: @item.Product?.Shop?.Name</div>
+                        <div class="d-flex gap-2 mt-2">
+                            <span class="btn btn-outline-primary btn-sm product-card-btn flex-fill">View</span>
+                            <form asp-controller="Wishlist" asp-action="Remove" method="post" class="flex-fill" asp-antiforgery="true">
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">Remove</button>
+                            </form>
                         </div>
                     </div>
-                }
+                </a>
+            }
             </div>
         }
         else

@@ -8,31 +8,35 @@
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">Your wishlist is empty. <a asp-controller="Products" asp-action="Index">Browse products</a> to add items.</div>
+    <div class="alert">Your wishlist is empty. <a asp-controller="Products" asp-action="Index">Browse products</a> to add items.</div>
 }
 else
 {
-    <div class="row">
+    <div class="product-grid">
     @foreach (var item in Model)
     {
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ImageUrl1))
-                {
-                    <img src="@item.Product.ImageUrl1" class="card-img-top" alt="@item.Product.Name" style="height: 200px; object-fit: cover;" />
-                }
-                <div class="card-body">
-                    <h5 class="card-title">@item.Product?.Name ?? "Unknown Product"</h5>
-                    <p class="card-text"><strong>$@item.Product?.Price.ToString("0.00")</strong></p>
-                    <p class="card-text"><small class="text-muted">Shop: <a asp-controller="Shops" asp-action="Details" asp-route-id="@item.Product?.ShopId">@item.Product?.Shop?.Name</a></small></p>
-                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary">View Details</a>
-                    <form asp-controller="Wishlist" asp-action="Remove" method="post" class="d-inline" asp-antiforgery="true">
+        <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="product-card text-decoration-none">
+            @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ImageUrl1))
+            {
+                <img src="@item.Product.ImageUrl1" class="product-card-image" alt="@item.Product.Name" />
+            }
+            else
+            {
+                <div class="product-card-image-placeholder">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
+            }
+            <div class="product-card-body">
+                <div class="product-card-title">@item.Product?.Name ?? "Unknown Product"</div>
+                <div class="product-card-price">$@item.Product?.Price.ToString("0.00")</div>
+                <div class="product-card-shop">@item.Product?.Shop?.Name</div>
+                <div class="d-flex gap-2 mt-2">
+                    <span class="btn btn-outline-primary btn-sm product-card-btn flex-fill">View</span>
+                    <form asp-controller="Wishlist" asp-action="Remove" method="post" class="flex-fill" asp-antiforgery="true">
                         <input type="hidden" name="productId" value="@item.ProductId" />
-                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Remove</button>
                     </form>
                 </div>
             </div>
-        </div>
+        </a>
     }
     </div>
 }
