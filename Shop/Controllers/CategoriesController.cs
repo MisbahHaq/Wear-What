@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 using Shop.Models;
@@ -17,19 +16,14 @@ namespace Shop.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int? shopId)
+        public async Task<IActionResult> Index()
         {
-            var query = _context.ShopCategories.Include(c => c.Shop).AsQueryable();
-            if (shopId.HasValue)
-                query = query.Where(c => c.ShopId == shopId.Value);
-            var categories = await query.ToListAsync();
-            ViewBag.ShopId = new SelectList(_context.Shops, "Id", "Name", shopId);
+            var categories = await _context.ShopCategories.ToListAsync();
             return View(categories);
         }
 
-        public async Task<IActionResult> Create(int? shopId)
+        public IActionResult Create()
         {
-            ViewBag.ShopId = new SelectList(_context.Shops, "Id", "Name", shopId);
             return View();
         }
 
@@ -41,9 +35,8 @@ namespace Shop.Controllers
             {
                 _context.Add(category);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { shopId = category.ShopId });
+                return RedirectToAction(nameof(Index));
             }
-            ViewBag.ShopId = new SelectList(_context.Shops, "Id", "Name", category.ShopId);
             return View(category);
         }
 
@@ -54,7 +47,6 @@ namespace Shop.Controllers
             var category = await _context.ShopCategories.FindAsync(id);
             if (category == null) return NotFound();
 
-            ViewBag.ShopId = new SelectList(_context.Shops, "Id", "Name", category.ShopId);
             return View(category);
         }
 
@@ -80,9 +72,8 @@ namespace Shop.Controllers
                     if (!CategoryExists(category.Id)) return NotFound();
                     else throw;
                 }
-                return RedirectToAction(nameof(Index), new { shopId = category.ShopId });
+                return RedirectToAction(nameof(Index));
             }
-            ViewBag.ShopId = new SelectList(_context.Shops, "Id", "Name", category.ShopId);
             return View(category);
         }
 
@@ -91,7 +82,6 @@ namespace Shop.Controllers
             if (id == null) return NotFound();
 
             var category = await _context.ShopCategories
-                .Include(c => c.Shop)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (category == null) return NotFound();
 
@@ -105,10 +95,8 @@ namespace Shop.Controllers
             var category = await _context.ShopCategories.FindAsync(id);
             if (category != null)
             {
-                var shopId = category.ShopId;
                 _context.ShopCategories.Remove(category);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { shopId });
             }
             return RedirectToAction(nameof(Index));
         }

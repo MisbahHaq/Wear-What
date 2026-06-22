@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shop.Data;
 
@@ -11,9 +12,11 @@ using Shop.Data;
 namespace Shop.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260622054528_RemoveShopFromGlobalCategories")]
+    partial class RemoveShopFromGlobalCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -274,12 +277,17 @@ namespace Shop.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("ShopCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ShopId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("ShopCategoryId");
 
                     b.HasIndex("ShopId");
 
@@ -460,6 +468,10 @@ namespace Shop.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Shop.Models.ShopCategory", null)
+                        .WithMany("Products")
+                        .HasForeignKey("ShopCategoryId");
+
                     b.HasOne("Shop.Models.ShopItem", "Shop")
                         .WithMany("Products")
                         .HasForeignKey("ShopId")
@@ -542,6 +554,11 @@ namespace Shop.Migrations
             modelBuilder.Entity("Shop.Models.Product", b =>
                 {
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("Shop.Models.ShopCategory", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Shop.Models.ShopItem", b =>

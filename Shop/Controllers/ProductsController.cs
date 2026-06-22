@@ -65,17 +65,8 @@ namespace Shop.Controllers
             var userName = GetCurrentUserName();
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             var currentUserId = user?.Id ?? string.Empty;
-            var shops = await _context.Shops.Where(s => s.OwnerId == currentUserId).ToListAsync();
-            ViewBag.ShopId = new SelectList(shops, "Id", "Name");
-            var firstShopId = shops.FirstOrDefault()?.Id;
-            if (firstShopId.HasValue)
-            {
-                ViewBag.CategoryId = new SelectList(_context.ShopCategories.Where(c => c.ShopId == firstShopId.Value), "Id", "Name");
-            }
-            else
-            {
-                ViewBag.CategoryId = new SelectList(Enumerable.Empty<ShopCategory>(), "Id", "Name");
-            }
+            ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId), "Id", "Name");
+            ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name");
             return View();
         }
 
@@ -99,15 +90,7 @@ namespace Shop.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
             var currentUserId2 = user?.Id ?? string.Empty;
             ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId2), "Id", "Name", product.ShopId);
-            var shopForCategories = await _context.Shops.FindAsync(product.ShopId);
-            if (shopForCategories != null)
-            {
-                ViewBag.CategoryId = new SelectList(_context.ShopCategories.Where(c => c.ShopId == shopForCategories.Id), "Id", "Name", product.CategoryId);
-            }
-            else
-            {
-                ViewBag.CategoryId = new SelectList(Enumerable.Empty<ShopCategory>(), "Id", "Name");
-            }
+            ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -126,7 +109,7 @@ namespace Shop.Controllers
             }
 
             ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId), "Id", "Name", product.ShopId);
-            ViewBag.CategoryId = new SelectList(_context.ShopCategories.Where(c => c.ShopId == product.ShopId), "Id", "Name", product.CategoryId);
+            ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 
@@ -171,7 +154,7 @@ namespace Shop.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.ShopId = new SelectList(_context.Shops.Where(s => s.OwnerId == currentUserId), "Id", "Name", product.ShopId);
-            ViewBag.CategoryId = new SelectList(_context.ShopCategories.Where(c => c.ShopId == product.ShopId), "Id", "Name", product.CategoryId);
+            ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
             return View(product);
         }
 

@@ -52,15 +52,9 @@ namespace Shop.Data
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<ShopCategory>()
-                .HasOne(c => c.Shop)
-                .WithMany()
-                .HasForeignKey(c => c.ShopId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.Entity<Product>()
                 .HasOne(p => p.Category)
-                .WithMany(c => c.Products)
+                .WithMany()
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
