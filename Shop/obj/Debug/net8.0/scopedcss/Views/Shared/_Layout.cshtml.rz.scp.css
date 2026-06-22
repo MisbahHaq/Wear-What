@@ -39,9 +39,4 @@ button.accept-policy[b-bv1m2l6qkp] {
   line-height: inherit;
 }
 
-.footer[b-bv1m2l6qkp] {
-  position: static;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
-}
+/* footer styles are handled in site.css */

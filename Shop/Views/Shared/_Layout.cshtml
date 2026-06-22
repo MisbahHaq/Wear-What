@@ -50,10 +50,55 @@
         </main>
     </div>
 
-    <footer class="border-top">
-        <div class="container d-flex justify-content-between align-items-center">
-            <span>&copy; 2026 - Shop</span>
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top footer-section">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h5>Shop</h5>
+                    <p class="footer-text">Your one-stop marketplace for everything. Quality products, great prices.</p>
+                </div>
+                <div class="footer-col">
+                    <h5>Browse</h5>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Products" asp-action="Index">All Products</a></li>
+                        <li><a asp-controller="Shops" asp-action="Index">Shops</a></li>
+                        <li><a asp-controller="Categories" asp-action="Index">Categories</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Account</h5>
+                    <ul class="footer-links">
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <li><a asp-controller="Profile" asp-action="Index">Profile</a></li>
+                            <li><a asp-controller="Orders" asp-action="Dashboard">Orders</a></li>
+                            <li><a asp-controller="Wishlist" asp-action="Index">Wishlist</a></li>
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormFooter" class="d-inline">
+                                    <button type="submit" class="btn btn-link p-0">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li><a asp-controller="Account" asp-action="Login">Sign In</a></li>
+                            <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+                        }
+                        <li><a asp-controller="Orders" asp-action="Cart">Cart</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h5>Support</h5>
+                    <ul class="footer-links">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                        <li><a href="#!">Terms of Service</a></li>
+                        <li><a href="#!">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 - Shop. All rights reserved.</span>
+            </div>
         </div>
     </footer>
 

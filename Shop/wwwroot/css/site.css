@@ -500,10 +500,74 @@ small {
 footer {
   border-top: 1px solid var(--border);
   background: var(--bg);
-  padding: 1.5rem 0;
   margin-top: 3rem;
-  color: var(--text-secondary);
+}
+
+.footer-section {
+  background: var(--accent);
+  color: #ccc;
+  padding: 2.5rem 0 1rem;
   font-size: 0.85rem;
+  margin-top: 3rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(3, 1fr);
+  gap: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.footer-col h5 {
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+
+.footer-text {
+  color: #bbb;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.4rem;
+}
+
+.footer-links a,
+.footer-links button {
+  color: #bbb;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover,
+.footer-links button:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  padding-top: 1rem;
+  color: #888;
+  font-size: 0.8rem;
 }
 
 /* ===== PROFILE / HEADER HERO ===== */
@@ -898,5 +962,17 @@ footer {
 
   .bottom-middle {
     margin-left: 0;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 }
