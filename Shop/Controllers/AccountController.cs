@@ -8,11 +8,13 @@ namespace Shop.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet]
@@ -66,11 +68,22 @@ namespace Shop.Controllers
                     UserName = model.Email,
                     Email = model.Email,
                     FullName = model.FullName,
-                    Address = model.Address
+                    Address = model.Address,
+                    CNIC = model.UserRole == "Vendor" ? model.CNIC : null,
+                    ContactNumber = model.UserRole == "Vendor" ? model.ContactNumber : null,
+                    ShopName = model.UserRole == "Vendor" ? model.ShopName : null
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    if (model.UserRole == "Vendor")
+                    {
+                        if (!await _roleManager.RoleExistsAsync("Vendor"))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole("Vendor"));
+                        }
+                        await _userManager.AddToRoleAsync(user, "Vendor");
+                    }
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }

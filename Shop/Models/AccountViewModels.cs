@@ -15,7 +15,7 @@ namespace Shop.Models
         public bool RememberMe { get; set; }
     }
 
-    public class RegisterViewModel
+    public class RegisterViewModel : IValidatableObject
     {
         [Required]
         [EmailAddress]
@@ -34,6 +34,28 @@ namespace Shop.Models
         public string FullName { get; set; } = string.Empty;
 
         public string Address { get; set; } = string.Empty;
+
+        [Required]
+        public string UserRole { get; set; } = "Customer";
+
+        public string CNIC { get; set; } = string.Empty;
+        public string ContactNumber { get; set; } = string.Empty;
+        public string ShopName { get; set; } = string.Empty;
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (UserRole == "Vendor")
+            {
+                if (string.IsNullOrWhiteSpace(CNIC))
+                    yield return new ValidationResult("CNIC is required for vendors.", new[] { nameof(CNIC) });
+
+                if (string.IsNullOrWhiteSpace(ContactNumber))
+                    yield return new ValidationResult("Contact number is required for vendors.", new[] { nameof(ContactNumber) });
+
+                if (string.IsNullOrWhiteSpace(ShopName))
+                    yield return new ValidationResult("Shop name is required for vendors.", new[] { nameof(ShopName) });
+            }
+        }
     }
 
     public class ProfileViewModel

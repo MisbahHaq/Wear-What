@@ -177,7 +177,26 @@
         color: #888888;
         text-decoration: none;
     }
+    .vendor-fields {
+        display: none;
+    }
 </style>
+
+<script>
+    function toggleVendorFields() {
+        var role = document.getElementById('userRole').value;
+        var vendorFields = document.getElementById('vendorFields');
+        if (role === 'Vendor') {
+            vendorFields.style.display = 'block';
+        } else {
+            vendorFields.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleVendorFields();
+    });
+</script>
 
 <div class="auth-outer-wrapper">
     <div class="auth-card">
@@ -196,8 +215,17 @@
                     <h1>Create your account</h1>
                     <p class="auth-subtitle">Join a network of visionaries and unlock premium design resources tailored for you.</p>
 
-                    <form asp-action="Register" method="post">
+                    <form asp-action="Register" method="post" id="registerForm">
                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="UserRole" class="form-label">I want to sign up as *</label>
+                            <select asp-for="UserRole" class="form-control" id="userRole" onchange="toggleVendorFields()">
+                                <option value="Customer">Customer</option>
+                                <option value="Vendor">Vendor / Shop Owner</option>
+                            </select>
+                            <span asp-validation-for="UserRole" class="text-danger small"></span>
+                        </div>
 
                         <div class="mb-3">
                             <label asp-for="FullName" class="form-label">Full name *</label>
@@ -225,12 +253,36 @@
                         </div>
                         <p class="password-hint">Password must be at least 8 characters, including a number and a special character.</p>
 
-                        <input type="hidden" asp-for="Address" value="Not Specified" />
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="e.g. 123 Main St, City" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+
+                        <div class="vendor-fields" id="vendorFields">
+                            <div class="mb-3">
+                                <label asp-for="ShopName" class="form-label">Shop name *</label>
+                                <input asp-for="ShopName" class="form-control" placeholder="e.g. My Awesome Shop" />
+                                <span asp-validation-for="ShopName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="CNIC" class="form-label">CNIC *</label>
+                                <input asp-for="CNIC" class="form-control" placeholder="e.g. 12345-6789012-3" />
+                                <span asp-validation-for="CNIC" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ContactNumber" class="form-label">Contact number *</label>
+                                <input asp-for="ContactNumber" class="form-control" placeholder="e.g. +92 300 1234567" />
+                                <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                            </div>
+                        </div>
 
                         <button type="submit" class="btn btn-create-account">Create account</button>
 
                         <div class="auth-footer-text">
-                            Don't have an account? <a href="/Identity/Account/Login">Sign Up</a>
+                            Already have an account? <a href="/Account/Login">Sign In</a>
                         </div>
 
                         <div class="terms-text">

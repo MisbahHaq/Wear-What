@@ -21,6 +21,11 @@ namespace Shop.Data
                     await roleManager.CreateAsync(new IdentityRole("Admin"));
                 }
 
+                if (!await roleManager.RoleExistsAsync("Vendor"))
+                {
+                    await roleManager.CreateAsync(new IdentityRole("Vendor"));
+                }
+
                 var adminEmail = "admin@shop.com";
                 var adminUser = await userManager.FindByEmailAsync(adminEmail);
                 if (adminUser == null)
