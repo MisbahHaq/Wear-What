@@ -8,24 +8,36 @@
     <h1 class="mb-0">Featured Products</h1>
 </div>
 
-<form asp-controller="Products" asp-action="Index" method="get" class="row g-2 mb-4">
-    <div class="col-auto">
-        <select name="categoryId" id="categoryId" class="form-select" onchange="this.form.submit()">
-            <option value="">All Categories</option>
-            @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
-            {
-                <option value="@cat.Value" selected="@cat.Selected">@cat.Text</option>
-            }
-        </select>
-    </div>
-    <div class="col-auto">
-        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary btn-sm">View All</a>
-    </div>
-</form>
+<div class="category-strip">
+    <nav class="nav justify-content-center flex-nowrap overflow-auto px-3">
+        @{
+            var currentCategoryId = Context.Request.Query["categoryId"].ToString() ?? "";
+        }
+        
+        <a asp-controller="Products" 
+           asp-action="Index" 
+           asp-route-categoryId="" 
+           class="nav-link @(string.IsNullOrEmpty(currentCategoryId) ? "text-dark fw-bold" : "")">
+            All Categories
+        </a>
+
+        @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
+        {
+            bool isSelected = !string.IsNullOrEmpty(currentCategoryId) && currentCategoryId == cat.Value;
+            
+            <a asp-controller="Products" 
+               asp-action="Index" 
+               asp-route-categoryId="@cat.Value" 
+               class="nav-link @(isSelected ? "text-dark fw-bold" : "")">
+                @cat.Text
+            </a>
+        }
+    </nav>
+</div>
 
 @if (!Model.Any())
 {
-    <div class="alert">No products available yet. <a asp-controller="Products" asp-action="Index">Browse all products</a>.</div>
+    <div class="alert alert-info">No products available yet. <a asp-controller="Products" asp-action="Index">Browse all products</a>.</div>
 }
 else
 {

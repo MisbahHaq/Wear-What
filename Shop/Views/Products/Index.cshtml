@@ -4,6 +4,31 @@
     ViewData["Title"] = "Products";
 }
 
+<div class="category-strip">
+    <nav class="nav justify-content-center flex-nowrap overflow-auto px-3">
+        @{
+            var currentCategoryId = Context.Request.Query["categoryId"].ToString() ?? "";
+        }
+        
+        <a asp-action="Index" 
+           asp-route-categoryId="" 
+           class="nav-link @(string.IsNullOrEmpty(currentCategoryId) ? "text-dark fw-bold" : "")">
+            All Categories
+        </a>
+
+        @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
+        {
+            bool isSelected = !string.IsNullOrEmpty(currentCategoryId) && currentCategoryId == cat.Value;
+            
+            <a asp-action="Index" 
+               asp-route-categoryId="@cat.Value" 
+               class="nav-link @(isSelected ? "text-dark fw-bold" : "")">
+                @cat.Text
+            </a>
+        }
+    </nav>
+</div>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="mb-0">Products</h1>
     @if (User.Identity?.IsAuthenticated == true)
@@ -11,18 +36,6 @@
         <a asp-action="Create" class="btn btn-primary">Create Product</a>
     }
 </div>
-
-<form asp-action="Index" method="get" class="row g-2 mb-4">
-    <div class="col-auto">
-        <select name="categoryId" id="categoryId" class="form-select" onchange="this.form.submit()">
-            <option value="">All Categories</option>
-            @foreach (var cat in ViewBag.CategoryId as IEnumerable<SelectListItem> ?? Enumerable.Empty<SelectListItem>())
-            {
-                <option value="@cat.Value" selected="@cat.Selected">@cat.Text</option>
-            }
-        </select>
-    </div>
-</form>
 
 @if (!Model.Any())
 {

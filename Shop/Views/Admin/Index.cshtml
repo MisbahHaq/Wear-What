@@ -1,0 +1,53 @@
+@model Shop.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Admin Dashboard</h1>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-2">Products</h5>
+                <p class="display-4 mb-0">@Model.TotalProducts</p>
+                <a asp-controller="Products" asp-action="Index" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-2">Shops</h5>
+                <p class="display-4 mb-0">@Model.TotalShops</p>
+                <a asp-controller="Shops" asp-action="Index" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-2">Categories</h5>
+                <p class="display-4 mb-0">@Model.TotalCategories</p>
+                <a asp-controller="Categories" asp-action="Index" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-2">Users</h5>
+                <p class="display-4 mb-0">@Model.TotalUsers</p>
+                <a asp-controller="Admin" asp-action="Users" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex flex-column gap-2">
+    <a asp-controller="Categories" asp-action="Create" class="btn btn-primary">Create New Category</a>
+    <a asp-controller="Shops" asp-action="Create" class="btn btn-primary">Create New Shop</a>
+    <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Create New Product</a>
+</div>

@@ -292,20 +292,30 @@ small {
 
 /* ===== CATEGORY STRIP ===== */
 .category-strip {
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  padding: 0.5rem 0;
+   background: var(--bg);
+   border-bottom: 1px solid var(--border);
+   padding: 0.4rem 0;
+}
+
+.category-strip .nav {
+   flex-wrap: nowrap;
 }
 
 .category-strip .nav-link {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-secondary) !important;
-  padding: 0.3rem 0.6rem !important;
+   font-size: 0.82rem;
+   font-weight: 600;
+   color: var(--text-secondary) !important;
+   padding: 0.3rem 0.9rem !important;
+   white-space: nowrap;
 }
 
-.category-strip .nav-link:hover {
-  color: var(--text) !important;
+.category-strip .nav-link:hover,
+.category-strip .nav-link.text-dark {
+   color: var(--text) !important;
+}
+
+.category-strip .nav-link:not(:last-child) {
+   margin-right: 0.2rem;
 }
 
 /* ===== PRODUCT GRID ===== */
