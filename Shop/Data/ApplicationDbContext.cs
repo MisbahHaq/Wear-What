@@ -21,6 +21,7 @@ namespace Shop.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
+        public DbSet<ProductColor> ProductColors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -93,6 +94,12 @@ namespace Shop.Data
                 .HasOne(s => s.Product)
                 .WithMany(p => p.Specifications)
                 .HasForeignKey(s => s.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductColor>()
+                .HasOne(c => c.Product)
+                .WithMany(p => p.Colors)
+                .HasForeignKey(c => c.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

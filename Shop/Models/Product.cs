@@ -18,5 +18,6 @@ namespace Shop.Models
         public ShopItem? Shop { get; set; }
         public List<ProductComment> Comments { get; set; } = new();
         public List<ProductSpecification> Specifications { get; set; } = new();
+        public List<ProductColor> Colors { get; set; } = new();
     }
 }

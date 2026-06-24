@@ -50,6 +50,7 @@ namespace Shop.Controllers
                 .Include(p => p.Comments!)
                 .ThenInclude(c => c.User)
                 .Include(p => p.Specifications)
+                .Include(p => p.Colors)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null) return NotFound();
 
@@ -75,7 +76,7 @@ namespace Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product, string[]? specKeys, string[]? specValues)
+        public async Task<IActionResult> Create(Product product, string[]? specKeys, string[]? specValues, string[]? colors)
         {
             if (ModelState.IsValid)
             {
@@ -125,6 +126,27 @@ namespace Shop.Controllers
                     }
                 }
 
+                if (colors != null && colors.Length > 0)
+                {
+                    var productColors = new List<ProductColor>();
+                    foreach (var color in colors)
+                    {
+                        if (!string.IsNullOrWhiteSpace(color))
+                        {
+                            productColors.Add(new ProductColor
+                            {
+                                ProductId = product.Id,
+                                ColorName = color.Trim()
+                            });
+                        }
+                    }
+                    if (productColors.Any())
+                    {
+                        _context.ProductColors.AddRange(productColors);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);
@@ -135,7 +157,10 @@ namespace Shop.Controllers
         {
             if (id == null) return NotFound();
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products
+                .Include(p => p.Specifications)
+                .Include(p => p.Colors)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return NotFound();
 
             var shop = await _context.Shops.FindAsync(product.ShopId);
@@ -151,7 +176,7 @@ namespace Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product)
+        public async Task<IActionResult> Edit(int id, Product product, string[]? specKeys, string[]? specValues, string[]? colors)
         {
             if (id != product.Id) return NotFound();
 
@@ -166,7 +191,10 @@ namespace Shop.Controllers
             {
                 try
                 {
-                    var existingProduct = await _context.Products.FindAsync(id);
+                    var existingProduct = await _context.Products
+                        .Include(p => p.Specifications)
+                        .Include(p => p.Colors)
+                        .FirstOrDefaultAsync(p => p.Id == id);
                     if (existingProduct == null) return NotFound();
 
                     existingProduct.Name = product.Name;
@@ -179,6 +207,51 @@ namespace Shop.Controllers
                     existingProduct.ImageUrl3 = product.ImageUrl3;
                     existingProduct.ImageUrl4 = product.ImageUrl4;
                     existingProduct.ImageUrl5 = product.ImageUrl5;
+
+                    await _context.SaveChangesAsync();
+
+                    if (specKeys != null && specValues != null)
+                    {
+                        _context.ProductSpecifications.RemoveRange(existingProduct.Specifications);
+                        var specs = new List<ProductSpecification>();
+                        for (int i = 0; i < specKeys.Length; i++)
+                        {
+                            if (!string.IsNullOrWhiteSpace(specKeys[i]) && !string.IsNullOrWhiteSpace(specValues[i]))
+                            {
+                                specs.Add(new ProductSpecification
+                                {
+                                    ProductId = product.Id,
+                                    Key = specKeys[i].Trim(),
+                                    Value = specValues[i].Trim()
+                                });
+                            }
+                        }
+                        if (specs.Any())
+                        {
+                            _context.ProductSpecifications.AddRange(specs);
+                        }
+                    }
+
+                    if (colors != null)
+                    {
+                        _context.ProductColors.RemoveRange(existingProduct.Colors);
+                        var productColors = new List<ProductColor>();
+                        foreach (var color in colors)
+                        {
+                            if (!string.IsNullOrWhiteSpace(color))
+                            {
+                                productColors.Add(new ProductColor
+                                {
+                                    ProductId = product.Id,
+                                    ColorName = color.Trim()
+                                });
+                            }
+                        }
+                        if (productColors.Any())
+                        {
+                            _context.ProductColors.AddRange(productColors);
+                        }
+                    }
 
                     await _context.SaveChangesAsync();
                 }
