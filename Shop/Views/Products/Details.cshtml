@@ -83,6 +83,20 @@
             <div class="section-title">Product Description</div>
             <p class="text-muted" style="font-size: 0.92rem; line-height: 1.6;">@Model.Description</p>
 
+            @if (Model.Specifications != null && Model.Specifications.Any())
+            {
+                <div class="section-title">Specifications</div>
+                <table class="table table-sm table-borderless mb-0">
+                    @foreach (var spec in Model.Specifications.OrderBy(s => s.Key))
+                    {
+                        <tr>
+                            <td class="fw-bold text-muted" style="width: 40%;">@spec.Key</td>
+                            <td>@spec.Value</td>
+                        </tr>
+                    }
+                </table>
+            }
+
             <div class="product-price">$@Model.Price.ToString("0.00")</div>
 
             @if (Model.Shop?.OwnerId == currentUserId)

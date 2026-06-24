@@ -49,6 +49,7 @@ namespace Shop.Controllers
                 .Include(p => p.Shop)
                 .Include(p => p.Comments!)
                 .ThenInclude(c => c.User)
+                .Include(p => p.Specifications)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (product == null) return NotFound();
 
@@ -74,7 +75,7 @@ namespace Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(Product product, string[]? specKeys, string[]? specValues)
         {
             if (ModelState.IsValid)
             {
@@ -101,6 +102,29 @@ namespace Shop.Controllers
                 }
                 _context.Add(product);
                 await _context.SaveChangesAsync();
+
+                if (specKeys != null && specValues != null && specKeys.Length > 0)
+                {
+                    var specs = new List<ProductSpecification>();
+                    for (int i = 0; i < specKeys.Length; i++)
+                    {
+                        if (!string.IsNullOrWhiteSpace(specKeys[i]) && !string.IsNullOrWhiteSpace(specValues[i]))
+                        {
+                            specs.Add(new ProductSpecification
+                            {
+                                ProductId = product.Id,
+                                Key = specKeys[i].Trim(),
+                                Value = specValues[i].Trim()
+                            });
+                        }
+                    }
+                    if (specs.Any())
+                    {
+                        _context.ProductSpecifications.AddRange(specs);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", product.CategoryId);

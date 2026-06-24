@@ -17,5 +17,6 @@ namespace Shop.Models
         public int ShopId { get; set; }
         public ShopItem? Shop { get; set; }
         public List<ProductComment> Comments { get; set; } = new();
+        public List<ProductSpecification> Specifications { get; set; } = new();
     }
 }

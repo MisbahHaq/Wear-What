@@ -57,7 +57,27 @@
                 <label asp-for="ImageUrl5" class="control-label">Image URL 5</label>
                 <input asp-for="ImageUrl5" class="form-control" />
             </div>
-            <div class="form-group">
+
+            <div class="form-group mt-4">
+                <label class="control-label fw-bold">Product Specifications</label>
+                <p class="text-muted small">Add key-value pairs like Brand: Apple, Color: Red, etc.</p>
+                <div id="specsContainer">
+                    <div class="row g-2 mb-2 spec-row">
+                        <div class="col-5">
+                            <input type="text" name="specKeys" class="form-control spec-key" placeholder="e.g. Brand" />
+                        </div>
+                        <div class="col-5">
+                            <input type="text" name="specValues" class="form-control spec-value" placeholder="e.g. Apple" />
+                        </div>
+                        <div class="col-2">
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeSpecRow(this)">×</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addSpecRow()">+ Add Another Specification</button>
+            </div>
+
+            <div class="form-group mt-4">
                 <input type="submit" value="Create" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
             </div>
@@ -67,4 +87,30 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function addSpecRow() {
+            var container = document.getElementById('specsContainer');
+            var row = document.createElement('div');
+            row.className = 'row g-2 mb-2 spec-row';
+            row.innerHTML = `
+                <div class="col-5">
+                    <input type="text" name="specKeys" class="form-control spec-key" placeholder="e.g. Brand" />
+                </div>
+                <div class="col-5">
+                    <input type="text" name="specValues" class="form-control spec-value" placeholder="e.g. Apple" />
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm w-100" onclick="removeSpecRow(this)">×</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeSpecRow(btn) {
+            var container = document.getElementById('specsContainer');
+            if (container.children.length > 1) {
+                btn.closest('.spec-row').remove();
+            }
+        }
+    </script>
 }
