@@ -1,4 +1,4 @@
-@model Shop.Controllers.AdminDashboardViewModel
+@model Shop.Models.AdminDashboardViewModel
 @{
     ViewData["Title"] = "Admin Dashboard";
 }
@@ -40,7 +40,6 @@
             <div class="card-body text-center">
                 <h5 class="card-title mb-2">Users</h5>
                 <p class="display-4 mb-0">@Model.TotalUsers</p>
-                <a asp-controller="Admin" asp-action="Users" class="stretched-link"></a>
             </div>
         </div>
     </div>

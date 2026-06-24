@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shop.Data;
+using Shop.Models;
 
 namespace Shop.Controllers
 {
@@ -26,13 +27,5 @@ namespace Shop.Controllers
             };
             return View(viewModel);
         }
-    }
-
-    public class AdminDashboardViewModel
-    {
-        public int TotalProducts { get; set; }
-        public int TotalShops { get; set; }
-        public int TotalCategories { get; set; }
-        public int TotalUsers { get; set; }
     }
 }
