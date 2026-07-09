@@ -135,39 +135,42 @@
 
             <hr class="section-divider" />
 
-            <div class="profile-section">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="profile-section-title" style="margin:0; border:none; padding:0;">Wishlist</div>
-                    <a asp-controller="Wishlist" asp-action="Index" class="btn btn-sm btn-outline-dark">View All</a>
-                </div>
-                @if ((Model?.WishlistItems?.Any() ?? false))
-                {
-                    <div class="wishlist-grid">
-                        @foreach (var item in Model!.WishlistItems!.Take(6))
-                        {
-                            <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="wishlist-card">
-                                @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
-                                {
-                                    <img src="@item.Product.ImageUrl1" alt="@item.Product.Name" />
-                                }
-                                else
-                                {
-                                    <div style="width:100%;height:140px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-secondary);">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
-                                }
-                                <div class="wishlist-card-title">@item.Product?.Name</div>
-                                <div class="wishlist-card-price">$@item.Product?.Price.ToString("0.00")</div>
-                                <div class="wishlist-card-shop">@item.Product?.Shop?.Name</div>
-                            </a>
-                        }
+            @if (!(ViewBag.IsVendor ?? false))
+            {
+                <div class="profile-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="profile-section-title" style="margin:0; border:none; padding:0;">Wishlist</div>
+                        <a asp-controller="Wishlist" asp-action="Index" class="btn btn-sm btn-outline-dark">View All</a>
                     </div>
-                }
-                else
-                {
-                    <div class="empty-state">Your wishlist is empty.</div>
-                }
-            </div>
+                    @if ((Model?.WishlistItems?.Any() ?? false))
+                    {
+                        <div class="wishlist-grid">
+                            @foreach (var item in Model!.WishlistItems!.Take(6))
+                            {
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="wishlist-card">
+                                    @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
+                                    {
+                                        <img src="@item.Product.ImageUrl1" alt="@item.Product.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div style="width:100%;height:140px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-secondary);">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
+                                    }
+                                    <div class="wishlist-card-title">@item.Product?.Name</div>
+                                    <div class="wishlist-card-price">$@item.Product?.Price.ToString("0.00")</div>
+                                    <div class="wishlist-card-shop">@item.Product?.Shop?.Name</div>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">Your wishlist is empty.</div>
+                    }
+                </div>
 
-            <hr class="section-divider" />
+                <hr class="section-divider" />
+            }
 
             <div class="profile-section">
                 <div class="profile-section-title">Your Shops</div>
@@ -184,9 +187,13 @@
                         </div>
                     }
                 }
+                else if (!(ViewBag.IsVendor ?? false))
+                {
+                    <div class="empty-state">You don't have a shop yet.</div>
+                }
                 else
                 {
-                    <div class="empty-state">You don't have a shop yet. <a asp-controller="Shops" asp-action="Create">Create one</a>.</div>
+                    <div class="empty-state">You do not have a shop yet. <a asp-controller="Shops" asp-action="Create">Create one</a> to manage orders.</div>
                 }
             </div>
 

@@ -102,5 +102,33 @@ namespace Shop.Controllers
 
             return View(viewModel);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderStatus(int orderItemId, string status)
+        {
+            var currentUserId = GetCurrentUserId();
+            var shopIds = await _context.Shops
+                .Where(s => s.OwnerId == currentUserId)
+                .Select(s => s.Id)
+                .ToListAsync();
+
+            var orderItem = await _context.OrderItems
+                .Include(i => i.Product)
+                .Include(i => i.Order)
+                .FirstOrDefaultAsync(i => i.Id == orderItemId);
+
+            if (orderItem == null || orderItem.Product == null || !shopIds.Contains(orderItem.Product.ShopId))
+                return Forbid();
+
+            if (orderItem.Order != null)
+            {
+                orderItem.Order.Status = status;
+                await _context.SaveChangesAsync();
+                TempData["StatusMessage"] = "Order status updated.";
+            }
+
+            return RedirectToAction(nameof(Dashboard));
+        }
     }
 }

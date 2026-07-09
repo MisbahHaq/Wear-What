@@ -26,18 +26,7 @@ namespace Shop.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            var orders = await _context.Orders
-                .Where(o => o.CustomerId == user.Id)
-                .OrderByDescending(o => o.CreatedAt)
-                .Select(o => new UserOrderSummary
-                {
-                    OrderId = o.Id,
-                    CreatedAt = o.CreatedAt,
-                    Status = o.Status,
-                    TotalAmount = o.TotalAmount,
-                    ItemCount = o.OrderItems.Count
-                })
-                .ToListAsync();
+            var isVendor = await _userManager.IsInRoleAsync(user, "Vendor");
 
             var viewModel = new ProfileViewModel
             {
@@ -50,9 +39,21 @@ namespace Shop.Controllers
                     .ThenInclude(p => p!.Shop)
                     .Where(w => w.UserId == user.Id)
                     .ToListAsync(),
-                Orders = orders
+                Orders = await _context.Orders
+                    .Where(o => o.CustomerId == user.Id)
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Select(o => new UserOrderSummary
+                    {
+                        OrderId = o.Id,
+                        CreatedAt = o.CreatedAt,
+                        Status = o.Status,
+                        TotalAmount = o.TotalAmount,
+                        ItemCount = o.OrderItems.Count
+                    })
+                    .ToListAsync()
             };
 
+            ViewBag.IsVendor = isVendor;
             return View(viewModel);
         }
 

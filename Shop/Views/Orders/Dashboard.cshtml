@@ -7,11 +7,35 @@
         .OrderByDescending(g => g.First().Order!.CreatedAt);
 }
 
-<h1>Owner Dashboard</h1>
+<style>
+    .status-select {
+        border: 1px solid var(--border);
+        padding: 0.35rem 0.6rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        background: var(--bg);
+        color: var(--text);
+        border-radius: 0;
+        min-width: 160px;
+    }
+
+    .status-select:focus {
+        border-color: var(--text);
+        box-shadow: none;
+        outline: none;
+    }
+</style>
+
+<h1 class="fw-bold" style="font-size:1.4rem; border-bottom:2px solid var(--text); padding-bottom:0.75rem; margin-bottom:1.25rem;">Owner Dashboard</h1>
 
 @if (TempData["OrderMessage"] != null)
 {
     <div class="alert alert-success">@TempData["OrderMessage"]</div>
+}
+
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-dark">@TempData["StatusMessage"]</div>
 }
 
 @if (!Model.Shops.Any())
@@ -72,9 +96,21 @@ else
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
                         <strong>Order #@group.Key</strong>
-                        <span class="text-muted"> - @order.Status - @order.CreatedAt.ToString("g")</span>
+                        <span class="text-muted"> - @order.CreatedAt.ToString("g")</span>
                     </div>
-                    <span class="badge bg-dark">$@orderTotal.ToString("0.00")</span>
+                    <div class="d-flex align-items-center gap-3">
+                        <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
+                            <input type="hidden" name="orderItemId" value="@group.First().Id" />
+                            <select name="status" class="form-select status-select" onchange="this.form.submit()">
+                                @foreach (var s in new[] { "Pending", "Received", "Out for Delivery", "Delivered" })
+                                {
+                                    <option value="@s" selected="@(order.Status == s ? "selected" : null)">@s</option>
+                                }
+                            </select>
+                            @Html.AntiForgeryToken()
+                        </form>
+                        <span class="badge bg-dark">$@orderTotal.ToString("0.00")</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <p class="mb-1"><strong>Customer:</strong> @(order.Customer?.FullName ?? order.Customer?.UserName ?? order.CustomerId)</p>
