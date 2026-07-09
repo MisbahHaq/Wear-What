@@ -21,6 +21,13 @@ namespace Shop
                 .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(1);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -47,6 +54,7 @@ namespace Shop
 
             app.UseRouting();
 
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
 

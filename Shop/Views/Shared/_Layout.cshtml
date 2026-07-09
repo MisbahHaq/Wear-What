@@ -41,8 +41,11 @@
                          <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
                          <a class="nav-link d-none d-sm-inline" asp-controller="Account" asp-action="Register">Register</a>
                      }
-                     <a class="nav-link" asp-controller="Orders" asp-action="Cart">Cart</a>
-                 </div>
+                      <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index" id="cartNavLink">
+                          Cart
+                          <span id="cartBadge" class="cart-badge d-none">0</span>
+                      </a>
+                  </div>
             </div>
         </nav>
 
@@ -88,7 +91,7 @@
                             <li><a asp-controller="Account" asp-action="Login">Sign In</a></li>
                             <li><a asp-controller="Account" asp-action="Register">Register</a></li>
                         }
-                        <li><a asp-controller="Orders" asp-action="Cart">Cart</a></li>
+                        <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">

@@ -122,43 +122,44 @@
             }
             else
             {
-                <form asp-controller="Orders" asp-action="Create" method="post" id="purchaseForm" asp-antiforgery="true">
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    
-                    <div class="d-flex align-items-center gap-3 mb-4">
-                        <div class="quantity-control">
-                            <button type="button" class="quantity-btn" onclick="adjustQty(-1)">-</button>
-                            <input type="number" name="quantity" id="quantity" class="quantity-input" value="1" min="1" max="100" readonly />
-                            <button type="button" class="quantity-btn" onclick="adjustQty(1)">+</button>
-                        </div>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="quantity-control">
+                        <button type="button" class="quantity-btn" onclick="adjustQty(-1)">-</button>
+                        <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="100" readonly />
+                        <button type="button" class="quantity-btn" onclick="adjustQty(1)">+</button>
                     </div>
+                </div>
 
-                    <div class="d-flex gap-2 align-items-center">
-                        @if (currentUserId != null)
-                        {
-                            <button type="submit" class="btn-buy-now flex-grow-1">Buy Now</button>
-                            <button type="submit" asp-controller="Orders" asp-action="Create" class="btn-cart-outline">Add To Cart</button>
-                        }
-                        else
-                        {
-                            <a asp-area="Identity" asp-page="/Account/Login" class="btn-buy-now text-center flex-grow-1 text-decoration-none">Log in to Purchase</a>
-                        }
-                    </form>
-
+                <div class="d-flex gap-2 align-items-center">
                     @if (currentUserId != null)
                     {
-                        <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline" asp-antiforgery="true">
+                        <form asp-controller="Orders" asp-action="Create" method="post" class="d-inline flex-grow-1" asp-antiforgery="true">
                             <input type="hidden" name="productId" value="@Model.Id" />
-                            <button type="submit" class="btn-fav" title="Add to Wishlist">
-                                <span style="font-size: 1.2rem; line-height:1;">&#9825;</span>
-                            </button>
+                            <input type="hidden" name="quantity" id="buyNowQuantity" value="1" />
+                            <button type="submit" class="btn-buy-now w-100">Buy Now</button>
+                        </form>
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline flex-grow-1" asp-antiforgery="true">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="quantity" id="addToCartQuantity" value="1" />
+                            <button type="submit" class="btn-cart-outline w-100">Add To Cart</button>
                         </form>
                     }
-                }
-
-                <div class="mt-3 text-muted" style="font-size: 0.82rem;">
-                    <span>🚚 Free Delivery On Orders Over $200</span>
+                    else
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn-buy-now text-center flex-grow-1 text-decoration-none">Log in to Purchase</a>
+                    }
                 </div>
+
+                @if (currentUserId != null)
+                {
+                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline mt-2" asp-antiforgery="true">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <button type="submit" class="btn-fav" title="Add to Wishlist">
+                            <span style="font-size: 1.2rem; line-height:1;">&#9825;</span>
+                        </button>
+                    </form>
+                }
+            }
         </div>
     </div>
 
@@ -241,6 +242,10 @@
             
             if (newVal >= parseInt(qtyInput.min) && newVal <= parseInt(qtyInput.max)) {
                 qtyInput.value = newVal;
+                var buyNow = document.getElementById('buyNowQuantity');
+                var addToCart = document.getElementById('addToCartQuantity');
+                if (buyNow) buyNow.value = newVal;
+                if (addToCart) addToCart.value = newVal;
             }
         }
         
