@@ -172,32 +172,31 @@
                 <hr class="section-divider" />
             }
 
-            <div class="profile-section">
-                <div class="profile-section-title">Your Shops</div>
-                @if ((Model?.Shops?.Any() ?? false))
-                {
-                    foreach (var shop in Model!.Shops!)
+            @if (ViewBag.IsVendor ?? false)
+            {
+                <div class="profile-section">
+                    <div class="profile-section-title">Your Shops</div>
+                    @if ((Model?.Shops?.Any() ?? false))
                     {
-                        <div class="shop-item">
-                            <div class="shop-item-info">
-                                <h6>@shop.Name</h6>
-                                <p>@shop.Description</p>
+                        foreach (var shop in Model!.Shops!)
+                        {
+                            <div class="shop-item">
+                                <div class="shop-item-info">
+                                    <h6>@shop.Name</h6>
+                                    <p>@shop.Description</p>
+                                </div>
+                                <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-dark">View</a>
                             </div>
-                            <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-dark">View</a>
-                        </div>
+                        }
                     }
-                }
-                else if (!(ViewBag.IsVendor ?? false))
-                {
-                    <div class="empty-state">You don't have a shop yet.</div>
-                }
-                else
-                {
-                    <div class="empty-state">You do not have a shop yet. <a asp-controller="Shops" asp-action="Create">Create one</a> to manage orders.</div>
-                }
-            </div>
+                    else
+                    {
+                        <div class="empty-state">You do not have a shop yet. <a asp-controller="Shops" asp-action="Create">Create one</a> to manage orders.</div>
+                    }
+                </div>
 
-            <hr class="section-divider" />
+                <hr class="section-divider" />
+            }
 
             <div class="profile-section">
                 <div class="profile-section-title">Security</div>
