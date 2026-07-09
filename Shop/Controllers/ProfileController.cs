@@ -26,6 +26,19 @@ namespace Shop.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
+            var orders = await _context.Orders
+                .Where(o => o.CustomerId == user.Id)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new UserOrderSummary
+                {
+                    OrderId = o.Id,
+                    CreatedAt = o.CreatedAt,
+                    Status = o.Status,
+                    TotalAmount = o.TotalAmount,
+                    ItemCount = o.OrderItems.Count
+                })
+                .ToListAsync();
+
             var viewModel = new ProfileViewModel
             {
                 Email = user.Email ?? string.Empty,
@@ -36,7 +49,8 @@ namespace Shop.Controllers
                     .Include(w => w.Product)
                     .ThenInclude(p => p!.Shop)
                     .Where(w => w.UserId == user.Id)
-                    .ToListAsync()
+                    .ToListAsync(),
+                Orders = orders
             };
 
             return View(viewModel);
@@ -74,6 +88,18 @@ namespace Shop.Controllers
                 .Include(w => w.Product)
                 .ThenInclude(p => p!.Shop)
                 .Where(w => w.UserId == user.Id)
+                .ToListAsync();
+            model.Orders = await _context.Orders
+                .Where(o => o.CustomerId == user.Id)
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new UserOrderSummary
+                {
+                    OrderId = o.Id,
+                    CreatedAt = o.CreatedAt,
+                    Status = o.Status,
+                    TotalAmount = o.TotalAmount,
+                    ItemCount = o.OrderItems.Count
+                })
                 .ToListAsync();
             return View(model);
         }

@@ -1006,6 +1006,30 @@ footer {
   display: none !important;
 }
 
+.profile-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.profile-icon-link:hover {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.profile-icon-link svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* ===== CART PAGE ===== */
 .cart-page {
   margin-top: 1.5rem;

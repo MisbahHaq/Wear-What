@@ -72,6 +72,16 @@ namespace Shop.Models
 
         public List<ShopItem> Shops { get; set; } = new();
         public List<WishlistItem> WishlistItems { get; set; } = new();
+        public List<UserOrderSummary> Orders { get; set; } = new();
+    }
+
+    public class UserOrderSummary
+    {
+        public int OrderId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public decimal TotalAmount { get; set; }
+        public int ItemCount { get; set; }
     }
 
     public class OwnerDashboardViewModel

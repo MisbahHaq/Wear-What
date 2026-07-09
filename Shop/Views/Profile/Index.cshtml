@@ -2,109 +2,204 @@
 
 @{
     ViewData["Title"] = "Profile";
+    var initials = string.IsNullOrWhiteSpace(Model.FullName) ? "?" : string.Join("", Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0].ToString().ToUpper()));
 }
 
-<h1>Profile</h1>
+<style>
+    .profile-page { margin-top: 2rem; margin-bottom: 3rem; }
+    .profile-grid { display: grid; grid-template-columns: 260px 1fr; gap: 2rem; align-items: start; }
+    .profile-sidebar { border: 1px solid var(--border); padding: 1.5rem; text-align: center; background: var(--bg); }
+    .profile-avatar { width: 96px; height: 96px; border-radius: 50%; background: var(--text); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; margin: 0 auto 1rem; }
+    .profile-name { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.25rem; }
+    .profile-email { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; word-break: break-all; }
+    .profile-sidebar .btn { width: 100%; margin-bottom: 0.5rem; }
+    .profile-section { border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1.25rem; background: var(--bg); }
+    .profile-section-title { font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .profile-table { width: 100%; font-size: 0.9rem; }
+    .profile-table th { font-weight: 700; color: var(--text-secondary); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .profile-table td, .profile-table th { padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .profile-table tr:last-child td { border-bottom: none; }
+    .badge-status { font-size: 0.78rem; font-weight: 700; padding: 0.35rem 0.6rem; border: 1px solid var(--border); display: inline-block; }
+    .badge-pending { background: var(--surface); }
+    .badge-shipped { background: #f2fadc; }
+    .badge-delivered { background: #111; color: #fff; border-color: #111; }
+    .badge-cancelled { background: #fff; color: #dc3545; border-color: #dc3545; }
+    .empty-state { padding: 2rem; text-align: center; color: var(--text-secondary); border: 1px dashed var(--border); }
+    .wishlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+    .wishlist-card { border: 1px solid var(--border); padding: 0.75rem; text-align: center; background: var(--bg); text-decoration: none; color: inherit; display: block; }
+    .wishlist-card img { width: 100%; height: 140px; object-fit: cover; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem; }
+    .wishlist-card-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .wishlist-card-price { font-weight: 800; font-size: 0.9rem; }
+    .wishlist-card-shop { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .shop-item { border: 1px solid var(--border); padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .shop-item-info h6 { margin: 0; font-weight: 700; }
+    .shop-item-info p { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+    .form-label { font-weight: 700; font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+    @@media (max-width: 768px) {
+        .profile-grid { grid-template-columns: 1fr; }
+        .profile-sidebar { display: flex; flex-wrap: wrap; gap: 1rem; text-align: left; align-items: center; }
+        .profile-avatar { margin: 0; }
+        .profile-sidebar .btn { width: auto; flex: 1; margin: 0; }
+    }
+</style>
 
-@if (ViewBag.Message != null)
-{
-    <div class="alert alert-success">@ViewBag.Message</div>
-}
+<div class="container profile-page">
+    <h1 class="profile-page-title">Profile</h1>
 
-<div class="row">
-    <div class="col-md-6">
-        <h3>Account Information</h3>
-        <form asp-action="Index">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" readonly />
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-dark" style="border:1px solid var(--border);">@ViewBag.Message</div>
+    }
+
+    <div class="profile-grid">
+        <aside class="profile-sidebar">
+            <div class="profile-avatar">@initials</div>
+            <div>
+                <div class="profile-name">@Model.FullName</div>
+                <div class="profile-email">@Model.Email</div>
             </div>
-            <div class="mb-3">
-                <label asp-for="FullName" class="form-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+            <div class="mt-2">
+                <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger" onclick="document.getElementById('logoutFormSidebar').submit(); return false;">Logout</a>
+                <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormSidebar" class="d-inline"></form>
             </div>
-            <div class="mb-3">
-                <label asp-for="Address" class="form-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="mt-3">
-                <input type="submit" value="Save Changes" class="btn btn-primary" />
-            </div>
-        </form>
+        </aside>
 
-        <hr />
-
-        <h3>Change Password</h3>
-        <a asp-action="ChangePassword" class="btn btn-outline-secondary">Change Password</a>
-
-        <hr />
-
-        <h3>Delete Account</h3>
-        <a asp-action="DeleteAccount" class="btn btn-outline-danger">Delete Account</a>
-    </div>
-
-    <div class="col-md-6">
-        <h3>Your Shops</h3>
-        @if ((Model?.Shops?.Any() ?? false))
-        {
-            <div class="list-group">
-                @foreach (var shop in Model!.Shops!)
-                {
-                    <div class="list-group-item">
-                        <h5 class="mb-1">@shop.Name</h5>
-                        <p class="mb-1 text-muted">@shop.Description</p>
-                        <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-outline-primary">View Products</a>
-                    </div>
-                }
-            </div>
-        }
-        else
-        {
-            <p>You have no shops yet. <a asp-controller="Shops" asp-action="Create">Create one now</a>.</p>
-        }
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h3>Your Wishlist</h3>
-        @if ((Model?.WishlistItems?.Any() ?? false))
-        {
-            <div class="product-grid">
-            @foreach (var item in Model!.WishlistItems!)
-            {
-                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="product-card text-decoration-none">
-                    @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
-                    {
-                        <img src="@item.Product.ImageUrl1" class="product-card-image" alt="@item.Product.Name" />
-                    }
-                    else
-                    {
-                        <div class="product-card-image-placeholder">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
-                    }
-                    <div class="product-card-body">
-                        <div class="product-card-title">@item.Product?.Name</div>
-                        <div class="product-card-price">$@item.Product?.Price.ToString("0.00")</div>
-                        <div class="product-card-shop">From: @item.Product?.Shop?.Name</div>
-                        <div class="d-flex gap-2 mt-2">
-                            <span class="btn btn-outline-primary btn-sm product-card-btn flex-fill">View</span>
-                            <form asp-controller="Wishlist" asp-action="Remove" method="post" class="flex-fill" asp-antiforgery="true">
-                                <input type="hidden" name="productId" value="@item.ProductId" />
-                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">Remove</button>
-                            </form>
+        <div class="profile-main">
+            <form asp-action="Index" method="post">
+                <div class="profile-section">
+                    <div class="profile-section-title">Account Information</div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger small"></span>
                         </div>
                     </div>
-                </a>
-            }
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-dark">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+
+            <hr class="section-divider" />
+
+            <div class="profile-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="profile-section-title" style="margin:0; border:none; padding:0;">Orders</div>
+                    <a asp-controller="Orders" asp-action="Dashboard" class="btn btn-sm btn-outline-dark">View All</a>
+                </div>
+                @if ((Model?.Orders?.Any() ?? false))
+                {
+                    <div class="table-responsive">
+                        <table class="profile-table">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in Model!.Orders!.Take(5))
+                                {
+                                    <tr>
+                                        <td>#@order.OrderId</td>
+                                        <td>@order.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                        <td>@order.ItemCount</td>
+                                        <td>$@order.TotalAmount.ToString("0.00")</td>
+                                        <td><span class="badge-status badge-@order.Status.ToLower()">@order.Status</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">You have no orders yet.</div>
+                }
             </div>
-        }
-        else
-        {
-            <p>Your wishlist is empty. <a asp-controller="Products" asp-action="Index">Browse products to add</a>.</p>
-        }
+
+            <hr class="section-divider" />
+
+            <div class="profile-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="profile-section-title" style="margin:0; border:none; padding:0;">Wishlist</div>
+                    <a asp-controller="Wishlist" asp-action="Index" class="btn btn-sm btn-outline-dark">View All</a>
+                </div>
+                @if ((Model?.WishlistItems?.Any() ?? false))
+                {
+                    <div class="wishlist-grid">
+                        @foreach (var item in Model!.WishlistItems!.Take(6))
+                        {
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId" class="wishlist-card">
+                                @if (!string.IsNullOrEmpty(item.Product?.ImageUrl1))
+                                {
+                                    <img src="@item.Product.ImageUrl1" alt="@item.Product.Name" />
+                                }
+                                else
+                                {
+                                    <div style="width:100%;height:140px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-secondary);">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
+                                }
+                                <div class="wishlist-card-title">@item.Product?.Name</div>
+                                <div class="wishlist-card-price">$@item.Product?.Price.ToString("0.00")</div>
+                                <div class="wishlist-card-shop">@item.Product?.Shop?.Name</div>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">Your wishlist is empty.</div>
+                }
+            </div>
+
+            <hr class="section-divider" />
+
+            <div class="profile-section">
+                <div class="profile-section-title">Your Shops</div>
+                @if ((Model?.Shops?.Any() ?? false))
+                {
+                    foreach (var shop in Model!.Shops!)
+                    {
+                        <div class="shop-item">
+                            <div class="shop-item-info">
+                                <h6>@shop.Name</h6>
+                                <p>@shop.Description</p>
+                            </div>
+                            <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="btn btn-sm btn-dark">View</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-state">You don't have a shop yet. <a asp-controller="Shops" asp-action="Create">Create one</a>.</div>
+                }
+            </div>
+
+            <hr class="section-divider" />
+
+            <div class="profile-section">
+                <div class="profile-section-title">Security</div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a asp-action="ChangePassword" class="btn btn-outline-dark">Change Password</a>
+                    <a asp-action="DeleteAccount" class="btn btn-outline-danger">Delete Account</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

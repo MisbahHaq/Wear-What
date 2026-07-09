@@ -24,27 +24,26 @@
 <div class="d-flex align-items-center gap-3">
                       @if (User?.Identity?.IsAuthenticated == true)
                       {
-                          var fullName = User.FindFirst("FullName")?.Value ?? User.Identity.Name ?? "";
-                          <a class="nav-link" asp-controller="Profile" asp-action="Index">@fullName</a>
                           @if (User.IsInRole("Admin"))
                           {
                               <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
                           }
-                          <a class="nav-link" asp-controller="Wishlist" asp-action="Index">Wishlist</a>
-                          <a class="nav-link" asp-controller="Orders" asp-action="Dashboard">Orders</a>
-                          <form asp-controller="Account" asp-action="Logout" method="post" id="logoutForm" class="d-inline">
-                              <button type="submit" class="nav-link btn btn-link">Logout</button>
-                          </form>
+                          <a class="nav-link position-relative" asp-controller="Wishlist" asp-action="Index">
+                              Wishlist
+                          </a>
+                          <a class="nav-link position-relative profile-icon-link" asp-controller="Profile" asp-action="Index" title="Profile">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                          </a>
                       }
-                     else
-                     {
-                         <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
-                         <a class="nav-link d-none d-sm-inline" asp-controller="Account" asp-action="Register">Register</a>
-                     }
-                      <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index" id="cartNavLink">
-                          Cart
-                          <span id="cartBadge" class="cart-badge d-none">0</span>
-                      </a>
+                      else
+                      {
+                          <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                          <a class="nav-link d-none d-sm-inline" asp-controller="Account" asp-action="Register">Register</a>
+                      }
+                       <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index" id="cartNavLink">
+                           Cart
+                           <span id="cartBadge" class="cart-badge d-none">0</span>
+                       </a>
                   </div>
             </div>
         </nav>
@@ -78,8 +77,8 @@
                         @if (User?.Identity?.IsAuthenticated == true)
                         {
                             <li><a asp-controller="Profile" asp-action="Index">Profile</a></li>
-                            <li><a asp-controller="Orders" asp-action="Dashboard">Orders</a></li>
                             <li><a asp-controller="Wishlist" asp-action="Index">Wishlist</a></li>
+                            <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
                             <li>
                                 <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormFooter" class="d-inline">
                                     <button type="submit" class="btn btn-link p-0">Logout</button>
@@ -90,8 +89,8 @@
                         {
                             <li><a asp-controller="Account" asp-action="Login">Sign In</a></li>
                             <li><a asp-controller="Account" asp-action="Register">Register</a></li>
+                            <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
                         }
-                        <li><a asp-controller="Cart" asp-action="Index">Cart</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
