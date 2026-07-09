@@ -44,6 +44,7 @@ namespace Shop.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            Console.WriteLine($"[DEBUG] Validate called: UserRole='{UserRole}', CNIC='{CNIC}', ContactNumber='{ContactNumber}', ShopName='{ShopName}'");
             if (UserRole == "Vendor")
             {
                 if (string.IsNullOrWhiteSpace(CNIC))

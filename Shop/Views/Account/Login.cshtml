@@ -208,6 +208,7 @@
                             <label class="form-check-label" style="color: #888888; font-size: 0.85rem;">
                                 <input asp-for="RememberMe" class="form-check-input" /> @Html.DisplayNameFor(model => model.RememberMe)
                             </label>
+                            <span asp-validation-for="RememberMe" class="text-danger small"></span>
                         </div>
 
                         <button type="submit" class="btn btn-login">Sign in</button>
@@ -224,4 +225,13 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function() {
+            var rememberMe = document.getElementById('RememberMe');
+            if (rememberMe) {
+                rememberMe.removeAttribute('data-val');
+                rememberMe.removeAttribute('data-val-required');
+            }
+        })();
+    </script>
 }

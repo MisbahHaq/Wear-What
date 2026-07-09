@@ -188,13 +188,31 @@
         var vendorFields = document.getElementById('vendorFields');
         if (role === 'Vendor') {
             vendorFields.style.display = 'block';
+            $('#ShopName').prop('disabled', false);
+            $('#CNIC').prop('disabled', false);
+            $('#ContactNumber').prop('disabled', false);
         } else {
             vendorFields.style.display = 'none';
+            $('#ShopName').prop('disabled', true);
+            $('#CNIC').prop('disabled', true);
+            $('#ContactNumber').prop('disabled', true);
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    $(document).ready(function() {
         toggleVendorFields();
+        console.log('[Register] Page loaded. UserRole:', $('#userRole').val());
+    });
+
+    $('#registerForm').submit(function(e) {
+        var role = $('#userRole').val();
+        console.log('[Register] Form submitting. UserRole:', role);
+        if (role !== 'Vendor') {
+            $('#ShopName').prop('disabled', true);
+            $('#CNIC').prop('disabled', true);
+            $('#ContactNumber').prop('disabled', true);
+            console.log('[Register] Disabled vendor fields for Customer');
+        }
     });
 </script>
 
