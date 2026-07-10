@@ -22,6 +22,7 @@ namespace Shop.Controllers
         private string GetCurrentUserId() => _userManager.GetUserId(User) ?? string.Empty;
 
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> Checkout(int productId, int quantity = 1)
         {
             if (quantity <= 0) quantity = 1;
@@ -113,17 +114,14 @@ namespace Shop.Controllers
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
+            HttpContext.Session.SetString("LastOrderId", order.Id.ToString());
             TempData["OrderMessage"] = "Order placed successfully.";
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return LocalRedirect(returnUrl);
-            }
-
-            return RedirectToAction("Details", "Products", new { id = productId });
+            return RedirectToAction(nameof(OrderConfirmation));
         }
 
         [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> CheckoutCart()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -179,6 +177,7 @@ namespace Shop.Controllers
 
             var delivery = deliveryMethod == "Express" ? CartCheckoutViewModel.ExpressDeliveryFee : 0m;
             var payment = paymentMethod == "Card" ? "Card" : "CashOnDelivery";
+            Order? lastOrder = null;
 
             var productIds = cart.Select(i => i.ProductId).ToList();
             var products = await _context.Products
@@ -220,14 +219,39 @@ namespace Shop.Controllers
 
                 order.TotalAmount = total + delivery;
                 _context.Orders.Add(order);
+                lastOrder = order;
             }
 
             await _context.SaveChangesAsync();
 
+            if (lastOrder != null)
+            {
+                HttpContext.Session.SetString("LastOrderId", lastOrder.Id.ToString());
+            }
+
             ClearCartSession();
             TempData["OrderMessage"] = "Your order has been placed successfully.";
 
-            return RedirectToAction("Details", "Products", new { id = productIds.First() });
+            return RedirectToAction(nameof(OrderConfirmation));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderConfirmation()
+        {
+            var idStr = HttpContext.Session.GetString("LastOrderId");
+            if (!int.TryParse(idStr, out var orderId))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == GetCurrentUserId());
+
+            if (order == null) return RedirectToAction("Index", "Home");
+
+            return View(order);
         }
 
         private List<CartItem> GetCartFromSession()

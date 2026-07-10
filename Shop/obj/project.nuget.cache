@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "AjDHxrknHdc=",
+  "dgSpecHash": "Yv4fIUtEMTU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\shop\\Shop.csproj",
+  "projectFilePath": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\Shop\\Shop.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Misbah\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\Misbah\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",

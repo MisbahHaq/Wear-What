@@ -1,0 +1,63 @@
+@model Shop.Models.Order
+
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container checkout-container" style="max-width: 760px;">
+    <div class="text-center mb-4">
+        <div style="width:64px;height:64px;border-radius:50% !important;background:#f2fadc;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1rem;">&#10003;</div>
+        <h2 class="fw-bold">Thank you for your order!</h2>
+        <p class="text-muted">Your order <strong>#@Model.Id</strong> has been placed successfully.</p>
+    </div>
+
+    <div class="card border-0 bg-light p-3 mb-4" style="border-radius:12px !important;">
+        <h5 class="fw-bold mb-3">Order Details</h5>
+        @foreach (var item in Model.OrderItems)
+        {
+            var img = item.Product?.ImageUrl1;
+            var imgSrc = !string.IsNullOrEmpty(img) ? img : "/images/placeholder.png";
+            <div class="d-flex gap-3 align-items-center mb-3">
+                <div class="checkout-summary-img" style="width:70px;height:70px;flex:0 0 70px;padding:8px;">
+                    <img src="@imgSrc" alt="@item.Product?.Name" style="max-height:50px;" />
+                </div>
+                <div class="flex-grow-1">
+                    <div class="checkout-product-title" style="font-size:1.05rem;">@item.Product?.Name</div>
+                    <div class="text-muted small">$@item.UnitPrice.ToString("0.00") x @item.Quantity</div>
+                </div>
+                <div class="text-end fw-bold">$@((item.UnitPrice * item.Quantity).ToString("0.00"))</div>
+            </div>
+        }
+    </div>
+
+    <div class="card border-0 bg-light p-4" style="border-radius:12px !important;">
+        <h5 class="fw-bold mb-3">Summary</h5>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Items Total</span>
+            <span>$@((Model.TotalAmount - Model.DeliveryFee).ToString("0.00"))</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Delivery (@Model.DeliveryMethod)</span>
+            <span>$@Model.DeliveryFee.ToString("0.00")</span>
+        </div>
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Payment</span>
+            <span>@(Model.PaymentMethod == "Card" ? "Card (Demo)" : "Cash on Delivery")</span>
+        </div>
+        <hr />
+        <div class="d-flex justify-content-between">
+            <span class="fw-bold">Total</span>
+            <span class="fw-bold fs-5">$@Model.TotalAmount.ToString("0.00")</span>
+        </div>
+
+        <div class="mt-3">
+            <div class="text-muted small fw-bold text-uppercase">Shipping Address</div>
+            <div>@Model.ShippingAddress</div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark flex-grow-1">Continue Shopping</a>
+        <a asp-controller="Profile" asp-action="Index" class="btn-confirm-order flex-grow-1">View My Orders</a>
+    </div>
+</div>
