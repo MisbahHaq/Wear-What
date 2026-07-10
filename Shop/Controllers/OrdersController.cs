@@ -21,9 +21,46 @@ namespace Shop.Controllers
 
         private string GetCurrentUserId() => _userManager.GetUserId(User) ?? string.Empty;
 
+        [HttpGet]
+        public async Task<IActionResult> Checkout(int productId, int quantity = 1)
+        {
+            if (quantity <= 0) quantity = 1;
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var product = await _context.Products
+                .Include(p => p.Shop)
+                .FirstOrDefaultAsync(p => p.Id == productId);
+            if (product == null) return NotFound();
+
+            if (product.Shop?.OwnerId == user.Id)
+            {
+                TempData["OrderMessage"] = "You cannot purchase your own product.";
+                return RedirectToAction("Details", "Products", new { id = productId });
+            }
+
+            var viewModel = new CheckoutViewModel
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                ProductImageUrl = product.ImageUrl1,
+                ShopName = product.Shop?.Name,
+                UnitPrice = product.Price,
+                Quantity = quantity,
+                CustomerFullName = user.FullName,
+                CustomerContactNumber = user.ContactNumber ?? string.Empty,
+                ShippingAddress = user.Address,
+                DeliveryMethod = "Standard",
+                PaymentMethod = "CashOnDelivery"
+            };
+
+            return View(viewModel);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int productId, int quantity, string? returnUrl = null)
+        public async Task<IActionResult> Create(int productId, int quantity, string? shippingAddress = null, string? contactNumber = null, string? deliveryMethod = null, string? paymentMethod = null, string? returnUrl = null)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
@@ -43,12 +80,26 @@ namespace Shop.Controllers
                 return RedirectToAction("Details", "Products", new { id = productId });
             }
 
+            var shipping = !string.IsNullOrWhiteSpace(shippingAddress) ? shippingAddress : user.Address;
+
+            if (!string.IsNullOrWhiteSpace(contactNumber) && contactNumber != user.ContactNumber)
+            {
+                user.ContactNumber = contactNumber;
+                await _userManager.UpdateAsync(user);
+            }
+
+            var delivery = deliveryMethod == "Express" ? CheckoutViewModel.ExpressDeliveryFee : 0m;
+            var payment = paymentMethod == "Card" ? "Card" : "CashOnDelivery";
+
             var order = new Order
             {
                 CustomerId = user.Id,
                 CreatedAt = DateTime.UtcNow,
                 Status = "Pending",
-                ShippingAddress = user.Address
+                ShippingAddress = shipping,
+                DeliveryMethod = deliveryMethod == "Express" ? "Express" : "Standard",
+                DeliveryFee = delivery,
+                PaymentMethod = payment
             };
 
             order.OrderItems.Add(new OrderItem
@@ -58,7 +109,7 @@ namespace Shop.Controllers
                 UnitPrice = product.Price
             });
 
-            order.TotalAmount = product.Price * quantity;
+            order.TotalAmount = product.Price * quantity + delivery;
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
@@ -71,6 +122,126 @@ namespace Shop.Controllers
 
             return RedirectToAction("Details", "Products", new { id = productId });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckoutCart()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var cart = GetCartFromSession();
+            if (!cart.Any())
+            {
+                return RedirectToAction(nameof(Index), "Cart");
+            }
+
+            var viewModel = new CartCheckoutViewModel
+            {
+                Items = cart.Select(i => new CartCheckoutItemViewModel
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    ImageUrl = i.ImageUrl,
+                    ShopName = i.ShopName,
+                    UnitPrice = i.Price,
+                    Quantity = i.Quantity
+                }).ToList(),
+                CustomerFullName = user.FullName,
+                CustomerContactNumber = user.ContactNumber ?? string.Empty,
+                ShippingAddress = user.Address,
+                DeliveryMethod = "Standard",
+                PaymentMethod = "CashOnDelivery"
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCart(string? shippingAddress = null, string? contactNumber = null, string? deliveryMethod = null, string? paymentMethod = null)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var cart = GetCartFromSession();
+            if (!cart.Any())
+            {
+                return RedirectToAction(nameof(Index), "Cart");
+            }
+
+            var shipping = !string.IsNullOrWhiteSpace(shippingAddress) ? shippingAddress : user.Address;
+
+            if (!string.IsNullOrWhiteSpace(contactNumber) && contactNumber != user.ContactNumber)
+            {
+                user.ContactNumber = contactNumber;
+                await _userManager.UpdateAsync(user);
+            }
+
+            var delivery = deliveryMethod == "Express" ? CartCheckoutViewModel.ExpressDeliveryFee : 0m;
+            var payment = paymentMethod == "Card" ? "Card" : "CashOnDelivery";
+
+            var productIds = cart.Select(i => i.ProductId).ToList();
+            var products = await _context.Products
+                .Include(p => p.Shop)
+                .Where(p => productIds.Contains(p.Id))
+                .ToListAsync();
+
+            var grouped = cart
+                .GroupBy(i => i.ShopId)
+                .ToList();
+
+            foreach (var group in grouped)
+            {
+                var order = new Order
+                {
+                    CustomerId = user.Id,
+                    CreatedAt = DateTime.UtcNow,
+                    Status = "Pending",
+                    ShippingAddress = shipping,
+                    DeliveryMethod = deliveryMethod == "Express" ? "Express" : "Standard",
+                    DeliveryFee = delivery,
+                    PaymentMethod = payment
+                };
+
+                decimal total = 0;
+                foreach (var item in group)
+                {
+                    var product = products.FirstOrDefault(p => p.Id == item.ProductId);
+                    if (product == null) continue;
+
+                    order.OrderItems.Add(new OrderItem
+                    {
+                        ProductId = product.Id,
+                        Quantity = item.Quantity,
+                        UnitPrice = product.Price
+                    });
+                    total += product.Price * item.Quantity;
+                }
+
+                order.TotalAmount = total + delivery;
+                _context.Orders.Add(order);
+            }
+
+            await _context.SaveChangesAsync();
+
+            ClearCartSession();
+            TempData["OrderMessage"] = "Your order has been placed successfully.";
+
+            return RedirectToAction("Details", "Products", new { id = productIds.First() });
+        }
+
+        private List<CartItem> GetCartFromSession()
+        {
+            var cartJson = HttpContext.Session.GetString(CartSessionKey);
+            return string.IsNullOrEmpty(cartJson) ? new List<CartItem>() : System.Text.Json.JsonSerializer.Deserialize<List<CartItem>>(cartJson)!;
+        }
+
+        private void ClearCartSession()
+        {
+            HttpContext.Session.Remove(CartSessionKey);
+        }
+
+        private const string CartSessionKey = "Cart";
 
         public async Task<IActionResult> Dashboard()
         {

@@ -4407,11 +4407,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\shop\\Shop.csproj",
+      "projectUniqueName": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\Shop\\Shop.csproj",
       "projectName": "Shop",
-      "projectPath": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\shop\\Shop.csproj",
+      "projectPath": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\Shop\\Shop.csproj",
       "packagesPath": "C:\\Users\\Misbah\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\shop\\obj\\",
+      "outputPath": "C:\\Users\\Misbah\\Desktop\\MultiVendor\\Shop\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

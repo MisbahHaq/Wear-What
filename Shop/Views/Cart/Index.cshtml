@@ -70,10 +70,7 @@
                     <span>Total</span>
                     <span>$@subtotal.ToString("0.00")</span>
                 </div>
-                <form asp-controller="Orders" asp-action="Create" method="post" class="mt-3">
-                    <input type="hidden" name="productId" value="" />
-                    <button type="submit" class="btn btn-dark w-100">Proceed to Checkout</button>
-                </form>
+                <a asp-controller="Orders" asp-action="CheckoutCart" class="btn btn-dark w-100 mt-3">Proceed to Checkout</a>
                 <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark w-100 mt-2">Continue Shopping</a>
             </div>
         </div>

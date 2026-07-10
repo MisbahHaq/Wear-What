@@ -48,7 +48,9 @@ namespace Shop.Controllers
                         CreatedAt = o.CreatedAt,
                         Status = o.Status,
                         TotalAmount = o.TotalAmount,
-                        ItemCount = o.OrderItems.Count
+                        ItemCount = o.OrderItems.Count,
+                        ProductName = o.OrderItems.Select(i => i.Product!.Name).FirstOrDefault() ?? string.Empty,
+                        ProductImageUrl = o.OrderItems.Select(i => i.Product!.ImageUrl1).FirstOrDefault()
                     })
                     .ToListAsync()
             };
@@ -95,13 +97,15 @@ namespace Shop.Controllers
                 .OrderByDescending(o => o.CreatedAt)
                 .Select(o => new UserOrderSummary
                 {
-                    OrderId = o.Id,
-                    CreatedAt = o.CreatedAt,
-                    Status = o.Status,
-                    TotalAmount = o.TotalAmount,
-                    ItemCount = o.OrderItems.Count
-                })
-                .ToListAsync();
+                        OrderId = o.Id,
+                        CreatedAt = o.CreatedAt,
+                        Status = o.Status,
+                        TotalAmount = o.TotalAmount,
+                        ItemCount = o.OrderItems.Count,
+                        ProductName = o.OrderItems.Select(i => i.Product!.Name).FirstOrDefault() ?? string.Empty,
+                        ProductImageUrl = o.OrderItems.Select(i => i.Product!.ImageUrl1).FirstOrDefault()
+                    })
+                    .ToListAsync();
             return View(model);
         }
 

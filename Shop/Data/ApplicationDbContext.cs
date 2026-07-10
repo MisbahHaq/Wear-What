@@ -60,6 +60,10 @@ namespace Shop.Data
                 .Property(o => o.TotalAmount)
                 .HasColumnType("decimal(18,2)");
 
+            builder.Entity<Order>()
+                .Property(o => o.DeliveryFee)
+                .HasColumnType("decimal(18,2)");
+
             builder.Entity<OrderItem>()
                 .Property(i => i.UnitPrice)
                 .HasColumnType("decimal(18,2)");

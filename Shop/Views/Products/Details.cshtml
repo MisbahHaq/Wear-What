@@ -133,7 +133,7 @@
                 <div class="d-flex gap-2 align-items-center">
                     @if (currentUserId != null)
                     {
-                        <form asp-controller="Orders" asp-action="Create" method="post" class="d-inline flex-grow-1" asp-antiforgery="true">
+                        <form asp-controller="Orders" asp-action="Checkout" method="get" class="d-inline flex-grow-1">
                             <input type="hidden" name="productId" value="@Model.Id" />
                             <input type="hidden" name="quantity" id="buyNowQuantity" value="1" />
                             <button type="submit" class="btn-buy-now w-100">Buy Now</button>
