@@ -293,10 +293,19 @@ namespace Shop.Controllers
         public async Task<IActionResult> Dashboard()
         {
             var currentUserId = GetCurrentUserId();
+            var user = await _userManager.FindByIdAsync(currentUserId);
+            var isVendor = user != null && await _userManager.IsInRoleAsync(user, "Vendor");
+            ViewBag.IsVendor = isVendor;
+
             var shopIds = await _context.Shops
                 .Where(s => s.OwnerId == currentUserId)
                 .Select(s => s.Id)
                 .ToListAsync();
+
+            if (!shopIds.Any() && !isVendor && !User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Index", "Profile");
+            }
 
             var orderItems = await _context.OrderItems
                 .Include(i => i.Order)
@@ -311,12 +320,29 @@ namespace Shop.Controllers
                 .Where(s => shopIds.Contains(s.Id))
                 .ToListAsync();
 
+            var customerOrders = await _context.Orders
+                .Where(o => o.CustomerId == currentUserId)
+                .OrderByDescending(o => o.CreatedAt)
+                .Take(10)
+                .Select(o => new
+                {
+                    o.Id,
+                    o.CreatedAt,
+                    o.Status,
+                    o.TotalAmount,
+                    ItemCount = o.OrderItems.Count
+                })
+                .ToListAsync();
+
             var viewModel = new OwnerDashboardViewModel
             {
                 Shops = shops,
                 OrderItems = orderItems,
                 TotalSales = orderItems.Sum(i => i.UnitPrice * i.Quantity)
             };
+
+            ViewBag.CustomerOrders = customerOrders;
+            ViewBag.CustomerOrderCount = customerOrders.Count;
 
             return View(viewModel);
         }

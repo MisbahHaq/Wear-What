@@ -8,6 +8,39 @@
     <h1 class="mb-0">Featured Products</h1>
 </div>
 
+@if (ViewBag.Banners != null)
+{
+    var banners = (System.Collections.Generic.IEnumerable<Shop.Models.Banner>)ViewBag.Banners;
+    if (banners.Any())
+    {
+            <div class="home-banners mb-4">
+                @foreach (var banner in banners)
+                {
+                    if (!string.IsNullOrEmpty(banner.LinkUrl))
+                    {
+                        <a href="@banner.LinkUrl" class="d-block home-banner">
+                            <img src="@banner.ImageUrl" alt="@banner.Title" class="img-fluid w-100" />
+                            @if (!string.IsNullOrEmpty(banner.Title))
+                            {
+                                <span class="home-banner-caption">@banner.Title</span>
+                            }
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="home-banner">
+                            <img src="@banner.ImageUrl" alt="@banner.Title" class="img-fluid w-100" />
+                            @if (!string.IsNullOrEmpty(banner.Title))
+                            {
+                                <span class="home-banner-caption">@banner.Title</span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+    }
+}
+
 <div class="category-strip">
     <nav class="nav justify-content-center flex-nowrap overflow-auto px-3">
         @{

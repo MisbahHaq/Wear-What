@@ -22,6 +22,7 @@ namespace Shop.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
         public DbSet<ProductColor> ProductColors { get; set; }
+        public DbSet<Banner> Banners { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

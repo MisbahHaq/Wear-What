@@ -38,7 +38,7 @@
     <div class="alert alert-dark">@TempData["StatusMessage"]</div>
 }
 
-@if (!Model.Shops.Any())
+@if (!Model.Shops.Any() && (ViewBag.IsVendor ?? false))
 {
     <div class="alert alert-info">
         You do not have a shop yet. <a asp-controller="Shops" asp-action="Create">Create a shop</a> to start receiving orders.
@@ -146,6 +146,44 @@ else
     }
     else
     {
-        <div class="alert alert-info">No orders have been placed for your products yet.</div>
+        <div class="alert alert-info">
+            No orders have been placed for your shop(s) yet.
+            @if ((int)(ViewBag.CustomerOrderCount ?? 0) > 0)
+            {
+                <span>You have @ViewBag.CustomerOrderCount order(s) as a customer — see "Your Purchases" below.</span>
+            }
+        </div>
     }
+}
+
+@if (ViewBag.CustomerOrders != null && (int)(ViewBag.CustomerOrderCount ?? 0) > 0)
+{
+    var customerOrders = (System.Collections.Generic.IEnumerable<dynamic>)ViewBag.CustomerOrders;
+    <h2 class="mt-5">Your Purchases</h2>
+    <p class="text-muted small">These are orders you placed as a customer (not from your shop).</p>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var co in customerOrders)
+                {
+                    <tr>
+                        <td>#@co.Id</td>
+                        <td>@(((DateTime)co.CreatedAt).ToString("g"))</td>
+                        <td>@co.ItemCount</td>
+                        <td>$@(((decimal)co.TotalAmount).ToString("0.00"))</td>
+                        <td>@co.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
