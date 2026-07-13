@@ -33,6 +33,7 @@ namespace Shop.Controllers
             var banners = await _context.Banners
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
+            ViewBag.Categories = await _context.ShopCategories.ToListAsync();
             return View(banners);
         }
 
@@ -65,6 +66,36 @@ namespace Shop.Controllers
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Banners));
+        }
+
+        public async Task<IActionResult> EditBanner(int id)
+        {
+            var banner = await _context.Banners.FindAsync(id);
+            if (banner == null) return NotFound();
+            return View(banner);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBanner(int id, Banner banner)
+        {
+            if (id != banner.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var existing = await _context.Banners.FindAsync(id);
+                if (existing == null) return NotFound();
+
+                existing.ImageUrl = banner.ImageUrl;
+                existing.Title = banner.Title;
+                existing.LinkUrl = banner.LinkUrl;
+                existing.IsActive = banner.IsActive;
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Banners));
+            }
+
+            return View(banner);
         }
     }
 }

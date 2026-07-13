@@ -32,6 +32,10 @@ namespace Shop.Controllers
                 .Where(b => b.IsActive)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
+
+            var bestSellers = await GetWeeklyBestSellersAsync();
+            ViewBag.BestSellers = bestSellers;
+
             return View(products);
         }
 
@@ -44,6 +48,45 @@ namespace Shop.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private async Task<List<Product>> GetWeeklyBestSellersAsync()
+        {
+            var oneWeekAgo = DateTime.UtcNow.AddDays(-7);
+
+            var topProductIds = await _context.OrderItems
+                .Where(oi => oi.Order != null && oi.Order.CreatedAt >= oneWeekAgo)
+                .GroupBy(oi => oi.ProductId)
+                .Select(g => new { ProductId = g.Key, TotalSold = g.Sum(x => x.Quantity) })
+                .OrderByDescending(x => x.TotalSold)
+                .Take(8)
+                .Select(x => x.ProductId)
+                .ToListAsync();
+
+            var products = await _context.Products
+                .Include(p => p.Shop)
+                .Include(p => p.Category)
+                .Where(p => topProductIds.Contains(p.Id))
+                .ToListAsync();
+
+            // Preserve the sold-rank ordering
+            var ranked = topProductIds
+                .Select(id => products.FirstOrDefault(p => p.Id == id))
+                .OfType<Product>()
+                .ToList();
+
+            // Fallback to newest products if nothing sold this week
+            if (!ranked.Any())
+            {
+                ranked = await _context.Products
+                    .Include(p => p.Shop)
+                    .Include(p => p.Category)
+                    .OrderByDescending(p => p.Id)
+                    .Take(8)
+                    .ToListAsync();
+            }
+
+            return ranked;
         }
     }
 }

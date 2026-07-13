@@ -19,7 +19,7 @@
         <span class="hero-eyebrow">Limited time offer</span>
         <h1 class="hero-title">30% discount on your first purchase</h1>
         <p class="hero-sub">Sign up today and save big on your favorite products across every category.</p>
-        <a class="btn hero-cta" asp-controller="Account" asp-action="Register">Shop now</a>
+        <a class="btn hero-cta" asp-controller="Products" asp-action="Index">Shop now</a>
     </div>
     <div class="hero-right">
         @if (heroBanner != null)
@@ -101,14 +101,19 @@
         }
     </div>
 
-    @if (!Model.Any())
+    @{
+        var bestSellers = (ViewBag.BestSellers as System.Collections.Generic.IEnumerable<Shop.Models.Product>)
+            ?? System.Linq.Enumerable.Empty<Shop.Models.Product>();
+    }
+
+    @if (!bestSellers.Any())
     {
         <div class="alert alert-info">No products available yet.</div>
     }
     else
     {
         <div class="product-grid" id="productGrid">
-            @foreach (var item in Model)
+            @foreach (var item in bestSellers)
             {
                 <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
                    class="product-card text-decoration-none" data-category="@item.Category?.Name">
@@ -182,6 +187,37 @@
         <p class="feature-text">Every item is handled and packaged with the utmost attention.</p>
     </div>
 </section>
+
+@* ===== MORE PRODUCTS ===== *@
+@if (Model.Any())
+{
+    <section class="section">
+        <h2 class="section-title">More products</h2>
+        <div class="product-grid" id="moreProductsGrid">
+            @foreach (var item in Model)
+            {
+                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                   class="product-card text-decoration-none" data-category="@item.Category?.Name">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl1))
+                    {
+                        <img src="@item.ImageUrl1" class="product-card-image" alt="@item.Name" />
+                    }
+                    else
+                    {
+                        <div class="product-card-image-placeholder">@(item.Name.Length > 0 ? item.Name[0].ToString().ToUpper() : "?")</div>
+                    }
+                    <div class="product-card-body">
+                        <div class="product-card-title">@item.Name</div>
+                        <div class="product-card-description">@item.Description</div>
+                        <div class="product-card-price">$@item.Price.ToString("0.00")</div>
+                        <div class="product-card-shop">@item.Shop?.Name</div>
+                        <span class="btn btn-outline-primary btn-sm product-card-btn">Details</span>
+                    </div>
+                </a>
+            }
+        </div>
+    </section>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

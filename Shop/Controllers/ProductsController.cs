@@ -29,14 +29,17 @@ namespace Shop.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(int? categoryId)
+        public async Task<IActionResult> Index(int? categoryId, string? searchString)
         {
             var query = _context.Products.Include(p => p.Shop).Include(p => p.Category).AsQueryable();
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
-            
-            var products = await query.ToListAsync();
+            if (!string.IsNullOrWhiteSpace(searchString))
+                query = query.Where(p => p.Name.Contains(searchString) || p.Description.Contains(searchString) || (p.Shop != null && p.Shop.Name.Contains(searchString)));
+
+            var products = await query.OrderByDescending(p => p.Id).ToListAsync();
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", categoryId);
+            ViewBag.SearchString = searchString;
             return View(products);
         }
 
