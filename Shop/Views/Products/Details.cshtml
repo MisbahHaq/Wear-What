@@ -110,6 +110,15 @@
 
             <div class="product-price">$@Model.Price.ToString("0.00")</div>
 
+            @if (Model.IsAvailable)
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle mb-2">In Stock (@Model.StockQuantity)</span>
+            }
+            else
+            {
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle mb-2">Out of Stock</span>
+            }
+
             @if (Model.Shop?.OwnerId == currentUserId)
             {
                 <div class="border rounded p-3 bg-light mt-4">
@@ -122,10 +131,12 @@
             }
             else
             {
+                @if (Model.IsAvailable)
+                {
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <div class="quantity-control">
                         <button type="button" class="quantity-btn" onclick="adjustQty(-1)">-</button>
-                        <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="100" readonly />
+                        <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="@Model.StockQuantity" readonly />
                         <button type="button" class="quantity-btn" onclick="adjustQty(1)">+</button>
                     </div>
                 </div>
@@ -149,6 +160,11 @@
                         <a asp-area="Identity" asp-page="/Account/Login" class="btn-buy-now text-center flex-grow-1 text-decoration-none">Log in to Purchase</a>
                     }
                 </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-4">This product is currently out of stock.</div>
+                }
 
                 @if (currentUserId != null)
                 {

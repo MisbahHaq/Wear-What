@@ -76,6 +76,11 @@ namespace Shop.Controllers
                 ModelState.AddModelError(nameof(quantity), "Quantity must be greater than zero.");
             }
 
+            if (product.StockQuantity < quantity)
+            {
+                ModelState.AddModelError(nameof(quantity), $"Only {product.StockQuantity} item(s) available in stock.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return RedirectToAction("Details", "Products", new { id = productId });
@@ -111,6 +116,7 @@ namespace Shop.Controllers
             });
 
             order.TotalAmount = product.Price * quantity + delivery;
+            product.StockQuantity -= quantity;
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
@@ -185,6 +191,22 @@ namespace Shop.Controllers
                 .Where(p => productIds.Contains(p.Id))
                 .ToListAsync();
 
+            var stockErrors = new List<string>();
+            foreach (var item in cart)
+            {
+                var product = products.FirstOrDefault(p => p.Id == item.ProductId);
+                if (product == null) continue;
+                if (product.StockQuantity < item.Quantity)
+                {
+                    stockErrors.Add($"{product.Name}: only {product.StockQuantity} in stock.");
+                }
+            }
+            if (stockErrors.Any())
+            {
+                TempData["CartMessage"] = "Some items are no longer available in the requested quantity: " + string.Join(" ", stockErrors);
+                return RedirectToAction(nameof(Index), "Cart");
+            }
+
             var grouped = cart
                 .GroupBy(i => i.ShopId)
                 .ToList();
@@ -214,6 +236,7 @@ namespace Shop.Controllers
                         Quantity = item.Quantity,
                         UnitPrice = product.Price
                     });
+                    product.StockQuantity -= item.Quantity;
                     total += product.Price * item.Quantity;
                 }
 

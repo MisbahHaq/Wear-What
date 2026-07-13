@@ -6,6 +6,8 @@ namespace Shop.Models
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
+        public int StockQuantity { get; set; }
+        public bool IsAvailable => StockQuantity > 0;
         public int? CategoryId { get; set; }
         public ShopCategory? Category { get; set; }
         public string Niche { get; set; } = string.Empty;

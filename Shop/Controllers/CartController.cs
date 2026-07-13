@@ -45,6 +45,30 @@ namespace Shop.Controllers
 
             var cart = GetCart();
             var existing = cart.FirstOrDefault(i => i.ProductId == productId);
+            var currentQty = existing?.Quantity ?? 0;
+
+            if (product.StockQuantity <= 0)
+            {
+                TempData["CartMessage"] = $"{product.Name} is out of stock.";
+                var referer0 = Request.Headers["Referer"].ToString();
+                if (!string.IsNullOrEmpty(referer0) && Url.IsLocalUrl(referer0))
+                    return LocalRedirect(referer0);
+                return RedirectToAction("Index", "Products");
+            }
+
+            if (currentQty + quantity > product.StockQuantity)
+            {
+                TempData["CartMessage"] = $"Only {product.StockQuantity} of {product.Name} available.";
+                quantity = product.StockQuantity - currentQty;
+                if (quantity <= 0)
+                {
+                    var refererX = Request.Headers["Referer"].ToString();
+                    if (!string.IsNullOrEmpty(refererX) && Url.IsLocalUrl(refererX))
+                        return LocalRedirect(refererX);
+                    return RedirectToAction("Index", "Products");
+                }
+            }
+
             if (existing != null)
             {
                 existing.Quantity += quantity;

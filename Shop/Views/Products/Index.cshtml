@@ -60,6 +60,14 @@ else
                 <div class="product-card-description">@item.Description</div>
                 <div class="product-card-price">$@item.Price.ToString("0.00")</div>
                 <div class="product-card-shop">@item.Shop?.Name</div>
+                @if (item.IsAvailable)
+                {
+                    <div class="small text-success">In stock (@item.StockQuantity)</div>
+                }
+                else
+                {
+                    <div class="small text-danger">Out of stock</div>
+                }
                 <span class="btn btn-outline-primary btn-sm product-card-btn">Details</span>
             </div>
         </a>

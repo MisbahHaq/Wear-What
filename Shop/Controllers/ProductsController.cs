@@ -201,6 +201,7 @@ namespace Shop.Controllers
                     existingProduct.Description = product.Description;
                     existingProduct.Price = product.Price;
                     existingProduct.CategoryId = product.CategoryId;
+                    existingProduct.StockQuantity = product.StockQuantity;
                     existingProduct.Niche = product.Niche;
                     existingProduct.ImageUrl1 = product.ImageUrl1;
                     existingProduct.ImageUrl2 = product.ImageUrl2;
