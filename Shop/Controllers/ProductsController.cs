@@ -44,6 +44,30 @@ namespace Shop.Controllers
         }
 
         [AllowAnonymous]
+        public async Task<IActionResult> Suggest(string? term)
+        {
+            if (string.IsNullOrWhiteSpace(term))
+                return Json(new List<object>());
+
+            var matches = await _context.Products
+                .Include(p => p.Shop)
+                .Where(p => p.Name.Contains(term) || p.Description.Contains(term) || (p.Shop != null && p.Shop.Name.Contains(term)))
+                .OrderBy(p => p.Name)
+                .Take(8)
+                .Select(p => new
+                {
+                    id = p.Id,
+                    name = p.Name,
+                    image = p.ImageUrl1,
+                    price = p.Price,
+                    shop = p.Shop != null ? p.Shop.Name : ""
+                })
+                .ToListAsync();
+
+            return Json(matches);
+        }
+
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();

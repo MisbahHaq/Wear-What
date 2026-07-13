@@ -15,9 +15,10 @@
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Shop</a>
 
                 <div class="search-wrapper d-none d-md-flex">
-                    <form class="search-input-group" asp-controller="Products" asp-action="Index" method="get">
-                        <input type="text" name="searchString" placeholder="Search products..." value="@Context.Request.Query["searchString"]" />
+                    <form class="search-input-group" asp-controller="Products" asp-action="Index" method="get" autocomplete="off">
+                        <input type="text" id="searchInput" name="searchString" placeholder="Search products..." value="@Context.Request.Query["searchString"]" autocomplete="off" />
                         <button type="submit">Search</button>
+                        <div id="searchSuggestions" class="search-suggestions"></div>
                     </form>
                 </div>
 
@@ -120,6 +121,48 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var input = document.getElementById('searchInput');
+            var box = document.getElementById('searchSuggestions');
+            if (!input || !box) return;
+
+            var debounce;
+            input.addEventListener('input', function () {
+                var term = input.value.trim();
+                clearTimeout(debounce);
+                if (term.length < 1) { box.style.display = 'none'; box.innerHTML = ''; return; }
+                debounce = setTimeout(function () {
+                    fetch('/Products/Suggest?term=' + encodeURIComponent(term))
+                        .then(function (r) { return r.json(); })
+                        .then(function (items) {
+                            if (!items.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+                            box.innerHTML = items.map(function (it) {
+                                var img = it.image
+                                    ? '<img src="' + it.image + '" alt="" />'
+                                    : '<div class="ss-noimg">?</div>';
+                                var price = (it.price != null) ? '$' + Number(it.price).toFixed(2) : '';
+                                return '<a class="ss-item" href="/Products/Details/' + it.id + '">' +
+                                    '<div class="ss-thumb">' + img + '</div>' +
+                                    '<div class="ss-info"><div class="ss-name">' + it.name + '</div>' +
+                                    '<div class="ss-meta">' + (it.shop || '') + (price ? ' &middot; ' + price : '') + '</div></div>' +
+                                    '</a>';
+                            }).join('');
+                            box.style.display = 'block';
+                        })
+                        .catch(function () { box.style.display = 'none'; });
+                }, 200);
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') { box.style.display = 'none'; }
+            });
+
+            input.addEventListener('blur', function () {
+                setTimeout(function () { box.style.display = 'none'; }, 150);
+            });
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
