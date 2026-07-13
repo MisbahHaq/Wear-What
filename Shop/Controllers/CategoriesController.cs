@@ -64,6 +64,7 @@ namespace Shop.Controllers
                     if (existingCategory == null) return NotFound();
 
                     existingCategory.Name = category.Name;
+                    existingCategory.ImageUrl = category.ImageUrl;
 
                     await _context.SaveChangesAsync();
                 }

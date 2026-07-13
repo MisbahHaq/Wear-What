@@ -27,6 +27,7 @@ namespace Shop.Controllers
                 .ToListAsync();
 
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name");
+            ViewBag.Categories = await _context.ShopCategories.ToListAsync();
             ViewBag.Banners = await _context.Banners
                 .Where(b => b.IsActive)
                 .OrderByDescending(b => b.CreatedAt)
