@@ -1,7 +1,7 @@
 @model Shop.Models.Product
 
 @{
-    ViewData["Title"] = Model.Name;
+    ViewData["Title"] = Model.Name ?? "Product Details";
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
     
     // Fallback if images are missing

@@ -36,6 +36,32 @@ namespace Shop.Controllers
             var bestSellers = await GetWeeklyBestSellersAsync();
             ViewBag.BestSellers = bestSellers;
 
+            var officeFurnitureCat = await _context.ShopCategories.FirstOrDefaultAsync(c => c.Name == "Upgrade your office furniture");
+            if (officeFurnitureCat != null)
+            {
+                ViewBag.OfficeFurnitureProducts = await _context.Products
+                    .Include(p => p.Shop)
+                    .Include(p => p.Category)
+                    .Where(p => p.CategoryId == officeFurnitureCat.Id)
+                    .OrderByDescending(p => p.Id)
+                    .Take(8)
+                    .ToListAsync();
+                ViewBag.OfficeFurnitureCategoryId = officeFurnitureCat.Id;
+            }
+
+            var booksCat = await _context.ShopCategories.FirstOrDefaultAsync(c => c.Name == "Books you can't put down");
+            if (booksCat != null)
+            {
+                ViewBag.BooksProducts = await _context.Products
+                    .Include(p => p.Shop)
+                    .Include(p => p.Category)
+                    .Where(p => p.CategoryId == booksCat.Id)
+                    .OrderByDescending(p => p.Id)
+                    .Take(8)
+                    .ToListAsync();
+                ViewBag.BooksCategoryId = booksCat.Id;
+            }
+
             return View(products);
         }
 

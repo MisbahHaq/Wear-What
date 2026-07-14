@@ -35,7 +35,7 @@ namespace Shop.Controllers
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
             if (!string.IsNullOrWhiteSpace(searchString))
-                query = query.Where(p => p.Name.Contains(searchString) || p.Description.Contains(searchString) || (p.Shop != null && p.Shop.Name.Contains(searchString)));
+                query = query.Where(p => (p.Name != null && p.Name.Contains(searchString)) || (p.Description != null && p.Description.Contains(searchString)) || (p.Shop != null && p.Shop.Name.Contains(searchString)));
 
             var products = await query.OrderByDescending(p => p.Id).ToListAsync();
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", categoryId);
@@ -51,7 +51,7 @@ namespace Shop.Controllers
 
             var matches = await _context.Products
                 .Include(p => p.Shop)
-                .Where(p => p.Name.Contains(term) || p.Description.Contains(term) || (p.Shop != null && p.Shop.Name.Contains(term)))
+                .Where(p => (p.Name != null && p.Name.Contains(term)) || (p.Description != null && p.Description.Contains(term)) || (p.Shop != null && p.Shop.Name.Contains(term)))
                 .OrderBy(p => p.Name)
                 .Take(8)
                 .Select(p => new

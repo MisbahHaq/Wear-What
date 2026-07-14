@@ -61,7 +61,7 @@
                             }
                             else
                             {
-                                <div class="product-card-image-placeholder">@(product.Name.Length > 0 ? product.Name[0].ToString().ToUpper() : "?")</div>
+                                <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(product.Name) ? product.Name[0].ToString().ToUpper() : "?")</div>
                             }
                             <div class="product-card-body">
                                 <div class="product-card-title">@product.Name</div>
@@ -94,7 +94,7 @@
                         }
                         else
                         {
-                            <div class="product-card-image-placeholder">@(product.Name.Length > 0 ? product.Name[0].ToString().ToUpper() : "?")</div>
+                            <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(product.Name) ? product.Name[0].ToString().ToUpper() : "?")</div>
                         }
                         <div class="product-card-body">
                             <div class="product-card-title">@product.Name</div>

@@ -22,7 +22,7 @@ else
             }
             else
             {
-                <div class="product-card-image-placeholder">@(item.Product?.Name.Length > 0 ? item.Product!.Name[0].ToString().ToUpper() : "?")</div>
+                 <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(item.Product?.Name) ? item.Product.Name[0].ToString().ToUpper() : "?")</div>
             }
             <div class="product-card-body">
                 <div class="product-card-title">@item.Product?.Name ?? "Unknown Product"</div>
