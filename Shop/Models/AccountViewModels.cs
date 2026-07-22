@@ -105,7 +105,13 @@ namespace Shop.Models
         public string NewPassword { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
-        [Compare("NewPassword")]
+        [Compare(nameof(NewPassword))]
         public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    public class OrderTrackingViewModel
+    {
+        public Order Order { get; set; } = new Order();
+        public List<OrderStatusHistory> StatusHistory { get; set; } = new();
     }
 }

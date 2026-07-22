@@ -22,7 +22,10 @@ namespace Shop.Models
         public string CustomerContactNumber { get; set; } = string.Empty;
 
         public string ShippingAddress { get; set; } = string.Empty;
-
+        public int? SelectedAddressId { get; set; }
+        public string? CouponCode { get; set; }
+        public decimal DiscountAmount { get; set; }
+        public decimal TotalAfterDiscount => Total - DiscountAmount;
         public string PaymentMethod { get; set; } = "CashOnDelivery";
     }
 }

@@ -37,6 +37,38 @@
     }
 </div>
 
+<form asp-action="Index" method="get" class="row g-2 mb-4 align-items-end">
+    <div class="col-md-3">
+        <label class="form-label small fw-bold">Search</label>
+        <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Search..." />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small fw-bold">Min Price</label>
+        <input type="number" step="0.01" name="minPrice" value="@ViewBag.MinPrice" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small fw-bold">Max Price</label>
+        <input type="number" step="0.01" name="maxPrice" value="@ViewBag.MaxPrice" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small fw-bold">Min Rating</label>
+        <select name="minRating" class="form-select">
+            <option value="">Any</option>
+            @for (int i = 1; i <= 5; i++)
+            {
+                <option value="@i" selected="@((ViewBag.MinRating as int?) == i)">@i ★ +</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2 form-check mt-4">
+        <input type="checkbox" name="inStockOnly" value="true" class="form-check-input" @(ViewBag.InStockOnly == true ? "checked" : "") />
+        <label class="form-check-label">In stock only</label>
+    </div>
+    <div class="col-md-1">
+        <button type="submit" class="btn btn-dark w-100">Filter</button>
+    </div>
+</form>
+
 @if (!Model.Any())
 {
     <div class="alert">No products found.</div>
@@ -60,13 +92,17 @@ else
                 <div class="product-card-description">@item.Description</div>
                 <div class="product-card-price">$@item.Price.ToString("0.00")</div>
                 <div class="product-card-shop">@item.Shop?.Name</div>
-                @if (item.IsAvailable)
+                @if (!item.IsAvailable)
                 {
-                    <div class="small text-success">In stock (@item.StockQuantity)</div>
+                    <div class="small text-danger">Out of stock</div>
+                }
+                else if (item.StockQuantity <= item.LowStockThreshold)
+                {
+                    <div class="small text-warning">Low stock (@item.StockQuantity)</div>
                 }
                 else
                 {
-                    <div class="small text-danger">Out of stock</div>
+                    <div class="small text-success">In stock (@item.StockQuantity)</div>
                 }
                 <span class="btn btn-outline-primary btn-sm product-card-btn">Details</span>
             </div>

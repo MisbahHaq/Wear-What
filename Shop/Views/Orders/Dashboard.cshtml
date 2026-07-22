@@ -73,6 +73,14 @@ else
         </div>
     </div>
 
+    @if (ViewBag.LowStockProducts != null && ((IEnumerable<Shop.Models.Product>)ViewBag.LowStockProducts).Any())
+    {
+        <div class="alert alert-warning d-flex justify-content-between align-items-center">
+            <span><strong>Low stock alert:</strong> You have @((ViewBag.LowStockProducts as IEnumerable<Product>)!.Count(p => p.StockQuantity == 0)) out-of-stock and @((ViewBag.LowStockProducts as IEnumerable<Product>)!.Count(p => p.StockQuantity > 0)) low-stock products.</span>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-dark">View Products</a>
+        </div>
+    }
+
     <h2>Your Shops</h2>
     <div class="list-group mb-4">
         @foreach (var shop in Model.Shops)
@@ -83,6 +91,8 @@ else
             </a>
         }
     </div>
+
+    <a asp-action="Analytics" class="btn btn-outline-dark mb-4">View Sales Analytics</a>
 
     <h2>Orders</h2>
     @if (ordersByOrder.Any())
@@ -102,7 +112,7 @@ else
                         <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
                             <input type="hidden" name="orderItemId" value="@group.First().Id" />
                             <select name="status" class="form-select status-select" onchange="this.form.submit()">
-                                @foreach (var s in new[] { "Pending", "Received", "Out for Delivery", "Delivered" })
+                                @foreach (var s in new[] { "Placed", "Confirmed", "Processing", "Shipped", "OutForDelivery", "Delivered", "Cancelled", "ReturnRequested", "Returned" })
                                 {
                                     <option value="@s" selected="@(order.Status == s ? "selected" : null)">@s</option>
                                 }

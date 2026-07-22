@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 using Shop.Models;
+using System.Globalization;
+using System.Text;
 
 namespace Shop.Controllers
 {
@@ -29,17 +31,51 @@ namespace Shop.Controllers
         }
 
         [AllowAnonymous]
-        public async Task<IActionResult> Index(int? categoryId, string? searchString)
+        public async Task<IActionResult> Index(int? categoryId, string? searchString, decimal? minPrice, decimal? maxPrice, bool? inStockOnly, int? minRating)
         {
             var query = _context.Products.Include(p => p.Shop).Include(p => p.Category).AsQueryable();
+
+            if (User.Identity?.IsAuthenticated == true && (User.IsInRole("Admin") || User.IsInRole("Vendor")))
+            {
+                var userId = GetCurrentUserId();
+                var userShopIds = await _context.Shops
+                    .Where(s => s.OwnerId == userId)
+                    .Select(s => s.Id)
+                    .ToListAsync();
+
+                if (!User.IsInRole("Admin"))
+                {
+                    query = query.Where(p => p.ModerationStatus == "Approved" || userShopIds.Contains(p.ShopId));
+                }
+            }
+            else
+            {
+                query = query.Where(p => p.ModerationStatus == "Approved");
+            }
+
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
             if (!string.IsNullOrWhiteSpace(searchString))
                 query = query.Where(p => (p.Name != null && p.Name.Contains(searchString)) || (p.Description != null && p.Description.Contains(searchString)) || (p.Shop != null && p.Shop.Name.Contains(searchString)));
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice.Value);
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            if (inStockOnly == true)
+                query = query.Where(p => p.StockQuantity > 0);
+            if (minRating.HasValue)
+            {
+                var minR = minRating.Value;
+                query = query.Where(p => p.Comments.Any(c => c.Rating >= minR));
+            }
 
             var products = await query.OrderByDescending(p => p.Id).ToListAsync();
             ViewBag.CategoryId = new SelectList(_context.ShopCategories, "Id", "Name", categoryId);
             ViewBag.SearchString = searchString;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.InStockOnly = inStockOnly;
+            ViewBag.MinRating = minRating;
             return View(products);
         }
 
@@ -83,6 +119,15 @@ namespace Shop.Controllers
 
             var currentUserId = GetCurrentUserId();
             ViewBag.IsWishlisted = currentUserId != null && await _context.WishlistItems.AnyAsync(w => w.UserId == currentUserId && w.ProductId == product.Id);
+
+            var related = await _context.Products
+                .Include(p => p.Shop)
+                .Where(p => p.CategoryId == product.CategoryId && p.Id != product.Id && p.ModerationStatus == "Approved")
+                .OrderByDescending(p => p.Id)
+                .Take(6)
+                .ToListAsync();
+
+            ViewBag.RelatedProducts = related;
 
             return View(product);
         }
@@ -128,6 +173,8 @@ namespace Shop.Controllers
                 {
                     return Forbid();
                 }
+
+                product.ModerationStatus = "Pending";
                 _context.Add(product);
                 await _context.SaveChangesAsync();
 
@@ -229,6 +276,7 @@ namespace Shop.Controllers
                     existingProduct.Price = product.Price;
                     existingProduct.CategoryId = product.CategoryId;
                     existingProduct.StockQuantity = product.StockQuantity;
+                    existingProduct.LowStockThreshold = product.LowStockThreshold;
                     existingProduct.Niche = product.Niche;
                     existingProduct.ImageUrl1 = product.ImageUrl1;
                     existingProduct.ImageUrl2 = product.ImageUrl2;
@@ -334,6 +382,93 @@ namespace Shop.Controllers
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);
+        }
+
+        public async Task<IActionResult> ExportCsv()
+        {
+            var currentUserId = GetCurrentUserId();
+            var shopIds = await _context.Shops
+                .Where(s => s.OwnerId == currentUserId)
+                .Select(s => s.Id)
+                .ToListAsync();
+
+            var products = await _context.Products
+                .Where(p => shopIds.Contains(p.ShopId))
+                .Include(p => p.Category)
+                .OrderByDescending(p => p.Id)
+                .ToListAsync();
+
+            var sb = new StringBuilder();
+            sb.AppendLine("Id,Name,Description,Price,StockQuantity,LowStockThreshold,CategoryId,CategoryName,ShopId");
+
+            foreach (var p in products)
+            {
+                sb.AppendLine($"{p.Id},\"{p.Name}\",\"{p.Description}\",{p.Price},{p.StockQuantity},{p.LowStockThreshold},{p.CategoryId},{p.Category?.Name},{p.ShopId}");
+            }
+
+            var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/csv", "products.csv");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportCsv(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["ProductMessage"] = "Please select a CSV file.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var currentUserId = GetCurrentUserId();
+            var shop = await _context.Shops.FirstOrDefaultAsync(s => s.OwnerId == currentUserId);
+            if (shop == null)
+            {
+                TempData["ProductMessage"] = "You must have a shop to import products.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            using var reader = new StreamReader(file.OpenReadStream());
+            var header = await reader.ReadLineAsync();
+            var imported = 0;
+            var errors = new List<string>();
+
+            while (!reader.EndOfStream)
+            {
+                var line = await reader.ReadLineAsync();
+                if (string.IsNullOrWhiteSpace(line)) continue;
+
+                try
+                {
+                    var parts = line.Split(',');
+                    if (parts.Length < 5) continue;
+
+                    var product = new Product
+                    {
+                        Name = parts[1].Trim('"'),
+                        Description = parts[2].Trim('"'),
+                        Price = decimal.Parse(parts[3], CultureInfo.InvariantCulture),
+                        StockQuantity = int.Parse(parts[4]),
+                        LowStockThreshold = parts.Length > 5 && int.TryParse(parts[5], out var l) ? l : 5,
+                        ShopId = shop.Id,
+                        ModerationStatus = "Pending"
+                    };
+
+                    if (parts.Length > 6 && int.TryParse(parts[6], out var catId))
+                        product.CategoryId = catId;
+
+                    _context.Products.Add(product);
+                    imported++;
+                }
+                catch
+                {
+                    errors.Add(line);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["ProductMessage"] = $"Imported {imported} products.{(errors.Any() ? $" Skipped {errors.Count} invalid rows." : "")}";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

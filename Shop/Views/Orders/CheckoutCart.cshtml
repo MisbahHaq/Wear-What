@@ -39,6 +39,8 @@
             </div>
 
             <form asp-controller="Orders" asp-action="CreateCart" method="post" asp-antiforgery="true">
+                <input type="hidden" name="selectedAddressId" id="selectedAddressIdCart" value="@Model.SelectedAddressId" />
+                <input type="hidden" name="couponCode" id="couponCodeHiddenCart" value="@Model.CouponCode" />
                 <h5 class="fw-bold mb-3">Shipping Information</h5>
 
                 <div class="mb-3">
@@ -53,8 +55,27 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold" for="shippingAddress">Shipping Address</label>
-                    <textarea class="form-control" id="shippingAddress" name="shippingAddress" rows="3" placeholder="Enter your full shipping address">@Model.ShippingAddress</textarea>
+                    <select class="form-control" id="shippingAddressCart" name="shippingAddress">
+                        <option value="">-- Use saved addresses --</option>
+                        @if (ViewBag.UserAddresses != null)
+                        {
+                            foreach (var addr in (IEnumerable<Shop.Models.UserAddress>)ViewBag.UserAddresses)
+                            {
+                                var full = $"{addr.AddressLine}, {addr.City}, {addr.State} {addr.ZipCode}";
+                                <option value="@full" selected="@(Model.ShippingAddress == full ? "selected" : null)">@full @(addr.IsDefault ? "(Default)" : "")</option>
+                            }
+                        }
+                        <option value="@Model.ShippingAddress" selected="@(!string.IsNullOrEmpty(Model.ShippingAddress))">Other</option>
+                    </select>
+                    <textarea class="form-control mt-2" id="shippingAddressTextCart" name="shippingAddress" rows="2" placeholder="Enter your full shipping address">@Model.ShippingAddress</textarea>
                 </div>
+
+                <h5 class="fw-bold mb-3 mt-4">Coupon Code</h5>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="couponCode" value="@Model.CouponCode" placeholder="Enter coupon code" />
+                    <button type="button" class="btn btn-outline-dark" id="applyCouponBtnCart">Apply</button>
+                </div>
+                <div id="couponMessageCart" class="small mb-3"></div>
 
                 <h5 class="fw-bold mb-3 mt-4">Delivery Method</h5>
                 <div class="d-flex flex-column gap-2">
@@ -174,5 +195,33 @@
         });
 
         updateSummary();
+    </script>
+    <script>
+        document.getElementById('shippingAddressCart')?.addEventListener('change', function () {
+            var val = this.value;
+            document.getElementById('selectedAddressIdCart').value = val && val !== 'Other' ? val.split(' ')[0] : '';
+            var textarea = document.getElementById('shippingAddressTextCart');
+            if (textarea) textarea.style.display = val === 'Other' || !val ? 'block' : 'none';
+        });
+
+        document.getElementById('applyCouponBtnCart')?.addEventListener('click', async function () {
+            var code = document.querySelector('input[name="couponCode"]').value.trim();
+            if (!code) return;
+            try {
+                var res = await fetch('/Coupons/Validate?code=' + encodeURIComponent(code) + '&orderTotal=' + encodeURIComponent(document.getElementById('summaryTotal').textContent.replace('$','')));
+                var data = await res.json();
+                var msg = document.getElementById('couponMessageCart');
+                if (data.valid) {
+                    msg.className = 'small text-success';
+                    msg.textContent = 'Coupon applied: -$' + data.discount.toFixed(2);
+                    document.getElementById('couponCodeHiddenCart').value = code;
+                } else {
+                    msg.className = 'small text-danger';
+                    msg.textContent = data.error || 'Invalid coupon';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
     </script>
 }

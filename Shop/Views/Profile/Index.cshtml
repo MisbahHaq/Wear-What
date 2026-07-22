@@ -121,25 +121,31 @@
                                 @foreach (var order in Model!.Orders!.Take(5))
                                 {
                                     var orderImg = !string.IsNullOrEmpty(order.ProductImageUrl) ? order.ProductImageUrl : "/images/placeholder.png";
-                                    <tr>
-                                        <td>#@order.OrderId</td>
-                                        <td>@order.CreatedAt.ToString("MMM dd, yyyy")</td>
-                                        <td>
-                                            <div class="order-item-cell">
-                                                <img src="@orderImg" alt="@order.ProductName" class="order-item-thumb" />
-                                                <div>
-                                                    <div class="order-item-name">@order.ProductName</div>
-                                                    @if (order.ItemCount > 1)
-                                                    {
-                                                        <div class="order-item-meta">+@(order.ItemCount - 1) more</div>
-                                                    }
-                                                </div>
+                                <tr>
+                                    <td>#@order.OrderId</td>
+                                    <td>@order.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        <div class="order-item-cell">
+                                            <img src="@orderImg" alt="@order.ProductName" class="order-item-thumb" />
+                                            <div>
+                                                <div class="order-item-name">@order.ProductName</div>
+                                                @if (order.ItemCount > 1)
+                                                {
+                                                    <div class="order-item-meta">+@(order.ItemCount - 1) more</div>
+                                                }
                                             </div>
-                                        </td>
-                                        <td>@order.ItemCount</td>
-                                        <td>$@order.TotalAmount.ToString("0.00")</td>
-                                        <td><span class="badge-status badge-@order.Status.ToLower()">@order.Status</span></td>
-                                    </tr>
+                                        </div>
+                                    </td>
+                                    <td>@order.ItemCount</td>
+                                    <td>$@order.TotalAmount.ToString("0.00")</td>
+                                    <td><span class="badge-status badge-@order.Status.ToLower()">@order.Status</span></td>
+                                    <td>
+                                        <form asp-controller="Cart" asp-action="Reorder" asp-route-orderId="@order.OrderId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-dark">Reorder</button>
+                                        </form>
+                                    </td>
+                                </tr>
                                 }
                             </tbody>
                         </table>

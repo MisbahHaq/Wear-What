@@ -1,0 +1,40 @@
+@model IEnumerable<Shop.Models.ReturnRequest>
+
+@{
+    ViewData["Title"] = "Return Requests";
+}
+
+<h1 class="fw-bold">@ViewData["Title"]</h1>
+
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-dark">@TempData["StatusMessage"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order</th>
+            <th>Buyer</th>
+            <th>Seller</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Refund</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>#@r.OrderItemId</td>
+                <td>@r.Buyer?.FullName</td>
+                <td>@r.Seller?.FullName</td>
+                <td>@r.Reason</td>
+                <td><span class="badge bg-@(r.Status == "Pending" ? "warning" : r.Status == "Approved" ? "success" : "danger")">@r.Status</span></td>
+                <td>@r.RefundStatus</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-outline-secondary">Back</a>

@@ -6,7 +6,8 @@ namespace Shop.Models
         public string CustomerId { get; set; } = string.Empty;
         public ApplicationUser? Customer { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = "Placed";
+        public DateTime? DeliveredAt { get; set; }
         public string ShippingAddress { get; set; } = string.Empty;
         public string DeliveryMethod { get; set; } = "Standard";
         public decimal DeliveryFee { get; set; }

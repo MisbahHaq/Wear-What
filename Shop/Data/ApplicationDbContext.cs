@@ -23,6 +23,13 @@ namespace Shop.Data
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
         public DbSet<ProductColor> ProductColors { get; set; }
         public DbSet<Banner> Banners { get; set; }
+        public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+        public DbSet<ReturnRequest> ReturnRequests { get; set; }
+        public DbSet<ProductRating> ProductRatings { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SellerTransaction> SellerTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -30,6 +37,26 @@ namespace Shop.Data
             
             builder.Entity<Product>()
                 .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Coupon>()
+                .Property(c => c.DiscountValue)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Coupon>()
+                .Property(c => c.MinOrderAmount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<SellerTransaction>()
+                .Property(t => t.CommissionRate)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<SellerTransaction>()
+                .Property(t => t.CommissionAmount)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<SellerTransaction>()
+                .Property(t => t.NetAmount)
                 .HasColumnType("decimal(18,2)");
 
             builder.Entity<WishlistItem>()
@@ -106,6 +133,48 @@ namespace Shop.Data
                 .WithMany(p => p.Colors)
                 .HasForeignKey(c => c.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductRating>()
+                .HasOne(r => r.Product)
+                .WithMany()
+                .HasForeignKey(r => r.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProductRating>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<UserAddress>()
+                .HasOne(a => a.User)
+                .WithMany()
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<SellerTransaction>()
+                .HasOne(t => t.Seller)
+                .WithMany()
+                .HasForeignKey(t => t.SellerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<SellerTransaction>()
+                .HasOne(t => t.Order)
+                .WithMany()
+                .HasForeignKey(t => t.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<OrderStatusHistory>()
+                .HasOne(h => h.Order)
+                .WithMany()
+                .HasForeignKey(h => h.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ReturnRequest>()
+                .HasOne(r => r.OrderItem)
+                .WithMany()
+                .HasForeignKey(r => r.OrderItemId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,0 +1,41 @@
+@model IEnumerable<Shop.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<h1 class="fw-bold">@ViewData["Title"]</h1>
+
+<form asp-action="MarkAllRead" method="post" class="d-inline mb-3">
+    @Html.AntiForgeryToken()
+    <button type="submit" class="btn btn-sm btn-outline-dark">Mark all as read</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Message</th>
+            <th>Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var n in Model)
+        {
+            <tr class="@(n.IsRead ? "" : "table-active")">
+                <td>
+                    @if (!string.IsNullOrEmpty(n.Link))
+                    {
+                        <a href="@n.Link">@n.Message</a>
+                    }
+                    else
+                    {
+                        @n.Message
+                    }
+                </td>
+                <td>@n.CreatedAt.ToString("g")</td>
+                <td>@(n.IsRead ? "Read" : "Unread")</td>
+            </tr>
+        }
+    </tbody>
+</table>

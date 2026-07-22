@@ -47,6 +47,8 @@
             <form asp-controller="Orders" asp-action="Create" method="post" asp-antiforgery="true" id="checkoutForm">
                 <input type="hidden" name="productId" value="@Model.ProductId" />
                 <input type="hidden" name="quantity" value="@Model.Quantity" />
+                <input type="hidden" name="selectedAddressId" id="selectedAddressId" value="@Model.SelectedAddressId" />
+                <input type="hidden" name="couponCode" id="couponCodeHidden" value="@Model.CouponCode" />
 
                 <h5 class="fw-bold mb-3">Shipping Information</h5>
 
@@ -62,7 +64,19 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold" for="shippingAddress">Shipping Address</label>
-                    <textarea class="form-control" id="shippingAddress" name="shippingAddress" rows="3" placeholder="Enter your full shipping address">@Model.ShippingAddress</textarea>
+                    <select class="form-control" id="shippingAddress" name="shippingAddress">
+                        <option value="">-- Use saved addresses --</option>
+                        @if (ViewBag.UserAddresses != null)
+                        {
+                            foreach (var addr in (IEnumerable<Shop.Models.UserAddress>)ViewBag.UserAddresses)
+                            {
+                                var full = $"{addr.AddressLine}, {addr.City}, {addr.State} {addr.ZipCode}";
+                                <option value="@full" selected="@(Model.ShippingAddress == full ? "selected" : null)">@full @(addr.IsDefault ? "(Default)" : "")</option>
+                            }
+                        }
+                        <option value="@Model.ShippingAddress" selected="@(!string.IsNullOrEmpty(Model.ShippingAddress))">Other</option>
+                    </select>
+                    <textarea class="form-control mt-2" id="shippingAddressText" name="shippingAddress" rows="2" placeholder="Enter your full shipping address">@Model.ShippingAddress</textarea>
                 </div>
 
                 <h5 class="fw-bold mb-3 mt-4">Delivery Method</h5>
@@ -84,6 +98,13 @@
                         <span class="fw-semibold">$@CheckoutViewModel.ExpressDeliveryFee</span>
                     </label>
                 </div>
+
+                <h5 class="fw-bold mb-3 mt-4">Coupon Code</h5>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="couponCode" value="@Model.CouponCode" placeholder="Enter coupon code" />
+                    <button type="button" class="btn btn-outline-dark" id="applyCouponBtn">Apply</button>
+                </div>
+                <div id="couponMessage" class="small mb-3"></div>
 
                 <h5 class="fw-bold mb-3 mt-4">Payment Method</h5>
                 <div class="d-flex flex-column gap-2">
@@ -138,10 +159,17 @@
                     <span class="text-muted">Delivery</span>
                     <span class="text-muted" id="summaryDelivery">$@Model.DeliveryFee.ToString("0.00")</span>
                 </div>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-success">Discount</span>
+                        <span class="text-success">-$@Model.DiscountAmount.ToString("0.00")</span>
+                    </div>
+                }
                 <hr />
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold">Total</span>
-                    <span class="fw-bold fs-5" id="summaryTotal">$@Model.Total.ToString("0.00")</span>
+                    <span class="fw-bold fs-5" id="summaryTotal">$@(Model.TotalAfterDiscount.ToString("0.00"))</span>
                 </div>
             </div>
         </div>
@@ -183,5 +211,35 @@
         });
 
         updateSummary();
+    </script>
+    <script>
+        document.getElementById('shippingAddress')?.addEventListener('change', function () {
+            var val = this.value;
+            document.getElementById('selectedAddressId').value = val && val !== 'Other' ? val.split(' ')[0] : '';
+            var textarea = document.getElementById('shippingAddressText');
+            if (textarea) textarea.style.display = val === 'Other' || !val ? 'block' : 'none';
+        });
+
+        var couponApplied = false;
+        document.getElementById('applyCouponBtn')?.addEventListener('click', async function () {
+            var code = document.querySelector('input[name="couponCode"]').value.trim();
+            if (!code) return;
+            try {
+                var res = await fetch('/Coupons/Validate?code=' + encodeURIComponent(code) + '&orderTotal=' + encodeURIComponent(document.getElementById('summaryTotal').textContent.replace('$','')));
+                var data = await res.json();
+                var msg = document.getElementById('couponMessage');
+                if (data.valid) {
+                    msg.className = 'small text-success';
+                    msg.textContent = 'Coupon applied: -$' + data.discount.toFixed(2);
+                    document.getElementById('couponCodeHidden').value = code;
+                    couponApplied = true;
+                } else {
+                    msg.className = 'small text-danger';
+                    msg.textContent = data.error || 'Invalid coupon';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
     </script>
 }

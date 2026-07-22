@@ -135,5 +135,71 @@ namespace Shop.Controllers
             var count = GetCartCount();
             return Json(new { count });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reorder(int orderId)
+        {
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(currentUserId)) return Challenge();
+
+            using var scope = HttpContext.RequestServices.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            var order = await db.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.CustomerId == currentUserId);
+
+            if (order == null) return NotFound();
+
+            var cart = GetCart();
+            var added = 0;
+            var skipped = 0;
+
+            foreach (var item in order.OrderItems)
+            {
+                if (item.Product == null) continue;
+                if (item.Product.StockQuantity <= 0)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                var qty = Math.Min(item.Quantity, item.Product.StockQuantity);
+                if (qty <= 0)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                var existing = cart.FirstOrDefault(i => i.ProductId == item.ProductId);
+                if (existing != null)
+                {
+                    existing.Quantity += qty;
+                }
+                else
+                {
+                    cart.Add(new CartItem
+                    {
+                        ProductId = item.Product.Id,
+                        ProductName = item.Product.Name ?? string.Empty,
+                        Price = item.Product.Price,
+                        Quantity = qty,
+                        ImageUrl = item.Product.ImageUrl1 ?? string.Empty,
+                        ShopId = item.Product.ShopId,
+                        ShopName = item.Product.Shop?.Name ?? string.Empty
+                    });
+                }
+                added++;
+            }
+
+            SaveCart(cart);
+            TempData["CartMessage"] = skipped > 0
+                ? $"Reordered {added} items. {skipped} items skipped (out of stock)."
+                : $"Reordered {added} items successfully.";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

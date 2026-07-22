@@ -3,8 +3,10 @@
 @{
     ViewData["Title"] = Model.Name ?? "Product Details";
     var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-    
-    // Fallback if images are missing
+    var isOwner = Model.Shop?.OwnerId == currentUserId;
+    var isAdmin = User.IsInRole("Admin");
+    var canView = isOwner || isAdmin || Model.ModerationStatus == "Approved";
+    var shopSuspended = Model.Shop != null && Model.Shop.IsSuspended && !isAdmin;
     var primaryImage = !string.IsNullOrEmpty(Model.ImageUrl1) ? Model.ImageUrl1 : "/images/placeholder.png";
 }
 
@@ -40,6 +42,15 @@
             <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
         </ol>
     </nav>
+
+    @if (!canView)
+    {
+        <div class="alert alert-warning">This product is not available.</div>
+    }
+    else if (shopSuspended)
+    {
+        <div class="alert alert-warning">This shop is currently suspended and products are not available.</div>
+    }
 
     <div class="row g-5">
         <div class="col-lg-6">
@@ -119,7 +130,7 @@
                 <span class="badge bg-danger-subtle text-danger border border-danger-subtle mb-2">Out of Stock</span>
             }
 
-            @if (Model.Shop?.OwnerId == currentUserId)
+            @if (isOwner)
             {
                 <div class="border rounded p-3 bg-light mt-4">
                     <span class="fw-bold d-block mb-2">Shop Owner Management:</span>
@@ -129,7 +140,7 @@
                     </div>
                 </div>
             }
-            else
+            else if (canView && !shopSuspended)
             {
                 @if (Model.IsAvailable)
                 {
@@ -227,6 +238,31 @@
             {
                 <p class="text-muted italic">No reviews yet for this product.</p>
             }
+
+            @if (ViewBag.RelatedProducts != null && ((IEnumerable<Shop.Models.Product>)ViewBag.RelatedProducts).Any())
+            {
+                <hr class="text-muted my-4" />
+                <h3 class="fw-bold mb-3">Related Products</h3>
+                <div class="product-grid">
+                    @foreach (var rp in (IEnumerable<Shop.Models.Product>)ViewBag.RelatedProducts)
+                    {
+                        <a asp-action="Details" asp-route-id="@rp.Id" class="product-card text-decoration-none">
+                            @if (!string.IsNullOrEmpty(rp.ImageUrl1))
+                            {
+                                <img src="@rp.ImageUrl1" class="product-card-image" alt="@rp.Name" />
+                            }
+                            else
+                            {
+                                <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(rp.Name) ? rp.Name[0].ToString().ToUpper() : "?")</div>
+                            }
+                            <div class="product-card-body">
+                                <div class="product-card-title">@rp.Name</div>
+                                <div class="product-card-price">$@rp.Price.ToString("0.00")</div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
             
             <div class="text-center mt-5">
                 <a asp-action="Index" class="btn btn-sm btn-light px-4 border">← Back to Products</a>
@@ -238,19 +274,15 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // Interactive Gallery Functionality
         function changeImage(url, element) {
             document.getElementById('mainProductImage').src = url;
             
-            // Remove active style from all thumbnail buttons
             document.querySelectorAll('.thumb-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            // Add active focus to the clicked element
             element.classList.add('active');
         }
 
-        // Custom Quantity Multiplier Button controls
         function adjustQty(amount) {
             var qtyInput = document.getElementById('quantity');
             var currentVal = parseInt(qtyInput.value);
@@ -264,13 +296,5 @@
                 if (addToCart) addToCart.value = newVal;
             }
         }
-        
-        // Simple sizing toggle indicator
-        document.querySelectorAll('.size-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
     </script>
 }

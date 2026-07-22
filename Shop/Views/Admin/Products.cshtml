@@ -1,0 +1,68 @@
+@model IEnumerable<Shop.Models.Product>
+
+@{
+    ViewData["Title"] = "Manage Products";
+    var status = ViewBag.Status as string;
+}
+
+<h1 class="fw-bold">@ViewData["Title"]</h1>
+
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-dark">@TempData["StatusMessage"]</div>
+}
+
+<div class="d-flex gap-2 mb-3">
+    <a asp-action="Products" class="btn btn-outline-dark btn-sm">All</a>
+    <a asp-action="Products" asp-route-status="Pending" class="btn btn-outline-dark btn-sm">Pending</a>
+    <a asp-action="Products" asp-route-status="Approved" class="btn btn-outline-dark btn-sm">Approved</a>
+    <a asp-action="Products" asp-route-status="Rejected" class="btn btn-outline-dark btn-sm">Rejected</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Shop</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Name</td>
+                <td>@p.Shop?.Name</td>
+                <td>$@p.Price.ToString("0.00")</td>
+                <td>
+                    <span class="badge bg-@(p.ModerationStatus == "Approved" ? "success" : p.ModerationStatus == "Rejected" ? "danger" : "warning")">@p.ModerationStatus</span>
+                    @if (!string.IsNullOrEmpty(p.RejectionReason))
+                    {
+                        <div class="text-muted small">@p.RejectionReason</div>
+                    }
+                </td>
+                <td>
+                    @if (p.ModerationStatus != "Approved")
+                    {
+                        <form asp-action="ApproveProduct" asp-route-id="@p.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                        </form>
+                    }
+                    @if (p.ModerationStatus != "Rejected")
+                    {
+                        <form asp-action="RejectProduct" asp-route-id="@p.Id" method="post" class="d-inline" onsubmit="var r=prompt('Rejection reason (optional):'); if(r===null) return false; document.getElementById('rej-reason-@p.Id').value=r;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="reason" id="rej-reason-@p.Id" value="" />
+                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-outline-secondary">Back</a>

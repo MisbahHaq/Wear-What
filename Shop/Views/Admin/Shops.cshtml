@@ -1,0 +1,54 @@
+@model IEnumerable<Shop.Models.ShopItem>
+
+@{
+    ViewData["Title"] = "Manage Shops";
+    var status = ViewBag.Status as string;
+}
+
+<h1 class="fw-bold">@ViewData["Title"]</h1>
+
+@if (TempData["StatusMessage"] != null)
+{
+    <div class="alert alert-dark">@TempData["StatusMessage"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Shop</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Suspended</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.Name</td>
+                <td>@s.OwnerId</td>
+                <td><span class="badge bg-@(s.Status == "Approved" ? "success" : "warning")">@s.Status</span></td>
+                <td>@(s.IsSuspended ? "Yes" : "No")</td>
+                <td>
+                    @if (!s.IsSuspended)
+                    {
+                        <form asp-action="SuspendShop" asp-route-id="@s.Id" method="post" class="d-inline" onsubmit="return confirm('Suspend this shop?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-warning">Suspend</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="UnsuspendShop" asp-route-id="@s.Id" method="post" class="d-inline" onsubmit="return confirm('Unsuspend this shop?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-success">Unsuspend</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-outline-secondary">Back</a>
