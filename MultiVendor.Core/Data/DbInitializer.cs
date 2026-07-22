@@ -26,17 +26,7 @@ namespace MultiVendor.Core.Data
                     logger.LogInformation("Created Admin role");
                 }
 
-                if (!await roleManager.RoleExistsAsync("Vendor"))
-                {
-                    await roleManager.CreateAsync(new IdentityRole("Vendor"));
-                    logger.LogInformation("Created Vendor role");
-                }
 
-                if (!await roleManager.RoleExistsAsync("Vendor"))
-                {
-                    await roleManager.CreateAsync(new IdentityRole("Vendor"));
-                    logger.LogInformation("Created Vendor role");
-                }
 
                 if (!await roleManager.RoleExistsAsync("Customer"))
                 {

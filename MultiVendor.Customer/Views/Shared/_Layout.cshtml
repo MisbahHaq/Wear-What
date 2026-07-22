@@ -27,7 +27,7 @@
                         {
                             @if (User.IsInRole("Admin"))
                             {
-                                <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
+                                <a class="nav-link" href="http://localhost:5001/Admin/Admin">Admin</a>
                             }
                             @if (!User.IsInRole("Vendor"))
                             {

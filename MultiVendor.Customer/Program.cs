@@ -12,6 +12,7 @@ namespace MultiVendor.Customer
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllersWithViews();
+
             builder.Services.AddMultiVendorIdentity(builder.Configuration);
 
             builder.Services.AddHttpContextAccessor();
@@ -56,7 +57,7 @@ namespace MultiVendor.Customer
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
-            app.Run();
+            app.Run("http://localhost:5276");
         }
     }
 }
