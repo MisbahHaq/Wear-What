@@ -2,56 +2,30 @@
 
 @{
     ViewData["Title"] = "Owner Dashboard";
-    var ordersByOrder = Model.OrderItems
-        .GroupBy(i => i.OrderId)
-        .OrderByDescending(g => g.First().Order!.CreatedAt);
+    var ordersByOrder = (Model.OrderItems != null)
+        ? Model.OrderItems.GroupBy(i => i.OrderId).OrderByDescending(g => g.First().Order!.CreatedAt)
+        : Enumerable.Empty<IGrouping<int, OrderItem>>();
 }
 
-<style>
-    .status-select {
-        border: 1px solid var(--border);
-        padding: 0.35rem 0.6rem;
-        font-size: 0.82rem;
-        font-weight: 600;
-        background: var(--bg);
-        color: var(--text);
-        border-radius: 0;
-        min-width: 160px;
+<section class="section">
+    <h1 class="section-title">@ViewData["Title"]</h1>
+
+    @if (TempData["OrderMessage"] != null)
+    {
+        <div class="alert alert-dark">@TempData["OrderMessage"]</div>
     }
 
-    .status-select:focus {
-        border-color: var(--text);
-        box-shadow: none;
-        outline: none;
+    @if (TempData["StatusMessage"] != null)
+    {
+        <div class="alert alert-dark">@TempData["StatusMessage"]</div>
     }
-</style>
 
-<h1 class="fw-bold" style="font-size:1.4rem; border-bottom:2px solid var(--text); padding-bottom:0.75rem; margin-bottom:1.25rem;">Owner Dashboard</h1>
-
-@if (TempData["OrderMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["OrderMessage"]</div>
-}
-
-@if (TempData["StatusMessage"] != null)
-{
-    <div class="alert alert-dark">@TempData["StatusMessage"]</div>
-}
-
-@if (!Model.Shops.Any() && (ViewBag.IsVendor ?? false))
-{
-    <div class="alert alert-info">
-        You do not have a shop yet. <a asp-controller="Shops" asp-action="Create">Create a shop</a> to start receiving orders.
-    </div>
-}
-else
-{
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Shops</h5>
-                    <p class="display-6">@Model.Shops.Count</p>
+                    <p class="display-6">@(Model.Shops?.Count ?? 0)</p>
                 </div>
             </div>
         </div>
@@ -67,7 +41,7 @@ else
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Total Sales</h5>
-                    <p class="display-6">$@Model.TotalSales.ToString("0.00")</p>
+                    <p class="display-6">$@((Model.TotalSales).ToString("0.00"))</p>
                 </div>
             </div>
         </div>
@@ -77,24 +51,33 @@ else
     {
         <div class="alert alert-warning d-flex justify-content-between align-items-center">
             <span><strong>Low stock alert:</strong> You have @((ViewBag.LowStockProducts as IEnumerable<Product>)!.Count(p => p.StockQuantity == 0)) out-of-stock and @((ViewBag.LowStockProducts as IEnumerable<Product>)!.Count(p => p.StockQuantity > 0)) low-stock products.</span>
-            <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-dark">View Products</a>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-light">View Products</a>
         </div>
     }
 
-    <h2>Your Shops</h2>
-    <div class="list-group mb-4">
-        @foreach (var shop in Model.Shops)
-        {
-            <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="list-group-item list-group-item-action">
-                <h5 class="mb-1">@shop.Name</h5>
-                <p class="mb-1 text-muted">@shop.Description</p>
-            </a>
-        }
-    </div>
+    <h2 class="fw-bold mb-3">Your Shops</h2>
+    @if (Model.Shops != null && Model.Shops.Any())
+    {
+        <div class="list-group mb-4">
+            @foreach (var shop in Model.Shops)
+            {
+                <a asp-controller="Shops" asp-action="Details" asp-route-id="@shop.Id" class="list-group-item list-group-item-action" style="background:#141414; border-color:#222; color:#e0e0e0;">
+                    <h5 class="mb-1">@shop.Name</h5>
+                    <p class="mb-1" style="color:#888;">@shop.Description</p>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mb-4">
+            You do not have a shop yet. <a asp-controller="Shops" asp-action="Create">Create a shop</a> to start receiving orders.
+        </div>
+    }
 
-    <a asp-action="Analytics" class="btn btn-outline-dark mb-4">View Sales Analytics</a>
+    <a asp-action="Analytics" class="btn btn-outline-secondary mb-4">View Sales Analytics</a>
 
-    <h2>Orders</h2>
+    <h2 class="fw-bold mb-3">Orders</h2>
     @if (ordersByOrder.Any())
     {
         @foreach (var group in ordersByOrder)
@@ -106,12 +89,12 @@ else
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
                         <strong>Order #@group.Key</strong>
-                        <span class="text-muted"> - @order.CreatedAt.ToString("g")</span>
+                        <span style="color:#888;"> - @order.CreatedAt.ToString("g")</span>
                     </div>
                     <div class="d-flex align-items-center gap-3">
                         <form asp-action="UpdateOrderStatus" method="post" class="d-inline">
                             <input type="hidden" name="orderItemId" value="@group.First().Id" />
-                            <select name="status" class="form-select status-select" onchange="this.form.submit()">
+                            <select name="status" class="form-select status-select" onchange="this.form.submit()" style="background:var(--bg); color:var(--text); border:1px solid #333;">
                                 @foreach (var s in new[] { "Placed", "Confirmed", "Processing", "Shipped", "OutForDelivery", "Delivered", "Cancelled", "ReturnRequested", "Returned" })
                                 {
                                     <option value="@s" selected="@(order.Status == s ? "selected" : null)">@s</option>
@@ -144,7 +127,7 @@ else
                                         <td>@item.Product?.Shop?.Name</td>
                                         <td>@item.Quantity</td>
                                         <td>$@item.UnitPrice.ToString("0.00")</td>
-                                        <td>$@(item.UnitPrice * item.Quantity).ToString("0.00")</td>
+                                        <td>$@((item.UnitPrice * item.Quantity).ToString("0.00"))</td>
                                     </tr>
                                 }
                             </tbody>
@@ -156,46 +139,6 @@ else
     }
     else
     {
-        <div class="alert alert-info">
-            No orders have been placed for your shop(s) yet.
-            @if ((int)(ViewBag.CustomerOrderCount ?? 0) > 0)
-            {
-                <span>You have @ViewBag.CustomerOrderCount order(s) as a customer — see "Your Purchases" below.</span>
-            }
-        </div>
+        <div class="alert alert-info">No orders yet.</div>
     }
-}
-
-@if (ViewBag.CustomerOrders != null && (int)(ViewBag.CustomerOrderCount ?? 0) > 0)
-{
-    var customerOrders = (System.Collections.Generic.IEnumerable<dynamic>)ViewBag.CustomerOrders;
-    <h2 class="mt-5">Your Purchases</h2>
-    <p class="text-muted small">These are orders you placed as a customer (not from your shop).</p>
-    <div class="table-responsive">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th>Order</th>
-                    <th>Date</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var co in customerOrders)
-                {
-                    <tr>
-                        <td>#@co.Id</td>
-                        <td>@(((DateTime)co.CreatedAt).ToString("g"))</td>
-                        <td>@co.ItemCount</td>
-                        <td>$@(((decimal)co.TotalAmount).ToString("0.00"))</td>
-                        <td>@co.Status</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
-
-
+</section>

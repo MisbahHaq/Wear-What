@@ -1,4 +1,4 @@
-@model IEnumerable<MultiVendor.Core.Models.Product>
+@model IEnumerable<MultiVendor.Core.Models.Product>?
 
 @{
     ViewData["Title"] = "Home Page";
@@ -59,21 +59,21 @@
             <div class="bento-stack">
                 @if (catList.Count > 1)
                 {
-                    <a class="bento-card bento-small" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[1].Id">
+                    <a class="bento-card bento-small" asp-controller="Products" asp-action="Index">
                         <img src="@(catList[1].ImageUrl ?? "/images/placeholder.png")" alt="@catList[1].Name" />
                         <span class="bento-label">@catList[1].Name</span>
                     </a>
                 }
                 @if (catList.Count > 2)
                 {
-                    <a class="bento-card bento-small" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[2].Id">
+                    <a class="bento-card bento-small" asp-controller="Products" asp-action="Index">
                         <img src="@(catList[2].ImageUrl ?? "/images/placeholder.png")" alt="@catList[2].Name" />
                         <span class="bento-label">@catList[2].Name</span>
                     </a>
                 }
                 @if (catList.Count > 3)
                 {
-                    <a class="bento-card bento-wide" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[3].Id">
+                    <a class="bento-card bento-wide" asp-controller="Products" asp-action="Index">
                         <img src="@(catList[3].ImageUrl ?? "/images/placeholder.png")" alt="@catList[3].Name" />
                         <span class="bento-label bento-label-br">@catList[3].Name</span>
                     </a>
@@ -270,7 +270,7 @@
 }
 
 @* ===== MORE PRODUCTS ===== *@
-@if (Model.Any())
+@if (Model != null && Model.Any())
 {
     <section class="section">
         <h2 class="section-title">More products</h2>

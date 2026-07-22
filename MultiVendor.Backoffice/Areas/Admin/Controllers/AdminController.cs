@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MultiVendor.Core.Data;
@@ -6,37 +7,91 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
+    [Authorize(Roles = "Admin,Vendor")]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
+        }
+
+        private async Task<string> GetCurrentUserIdAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            return user?.Id ?? string.Empty;
+        }
+
+        private async Task<bool> IsVendorAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return false;
+            return await _userManager.IsInRoleAsync(user, "Vendor");
+        }
+
+        private async Task<List<int>> GetVendorShopIdsAsync()
+        {
+            var currentUserId = await GetCurrentUserIdAsync();
+            return await _context.Shops
+                .Where(s => s.OwnerId == currentUserId)
+                .Select(s => s.Id)
+                .ToListAsync();
         }
 
         public async Task<IActionResult> Index()
         {
-            var viewModel = new AdminDashboardViewModel
+            if (await IsVendorAsync())
+            {
+                var shopIds = await GetVendorShopIdsAsync();
+                var viewModel = new AdminDashboardViewModel
+                {
+                    TotalProducts = await _context.Products.Where(p => shopIds.Contains(p.ShopId)).CountAsync(),
+                    TotalShops = shopIds.Count,
+                    TotalCategories = await _context.ShopCategories.CountAsync(),
+                    TotalUsers = await _context.Users.CountAsync()
+                };
+                return View(viewModel);
+            }
+
+            var adminViewModel = new AdminDashboardViewModel
             {
                 TotalProducts = await _context.Products.CountAsync(),
                 TotalShops = await _context.Shops.CountAsync(),
                 TotalCategories = await _context.ShopCategories.CountAsync(),
                 TotalUsers = await _context.Users.CountAsync()
             };
-            return View(viewModel);
+            return View(adminViewModel);
         }
 
         public async Task<IActionResult> Products(string? status = null)
         {
-            var query = _context.Products.Include(p => p.Shop).AsQueryable();
-            if (!string.IsNullOrWhiteSpace(status))
-                query = query.Where(p => p.ModerationStatus == status);
+            if (await IsVendorAsync())
+            {
+                var shopIds = await GetVendorShopIdsAsync();
+                var query = _context.Products
+                    .Include(p => p.Shop)
+                    .Where(p => shopIds.Contains(p.ShopId))
+                    .AsQueryable();
 
-            var products = await query.OrderByDescending(p => p.Id).ToListAsync();
+                if (!string.IsNullOrWhiteSpace(status))
+                    query = query.Where(p => p.ModerationStatus == status);
+
+                var products = await query.OrderByDescending(p => p.Id).ToListAsync();
+                ViewBag.Status = status;
+                return View(products);
+            }
+
+            var adminQuery = _context.Products.Include(p => p.Shop).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(status))
+                adminQuery = adminQuery.Where(p => p.ModerationStatus == status);
+
+            var allProducts = await adminQuery.OrderByDescending(p => p.Id).ToListAsync();
             ViewBag.Status = status;
-            return View(products);
+            return View(allProducts);
         }
 
         [HttpPost]
@@ -46,6 +101,13 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
+                if (await IsVendorAsync())
+                {
+                    var shopIds = await GetVendorShopIdsAsync();
+                    if (!shopIds.Contains(product.ShopId))
+                        return Forbid();
+                }
+
                 product.ModerationStatus = "Approved";
                 product.RejectionReason = null;
                 await _context.SaveChangesAsync();
@@ -61,6 +123,13 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
             var product = await _context.Products.FindAsync(id);
             if (product != null)
             {
+                if (await IsVendorAsync())
+                {
+                    var shopIds = await GetVendorShopIdsAsync();
+                    if (!shopIds.Contains(product.ShopId))
+                        return Forbid();
+                }
+
                 product.ModerationStatus = "Rejected";
                 product.RejectionReason = reason ?? "Rejected by admin";
                 await _context.SaveChangesAsync();
@@ -71,19 +140,41 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
 
         public async Task<IActionResult> Shops(string? status = null)
         {
-            var query = _context.Shops.AsQueryable();
-            if (!string.IsNullOrWhiteSpace(status) && status == "Suspended")
-                query = query.Where(s => s.IsSuspended);
+            if (await IsVendorAsync())
+            {
+                var currentUserId = await GetCurrentUserIdAsync();
+                var query = _context.Shops
+                    .Where(s => s.OwnerId == currentUserId)
+                    .AsQueryable();
 
-            var shops = await query.OrderByDescending(s => s.Id).ToListAsync();
+                if (!string.IsNullOrWhiteSpace(status) && status == "Suspended")
+                    query = query.Where(s => s.IsSuspended);
+
+                var shops = await query.OrderByDescending(s => s.Id).ToListAsync();
+                ViewBag.Status = status;
+                return View(shops);
+            }
+
+            var adminQuery = _context.Shops.AsQueryable();
+            if (!string.IsNullOrWhiteSpace(status) && status == "Suspended")
+                adminQuery = adminQuery.Where(s => s.IsSuspended);
+
+            var allShops = await adminQuery.OrderByDescending(s => s.Id).ToListAsync();
             ViewBag.Status = status;
-            return View(shops);
+            return View(allShops);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SuspendShop(int id)
         {
+            if (await IsVendorAsync())
+            {
+                var shopIds = await GetVendorShopIdsAsync();
+                if (!shopIds.Contains(id))
+                    return Forbid();
+            }
+
             var shop = await _context.Shops.FindAsync(id);
             if (shop != null)
             {
@@ -98,6 +189,13 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnsuspendShop(int id)
         {
+            if (await IsVendorAsync())
+            {
+                var shopIds = await GetVendorShopIdsAsync();
+                if (!shopIds.Contains(id))
+                    return Forbid();
+            }
+
             var shop = await _context.Shops.FindAsync(id);
             if (shop != null)
             {
@@ -175,15 +273,17 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Banners));
             }
 
-            return View(banner);
+            return View();
         }
 
         public async Task<IActionResult> ReturnRequests(string? status = null)
         {
+            var shopIds = await GetVendorShopIdsAsync();
             var query = _context.ReturnRequests
                 .Include(r => r.OrderItem)
                 .ThenInclude(i => i.Product)
                 .Include(r => r.Buyer)
+                .Where(r => shopIds.Contains(r.OrderItem.Product.ShopId))
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(status))
@@ -199,10 +299,12 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
             var start = from?.Date ?? DateTime.UtcNow.AddDays(-30);
             var end = to?.Date.AddDays(1) ?? DateTime.UtcNow.Date.AddDays(1);
 
+            var shopIds = await GetVendorShopIdsAsync();
             var orders = await _context.Orders
                 .Include(o => o.OrderItems)
                 .ThenInclude(i => i.Product)
                 .Where(o => o.CreatedAt >= start && o.CreatedAt < end)
+                .Where(o => o.OrderItems.Any(i => shopIds.Contains(i.Product.ShopId)))
                 .ToListAsync();
 
             var gmv = orders.Sum(o => o.TotalAmount);
@@ -211,7 +313,7 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
 
             var byCategory = orders
                 .SelectMany(o => o.OrderItems)
-                .Where(i => i.Product != null && i.Product.CategoryId.HasValue)
+                .Where(i => i.Product != null && i.Product.CategoryId.HasValue && shopIds.Contains(i.Product.ShopId))
                 .GroupBy(i => i.Product!.CategoryId!.Value)
                 .Select(g => new
                 {
@@ -229,7 +331,7 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
 
             var bySeller = orders
                 .SelectMany(o => o.OrderItems)
-                .Where(i => i.Product != null)
+                .Where(i => i.Product != null && shopIds.Contains(i.Product.ShopId))
                 .GroupBy(i => i.Product!.ShopId)
                 .Select(g => new
                 {
@@ -259,4 +361,3 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
         }
     }
 }
-

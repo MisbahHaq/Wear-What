@@ -5,6 +5,7 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
 {
+    [Area("Vendor")]
     public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -52,10 +53,18 @@ namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
             return View();
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> LogoutPost()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");

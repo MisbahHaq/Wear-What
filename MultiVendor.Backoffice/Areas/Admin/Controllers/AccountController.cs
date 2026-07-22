@@ -6,7 +6,8 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
+    [Authorize(Roles = "Admin,Vendor")]
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -66,10 +67,18 @@ namespace MultiVendor.Backoffice.Areas.Admin.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> LogoutPost()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");

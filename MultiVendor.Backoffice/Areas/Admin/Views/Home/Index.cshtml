@@ -1,4 +1,4 @@
-@model IEnumerable<MultiVendor.Core.Models.Product>
+@model IEnumerable<MultiVendor.Core.Models.Product>?
 
 @{
     ViewData["Title"] = "Home Page";
@@ -19,7 +19,7 @@
         <span class="hero-eyebrow">Limited time offer</span>
         <h1 class="hero-title">30% discount on your first purchase</h1>
         <p class="hero-sub">Sign up today and save big on your favorite products across every category.</p>
-        <a class="btn hero-cta" asp-controller="Products" asp-action="Index">Shop now</a>
+        <a class="btn hero-cta" asp-controller="Admin" asp-action="Products">Manage products</a>
     </div>
     <div class="hero-right">
         @if (heroBanner != null)
@@ -51,7 +51,7 @@
         <h2 class="section-title">Shop by category</h2>
         <div class="bento">
             @* Large left card *@
-            <a class="bento-card bento-large" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[0].Id">
+            <a class="bento-card bento-large" asp-controller="Admin" asp-action="Products">
                 <img src="@(catList[0].ImageUrl ?? "/images/placeholder.png")" alt="@catList[0].Name" />
                 <span class="bento-label">@catList[0].Name</span>
             </a>
@@ -59,28 +59,28 @@
             <div class="bento-stack">
                 @if (catList.Count > 1)
                 {
-                    <a class="bento-card bento-small" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[1].Id">
+                    <a class="bento-card bento-small" asp-controller="Admin" asp-action="Products">
                         <img src="@(catList[1].ImageUrl ?? "/images/placeholder.png")" alt="@catList[1].Name" />
                         <span class="bento-label">@catList[1].Name</span>
                     </a>
                 }
                 @if (catList.Count > 2)
                 {
-                    <a class="bento-card bento-small" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[2].Id">
+                    <a class="bento-card bento-small" asp-controller="Admin" asp-action="Products">
                         <img src="@(catList[2].ImageUrl ?? "/images/placeholder.png")" alt="@catList[2].Name" />
                         <span class="bento-label">@catList[2].Name</span>
                     </a>
                 }
                 @if (catList.Count > 3)
                 {
-                    <a class="bento-card bento-wide" asp-controller="Products" asp-action="Index" asp-route-categoryId="@catList[3].Id">
+                    <a class="bento-card bento-wide" asp-controller="Admin" asp-action="Products">
                         <img src="@(catList[3].ImageUrl ?? "/images/placeholder.png")" alt="@catList[3].Name" />
                         <span class="bento-label bento-label-br">@catList[3].Name</span>
                     </a>
                 }
                 else
                 {
-                    <a class="bento-card bento-wide bento-all" asp-controller="Products" asp-action="Index">
+                    <a class="bento-card bento-wide bento-all" asp-controller="Admin" asp-action="Products">
                         <span class="bento-label bento-label-br">View all categories</span>
                     </a>
                 }
@@ -115,7 +115,7 @@
         <div class="product-grid" id="productGrid">
             @foreach (var item in bestSellers)
             {
-                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                <a asp-controller="Admin" asp-action="Products"
                    class="product-card text-decoration-none" data-category="@item.Category?.Name">
                     @if (!string.IsNullOrEmpty(item.ImageUrl1))
                     {
@@ -143,7 +143,7 @@
     <div class="cta-left">
         <h2 class="cta-title">Need specialist help?</h2>
         <p class="cta-sub">Our team is here to guide you to the perfect choices for your home and lifestyle.</p>
-        <a class="cta-pill" asp-controller="Home" asp-action="Privacy">our mission</a>
+        <a class="cta-pill" asp-controller="Admin" asp-action="Index">our mission</a>
     </div>
     <div class="cta-right">
         <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=80" alt="Kitchen" />
@@ -204,7 +204,7 @@
         <div class="product-grid">
             @foreach (var item in officeFurnitureProducts)
             {
-                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                <a asp-controller="Admin" asp-action="Products"
                    class="product-card text-decoration-none" data-category="@item.Category?.Name">
                     @if (!string.IsNullOrEmpty(item.ImageUrl1))
                     {
@@ -227,7 +227,7 @@
         @if (officeFurnitureCategoryId.HasValue)
         {
             <div class="text-center">
-                <a class="btn btn-outline-secondary" asp-controller="Products" asp-action="Index" asp-route-categoryId="@officeFurnitureCategoryId.Value">View all</a>
+                <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Products" asp-route-categoryId="@officeFurnitureCategoryId.Value">View all</a>
             </div>
         }
     </section>
@@ -240,7 +240,7 @@
         <div class="product-grid">
             @foreach (var item in booksProducts)
             {
-                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                <a asp-controller="Admin" asp-action="Products"
                    class="product-card text-decoration-none" data-category="@item.Category?.Name">
                     @if (!string.IsNullOrEmpty(item.ImageUrl1))
                     {
@@ -263,21 +263,21 @@
         @if (booksCategoryId.HasValue)
         {
             <div class="text-center">
-                <a class="btn btn-outline-secondary" asp-controller="Products" asp-action="Index" asp-route-categoryId="@booksCategoryId.Value">View all</a>
+                <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Products" asp-route-categoryId="@booksCategoryId.Value">View all</a>
             </div>
         }
     </section>
 }
 
 @* ===== MORE PRODUCTS ===== *@
-@if (Model.Any())
+@if (Model != null && Model.Any())
 {
     <section class="section">
         <h2 class="section-title">More products</h2>
         <div class="product-grid" id="moreProductsGrid">
             @foreach (var item in Model)
             {
-                <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                <a asp-controller="Admin" asp-action="Products"
                    class="product-card text-decoration-none" data-category="@item.Category?.Name">
                     @if (!string.IsNullOrEmpty(item.ImageUrl1))
                     {

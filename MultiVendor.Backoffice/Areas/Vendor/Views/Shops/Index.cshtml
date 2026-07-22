@@ -1,0 +1,38 @@
+@model IEnumerable<MultiVendor.Core.Models.ShopItem>?
+
+@{
+    ViewData["Title"] = "My Shops";
+}
+
+<section class="section">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0" style="font-size:1.75rem; font-weight:500;">My Shops</h1>
+        <a asp-action="Create" class="btn btn-dark">Create Shop</a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">You haven't created any shops yet.</div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var shop in Model)
+            {
+                <div class="product-card">
+                    <div class="product-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="product-card-title" style="font-size:1.05rem;">@shop.Name</div>
+                            <span class="badge bg-@(shop.Status == "Approved" ? "success" : "warning")">@shop.Status</span>
+                        </div>
+                        <div class="product-card-description">@shop.Description</div>
+                        <div class="d-flex gap-2 mt-3">
+                            <a asp-action="Edit" asp-route-id="@shop.Id" class="btn btn-outline-secondary btn-sm">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@shop.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</section>

@@ -9,6 +9,7 @@ using System.Text;
 
 namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
 {
+    [Area("Vendor")]
     [Authorize(Roles = "Vendor")]
     public class ProductsController : Controller
     {
@@ -28,6 +29,47 @@ namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
         private string? GetCurrentUserName()
         {
             return User.Identity?.Name;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var currentUserId = GetCurrentUserId();
+            var shopIds = await _context.Shops
+                .Where(s => s.OwnerId == currentUserId)
+                .Select(s => s.Id)
+                .ToListAsync();
+
+            var products = await _context.Products
+                .Where(p => shopIds.Contains(p.ShopId))
+                .Include(p => p.Category)
+                .Include(p => p.Shop)
+                .OrderByDescending(p => p.Id)
+                .ToListAsync();
+
+            return View(products);
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Shop)
+                .Include(p => p.Specifications)
+                .Include(p => p.Colors)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null) return NotFound();
+
+            var shop = await _context.Shops.FindAsync(product.ShopId);
+            var currentUserId = GetCurrentUserId();
+            if (shop?.OwnerId != currentUserId)
+            {
+                return Forbid();
+            }
+
+            return View(product);
         }
 
         public async Task<IActionResult> Create()

@@ -5,6 +5,7 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Vendor.Controllers;
 
+[Area("Vendor")]
 [Authorize(Roles = "Vendor")]
 public class HomeController : Controller
 {

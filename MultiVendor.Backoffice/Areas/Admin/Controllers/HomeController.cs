@@ -6,7 +6,8 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Admin.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Area("Admin")]
+[Authorize(Roles = "Admin,Vendor")]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

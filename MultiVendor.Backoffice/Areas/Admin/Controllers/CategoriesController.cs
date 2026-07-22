@@ -6,7 +6,8 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    [Area("Admin")]
+    [Authorize(Roles = "Admin,Vendor")]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;

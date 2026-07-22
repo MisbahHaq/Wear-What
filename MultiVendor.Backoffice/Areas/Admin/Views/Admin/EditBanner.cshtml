@@ -4,74 +4,43 @@
     ViewData["Title"] = "Edit Banner";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="mb-0">Edit Banner</h1>
-    <a asp-action="Banners" class="btn btn-outline-secondary">Back to Banners</a>
-</div>
+<section class="section">
+    <h1 class="section-title">@ViewData["Title"]</h1>
 
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header fw-bold">Banner Details</div>
-            <div class="card-body">
-                <form asp-action="EditBanner" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <input type="hidden" asp-for="Id" />
-                    <input type="hidden" asp-for="CreatedAt" />
-                    <div class="form-group mb-3">
-                        <label asp-for="ImageUrl" class="form-label fw-bold">Image URL</label>
-                        <input asp-for="ImageUrl" class="form-control" placeholder="https://... or /images/..." />
-                        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label asp-for="Title" class="form-label fw-bold">Title / Alt Text</label>
-                        <input asp-for="Title" class="form-control" placeholder="Holiday Special Offers" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label asp-for="LinkUrl" class="form-label fw-bold">Link URL (optional)</label>
-                        <input asp-for="LinkUrl" class="form-control" placeholder="/Products or https://..." />
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" asp-for="IsActive" type="checkbox" id="IsActive" />
-                        <input type="hidden" name="IsActive" value="false" />
-                        <label class="form-check-label" for="IsActive">Active (shown on home page)</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form asp-action="EditBanner" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedAt" />
 
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header fw-bold">Preview</div>
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl" class="img-fluid" alt="@Model.Title" style="border:1px solid var(--border);" />
-                }
-                else
-                {
-                    <div class="alert alert-secondary">No image URL set.</div>
-                }
-                <div class="mt-2">
-                    <strong>@Model.Title</strong>
-                    @if (Model.IsActive)
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Inactive</span>
-                    }
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Image URL</label>
+                            <input name="ImageUrl" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Title</label>
+                            <input name="Title" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Link URL</label>
+                            <input name="LinkUrl" class="form-control" />
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" name="IsActive" type="checkbox" value="true" @(Model.IsActive ? "checked" : "") />
+                            <input type="hidden" name="IsActive" value="false" />
+                            <label class="form-check-label">Active</label>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-dark">Save</button>
+                            <a asp-action="Banners" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
-
-
+</section>

@@ -2,106 +2,133 @@
     ViewData["Title"] = "Admin Reports";
     var from = ViewBag.From ?? DateTime.UtcNow.AddDays(-30);
     var to = ViewBag.To ?? DateTime.UtcNow;
+    var gmv = ViewBag.GMV as decimal? ?? 0;
+    var orderCount = ViewBag.OrderCount as int? ?? 0;
+    var customerCount = ViewBag.CustomerCount as int? ?? 0;
+    var byCategory = ViewBag.ByCategory as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var categoryNames = ViewBag.CategoryNames as IDictionary<int, string> ?? new Dictionary<int, string>();
+    var bySeller = ViewBag.BySeller as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var shopNames = ViewBag.ShopNames as IDictionary<int, string> ?? new Dictionary<int, string>();
 }
 
-<h1 class="fw-bold">@ViewData["Title"]</h1>
+<section class="section">
+    <h1 class="section-title">@ViewData["Title"]</h1>
 
-<form asp-action="Reports" method="get" class="row g-2 mb-4 align-items-end">
-    <div class="col-md-3">
-        <label class="form-label small fw-bold">From</label>
-        <input type="date" name="from" value="@from.ToString("yyyy-MM-dd")" class="form-control" />
-    </div>
-    <div class="col-md-3">
-        <label class="form-label small fw-bold">To</label>
-        <input type="date" name="to" value="@to.ToString("yyyy-MM-dd")" class="form-control" />
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-dark w-100">Apply</button>
-    </div>
-</form>
+    <form asp-action="Reports" method="get" class="row g-3 mb-4 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-bold">From</label>
+            <input type="date" name="from" value="@from.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small fw-bold">To</label>
+            <input type="date" name="to" value="@to.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100">Apply</button>
+        </div>
+    </form>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">GMV</h5>
-                <p class="display-6">$@(((decimal)ViewBag.GMV).ToString("0.00"))</p>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">GMV</h5>
+                    <p class="display-6">$@gmv.ToString("0.00")</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <p class="display-6">@orderCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Customers</h5>
+                    <p class="display-6">@customerCount</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Total Orders</h5>
-                <p class="display-6">@ViewBag.OrderCount</p>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Top Categories</h5>
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Revenue</th>
+                                    <th>Orders</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (byCategory.Any())
+                                {
+                                    @foreach (var c in byCategory)
+                                    {
+                                        <tr>
+                                            <td>@(categoryNames.ContainsKey(c.CategoryId) ? categoryNames[c.CategoryId] : c.CategoryId.ToString())</td>
+                                            <td>$@c.Revenue.ToString("0.00")</td>
+                                            <td>@c.Count</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3" style="color:#888;">No data available.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Top Sellers</h5>
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Shop</th>
+                                    <th>Revenue</th>
+                                    <th>Orders</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (bySeller.Any())
+                                {
+                                    @foreach (var s in bySeller)
+                                    {
+                                        <tr>
+                                            <td>@(shopNames.ContainsKey(s.ShopId) ? shopNames[s.ShopId] : s.ShopId.ToString())</td>
+                                            <td>$@s.Revenue.ToString("0.00")</td>
+                                            <td>@s.Count</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center py-3" style="color:#888;">No data available.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Customers</h5>
-                <p class="display-6">@ViewBag.CustomerCount</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3">Top Categories</h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Revenue</th>
-                            <th>Orders</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var c in (IEnumerable<dynamic>)ViewBag.ByCategory)
-                        {
-                            <tr>
-                                <td>@(ViewBag.CategoryNames[c.CategoryId] ?? c.CategoryId)</td>
-                                <td>$@c.Revenue.ToString("0.00")</td>
-                                <td>@c.Count</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3">Top Sellers</h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Shop</th>
-                            <th>Revenue</th>
-                            <th>Orders</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var s in (IEnumerable<dynamic>)ViewBag.BySeller)
-                        {
-                            <tr>
-                                <td>@(ViewBag.ShopNames[s.ShopId] ?? s.ShopId)</td>
-                                <td>$@s.Revenue.ToString("0.00")</td>
-                                <td>@s.Count</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<a asp-action="Index" class="btn btn-outline-secondary mt-4">Back</a>
-
-
+</section>

@@ -50,6 +50,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
+
         app.UseStaticFiles();
 
         app.UseRouting();
@@ -62,9 +63,11 @@ public class Program
             name: "areas",
             pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
+        app.MapGet("/", context =>
+        {
+            context.Response.Redirect("/Admin");
+            return Task.CompletedTask;
+        });
 
         app.Run("http://localhost:5001");
     }

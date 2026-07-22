@@ -7,6 +7,7 @@ using MultiVendor.Core.Models;
 
 namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
 {
+    [Area("Vendor")]
     [Authorize(Roles = "Vendor")]
     public class ShopsController : Controller
     {
@@ -20,6 +21,16 @@ namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
         }
 
         private string GetCurrentUserId() => _userManager.GetUserId(User) ?? string.Empty;
+
+        public async Task<IActionResult> Index()
+        {
+            var currentUserId = GetCurrentUserId();
+            var shops = await _context.Shops
+                .Where(s => s.OwnerId == currentUserId)
+                .OrderByDescending(s => s.Id)
+                .ToListAsync();
+            return View(shops);
+        }
 
         public IActionResult Create()
         {

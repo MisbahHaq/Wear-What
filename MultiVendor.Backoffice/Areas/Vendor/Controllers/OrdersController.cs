@@ -8,6 +8,7 @@ using MultiVendor.Core;
 
 namespace MultiVendor.Backoffice.Areas.Vendor.Controllers
 {
+    [Area("Vendor")]
     [Authorize(Roles = "Vendor")]
     public class OrdersController : Controller
     {
