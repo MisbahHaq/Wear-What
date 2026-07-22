@@ -1,0 +1,301 @@
+@model MultiVendor.Core.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name ?? "Product Details";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var isOwner = Model.Shop?.OwnerId == currentUserId;
+    var isAdmin = User.IsInRole("Admin");
+    var canView = isOwner || isAdmin || Model.ModerationStatus == "Approved";
+    var shopSuspended = Model.Shop != null && Model.Shop.IsSuspended && !isAdmin;
+    var primaryImage = !string.IsNullOrEmpty(Model.ImageUrl1) ? Model.ImageUrl1 : "/images/placeholder.png";
+}
+
+<style>
+    .product-container { background: #fff; border-radius: 12px; padding: 2rem; margin-top: 1.5rem; }
+    .main-img-wrapper { background: #f2fadc; border-radius: 12px; padding: 30px; display: flex; align-items: center; justify-content: center; min-height: 400px; }
+    .thumb-btn { background: #f2fadc; border: 2px solid transparent; border-radius: 8px; padding: 5px; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; }
+    .thumb-btn.active { border-color: #000; }
+    .thumb-btn img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .product-brand { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .product-title { font-weight: 800; font-size: 2.2rem; margin-bottom: 0.25rem; }
+    .star-rating { color: #ffca2c; font-size: 0.95rem; }
+    .review-count { font-size: 0.85rem; color: #6c757d; font-weight: 500; margin-left: 5px; }
+    .section-title { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; margin-top: 1.5rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; }
+    .product-price { font-size: 2.5rem; font-weight: 800; color: #000; margin: 0.5rem 0; }
+    .size-btn { border: 1px solid #dee2e6; background: #fff; padding: 0.5rem 1rem; min-width: 55px; font-weight: 500; border-radius: 6px; }
+    .size-btn.active { background: #000; color: #fff; border-color: #000; }
+    .quantity-control { border: 1px solid #dee2e6; border-radius: 6px; background: #f8f9fa; display: inline-flex; align-items: center; }
+    .quantity-btn { border: none; background: transparent; padding: 0.25rem 0.75rem; font-weight: bold; }
+    .quantity-input { border: none; background: transparent; width: 45px; text-align: center; font-weight: 600; }
+    .btn-buy-now { background: #121212; color: #fff; font-weight: 600; border-radius: 8px; padding: 0.75rem 2rem; border: none; }
+    .btn-buy-now:hover { background: #242424; color: #fff; }
+    .btn-cart-outline { border: 1px solid #121212; background: transparent; color: #121212; font-weight: 600; border-radius: 8px; padding: 0.75rem 2rem; }
+    .btn-cart-outline:hover { background: #121212; color: #fff; }
+    .btn-fav { border: 1px solid #dee2e6; background: #fff; border-radius: 8px; padding: 0.75rem 1rem; color: #6c757d; }
+    .btn-fav:hover { background: #f8f9fa; color: #dc3545; }
+</style>
+
+<div class="container product-container">
+    <nav style="--bs-breadcrumb-divider: '-';" aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb text-muted sm">
+            <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none text-muted">Best Shoes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+        </ol>
+    </nav>
+
+    @if (!canView)
+    {
+        <div class="alert alert-warning">This product is not available.</div>
+    }
+    else if (shopSuspended)
+    {
+        <div class="alert alert-warning">This shop is currently suspended and products are not available.</div>
+    }
+
+    <div class="row g-5">
+        <div class="col-lg-6">
+            <div class="main-img-wrapper mb-3">
+                <img id="mainProductImage" src="@primaryImage" class="img-fluid" alt="@Model.Name" style="max-height: 380px; object-fit: contain;" />
+            </div>
+            
+            <div class="d-flex flex-wrap gap-2">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl1)) {
+                    <button class="thumb-btn active" onclick="changeImage('@Model.ImageUrl1', this)"><img src="@Model.ImageUrl1" alt="Thumb 1" /></button>
+                }
+                @if (!string.IsNullOrEmpty(Model.ImageUrl2)) {
+                    <button class="thumb-btn" onclick="changeImage('@Model.ImageUrl2', this)"><img src="@Model.ImageUrl2" alt="Thumb 2" /></button>
+                }
+                @if (!string.IsNullOrEmpty(Model.ImageUrl3)) {
+                    <button class="thumb-btn" onclick="changeImage('@Model.ImageUrl3', this)"><img src="@Model.ImageUrl3" alt="Thumb 3" /></button>
+                }
+                @if (!string.IsNullOrEmpty(Model.ImageUrl4)) {
+                    <button class="thumb-btn" onclick="changeImage('@Model.ImageUrl4', this)"><img src="@Model.ImageUrl4" alt="Thumb 4" /></button>
+                }
+                @if (!string.IsNullOrEmpty(Model.ImageUrl5)) {
+                    <button class="thumb-btn" onclick="changeImage('@Model.ImageUrl5', this)"><img src="@Model.ImageUrl5" alt="Thumb 5" /></button>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="product-brand text-success mb-1">
+                <a asp-controller="Shops" asp-action="Details" asp-route-id="@Model.ShopId" class="text-decoration-none text-success">
+                    @(Model.Shop?.Name ?? "PulseSneaks")
+                </a>
+            </div>
+            
+            <h1 class="product-title">@Model.Name</h1>
+
+            <div class="d-flex align-items-center mb-3">
+                <span class="star-rating">★★★★★</span>
+                <span class="review-count">25k+ Total Reviews</span>
+            </div>
+
+            <div class="section-title">Product Description</div>
+            <p class="text-muted" style="font-size: 0.92rem; line-height: 1.6;">@Model.Description</p>
+
+            @if (Model.Specifications != null && Model.Specifications.Any())
+            {
+                <div class="section-title">Specifications</div>
+                <table class="table table-sm table-borderless mb-0">
+                    @foreach (var spec in Model.Specifications.OrderBy(s => s.Key))
+                    {
+                        <tr>
+                            <td class="fw-bold text-muted" style="width: 40%;">@spec.Key</td>
+                            <td>@spec.Value</td>
+                        </tr>
+                    }
+                </table>
+            }
+
+            @if (Model.Colors != null && Model.Colors.Any())
+            {
+                <div class="section-title mt-3">Available Colors</div>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var color in Model.Colors)
+                    {
+                        <span class="badge bg-light text-dark border px-3 py-2">@color.ColorName</span>
+                    }
+                </div>
+            }
+
+            <div class="product-price">$@Model.Price.ToString("0.00")</div>
+
+            @if (Model.IsAvailable)
+            {
+                <span class="badge bg-success-subtle text-success border border-success-subtle mb-2">In Stock (@Model.StockQuantity)</span>
+            }
+            else
+            {
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle mb-2">Out of Stock</span>
+            }
+
+            @if (isOwner)
+            {
+                <div class="border rounded p-3 bg-light mt-4">
+                    <span class="fw-bold d-block mb-2">Shop Owner Management:</span>
+                    <div class="d-flex gap-2">
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-dark w-50">Edit Product</a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger w-50">Delete</a>
+                    </div>
+                </div>
+            }
+            else if (canView && !shopSuspended)
+            {
+                @if (Model.IsAvailable)
+                {
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="quantity-control">
+                        <button type="button" class="quantity-btn" onclick="adjustQty(-1)">-</button>
+                        <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="@Model.StockQuantity" readonly />
+                        <button type="button" class="quantity-btn" onclick="adjustQty(1)">+</button>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 align-items-center">
+                    @if (currentUserId != null)
+                    {
+                        <form asp-controller="Orders" asp-action="Checkout" method="get" class="d-inline flex-grow-1">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="quantity" id="buyNowQuantity" value="1" />
+                            <button type="submit" class="btn-buy-now w-100">Buy Now</button>
+                        </form>
+                        <form asp-controller="Cart" asp-action="Add" method="post" class="d-inline flex-grow-1" asp-antiforgery="true">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="hidden" name="quantity" id="addToCartQuantity" value="1" />
+                            <button type="submit" class="btn-cart-outline w-100">Add To Cart</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn-buy-now text-center flex-grow-1 text-decoration-none">Log in to Purchase</a>
+                    }
+                </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning mb-4">This product is currently out of stock.</div>
+                }
+
+                @if (currentUserId != null)
+                {
+                    <form asp-controller="Wishlist" asp-action="Add" method="post" class="d-inline mt-2" asp-antiforgery="true">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <button type="submit" class="btn-fav" title="Add to Wishlist">
+                            <span style="font-size: 1.2rem; line-height:1;">&#9825;</span>
+                        </button>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <hr class="text-muted my-4" />
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">Reviews</h3>
+                @if (currentUserId != null)
+                {
+                    <a asp-controller="Comments" asp-action="Create" asp-route-productId="@Model.Id" class="btn btn-sm btn-outline-dark">Write a Review</a>
+                }
+            </div>
+
+            @if (Model.Comments != null && Model.Comments.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var comment in Model.Comments)
+                    {
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light p-3 h-100" style="border-radius:10px;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="fw-bold mb-0">@comment.User?.FullName</h6>
+                                        <small class="text-muted text-uppercase" style="font-size:0.75rem;">@comment.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                    </div>
+                                    <span class="star-rating">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            @Html.Raw(i <= comment.Rating ? "&#9733;" : "&#9734;")
+                                        }
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-0 flex-grow-1">@comment.Content</p>
+                                
+                                @if (comment.UserId == currentUserId)
+                                {
+                                    <div class="mt-3">
+                                        <a asp-controller="Comments" asp-action="Edit" asp-route-id="@comment.Id" class="btn btn-link text-dark btn-sm p-0 me-2 text-decoration-none fw-bold">Edit</a>
+                                        <a asp-controller="Comments" asp-action="Delete" asp-route-id="@comment.Id" class="btn btn-link text-danger btn-sm p-0 text-decoration-none fw-bold">Delete</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted italic">No reviews yet for this product.</p>
+            }
+
+            @if (ViewBag.RelatedProducts != null && ((IEnumerable<MultiVendor.Core.Models.Product>)ViewBag.RelatedProducts).Any())
+            {
+                <hr class="text-muted my-4" />
+                <h3 class="fw-bold mb-3">Related Products</h3>
+                <div class="product-grid">
+                    @foreach (var rp in (IEnumerable<MultiVendor.Core.Models.Product>)ViewBag.RelatedProducts)
+                    {
+                        <a asp-action="Details" asp-route-id="@rp.Id" class="product-card text-decoration-none">
+                            @if (!string.IsNullOrEmpty(rp.ImageUrl1))
+                            {
+                                <img src="@rp.ImageUrl1" class="product-card-image" alt="@rp.Name" />
+                            }
+                            else
+                            {
+                                <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(rp.Name) ? rp.Name[0].ToString().ToUpper() : "?")</div>
+                            }
+                            <div class="product-card-body">
+                                <div class="product-card-title">@rp.Name</div>
+                                <div class="product-card-price">$@rp.Price.ToString("0.00")</div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            
+            <div class="text-center mt-5">
+                <a asp-action="Index" class="btn btn-sm btn-light px-4 border">← Back to Products</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function changeImage(url, element) {
+            document.getElementById('mainProductImage').src = url;
+            
+            document.querySelectorAll('.thumb-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        function adjustQty(amount) {
+            var qtyInput = document.getElementById('quantity');
+            var currentVal = parseInt(qtyInput.value);
+            var newVal = currentVal + amount;
+            
+            if (newVal >= parseInt(qtyInput.min) && newVal <= parseInt(qtyInput.max)) {
+                qtyInput.value = newVal;
+                var buyNow = document.getElementById('buyNowQuantity');
+                var addToCart = document.getElementById('addToCartQuantity');
+                if (buyNow) buyNow.value = newVal;
+                if (addToCart) addToCart.value = newVal;
+            }
+        }
+    </script>
+}
+

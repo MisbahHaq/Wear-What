@@ -1,6 +1,6 @@
 # MultiVendor
 
-A multi-vendor e-commerce web application built with **ASP.NET Core 8 (MVC)**. It lets multiple sellers run their own storefronts ("shops") within a single marketplace, while buyers browse products, manage a cart, place orders, and interact with sellers via comments, wishlists, and follows.
+A multi-vendor e-commerce marketplace split into three separate deployable web apps — **Customer**, **Vendor**, and **Admin** — sharing one database and one ASP.NET Core Identity user store.
 
 ## What this project does
 
@@ -15,7 +15,7 @@ A multi-vendor e-commerce web application built with **ASP.NET Core 8 (MVC)**. I
 - **Shop following** — users can follow shops to keep track of sellers.
 - **User profiles** — extended identity profile with full name, address, CNIC, and contact number.
 - **Admin dashboard** — role-restricted area showing counts of products, shops, categories, and users.
-- **Authentication & authorization** — ASP.NET Core Identity with roles (`Admin`, seller, customer), cookie-based auth, and a custom claims principal that adds the user's full name to the identity.
+- **Authentication & authorization** — ASP.NET Core Identity with roles (`Admin`, `Vendor`, `Customer`), cookie-based auth, and a custom claims principal that adds the user's full name to the identity.
 
 ## Tech stack
 
@@ -34,18 +34,33 @@ A multi-vendor e-commerce web application built with **ASP.NET Core 8 (MVC)**. I
 ## Project structure
 
 ```
-Shop/
-├── Controllers/      # MVC controllers (Account, Admin, Cart, Categories, Comments,
-│                     #   Home, Orders, Products, Profile, Shops, ShopFollow, Wishlist)
-├── Models/           # Entity models (Product, ShopItem, Order, OrderItem,
-│                     #   WishlistItem, ProductComment, ApplicationUser, etc.)
-├── Data/             # ApplicationDbContext and DbInitializer (seeding)
-├── Views/            # Razor views per controller + Shared layouts
-├── Components/       # Razor components (BentoGrid)
-├── wwwroot/          # Static assets (CSS, JS, images)
-├── Program.cs        # App startup: services, Identity, session, routing
-├── Shop.csproj       # Project file (targets net8.0)
-└── appsettings.json  # Connection string + configuration
+MultiVendor/
+├── MultiVendor.slnx                    # Solution file
+├── MultiVendor.Core/                   # Class Library — shared across all apps
+│   ├── Models/                         # Entities (Product, ShopItem, Order, etc.) + shared ViewModels
+│   ├── Data/                           # ApplicationDbContext, DbInitializer
+│   ├── Identity/                       # CustomUserClaimsPrincipalFactory, AddMultiVendorIdentity extension
+│   └── Migrations/                     # ALL EF Core migrations (shared database schema)
+│
+├── MultiVendor.Customer/               # ASP.NET Core MVC Web App — port 5276
+│   ├── Controllers/                    # Buyer-facing: Home, Products[browse], Cart, Orders[checkout],
+│   │                                 #   Shops[browse], Wishlist, Comments, Profile, Addresses,
+│   │                                 #   Notifications, Coupons, Ratings, ShopFollow, Account
+│   ├── Views/                          # Razor views for buyer flows
+│   ├── Models/AccountViewModels.cs     # App-specific login/register/profile view models
+│   ├── Program.cs                      # No global auth filter — anonymous browsing allowed
+│   └── appsettings.json                # Connection string
+│
+├── MultiVendor.Vendor/                 # ASP.NET Core MVC Web App — port 5001
+│   ├── Controllers/                    # Seller-facing: Products[CRUD], Orders[Dashboard/Analytics],
+│   │                                 #   Shops[CRUD], Account
+│   ├── Views/                          # Razor views for seller flows
+│   └── Program.cs                      # Global [Authorize(Roles="Vendor")] filter
+│
+└── MultiVendor.Admin/                  # ASP.NET Core MVC Web App — port 5002
+    ├── Controllers/                    # Admin-facing: Admin, Categories, Account
+    ├── Views/                          # Razor views for admin flows
+    └── Program.cs                      # Global [Authorize(Roles="Admin")] filter
 ```
 
 ## Key entities
@@ -64,21 +79,44 @@ Prerequisites: [.NET 8 SDK](https://dotnet.microsoft.com/download) and SQL Serve
 # Restore dependencies
 dotnet restore
 
-# Apply database migrations (creates the ShopDbNew database)
-dotnet ef database update
+# Build the solution
+dotnet build MultiVendor.slnx
 
-# Run the app
-dotnet run
+# Run the Customer app (port 5276)
+dotnet run --project MultiVendor.Customer/MultiVendor.Customer.csproj
+
+# Run the Vendor app (port 5001) — in another terminal
+dotnet run --project MultiVendor.Vendor/MultiVendor.Vendor.csproj
+
+# Run the Admin app (port 5002) — in another terminal
+dotnet run --project MultiVendor.Admin/MultiVendor.Admin.csproj
 ```
 
-The app seeds initial data (roles/users) via `DbInitializer` on startup. The default connection string is configured in `appsettings.json`:
+The app seeds initial data (roles/users) via `DbInitializer` on startup. The default connection string is configured in each app's `appsettings.json`:
 
 ```
 Server=(localdb)\mssqllocaldb;Database=ShopDbNew;Trusted_Connection=true
 ```
 
+> **Note:** All three apps share the same database and Identity tables. A user registered in one app can log into the others with the same credentials. Each app has its own cookie auth session for now — cross-app SSO is not implemented yet.
+
+### Seeded accounts
+
+| Email | Password | Role | App |
+|-------|----------|------|-----|
+| `admin@shop.com` | `Admin@123` | Admin | Admin |
+| `vendor@shop.com` | `Vendor@123` | Vendor | Vendor |
+| `customer@shop.com` | `Customer@123` | Customer | Customer |
+
+## Architecture notes
+
+- **Shared Identity registration**: `MultiVendor.Core/Identity/MultiVendorIdentityServiceCollectionExtensions.cs` contains a single `AddMultiVendorIdentity()` extension method. Each app's `Program.cs` calls this to register the shared `ApplicationDbContext` and Identity services. This makes adding shared-cookie SSO later a configuration change rather than a redesign.
+- **Migrations**: EF Core migrations live in `MultiVendor.Core/Migrations/` only. Web apps do not generate their own migrations.
+- **Role-gated access**: Each app enforces role access via a global `[Authorize(Roles = "...")]` filter in `Program.cs`, not per-controller.
+- **Shared services**: Business logic used by multiple apps should live in `MultiVendor.Core/Services/` as injectable services.
+
 ## Configuration notes
 
-- Authentication cookie paths: login `/Account/Login`, logout `/Account/Logout`, access denied `/Account/AccessDenied`.
+- Authentication cookie paths per app: login `/Account/Login`, logout `/Account/Logout`, access denied `/Account/AccessDenied`.
 - Session idle timeout: 1 hour; cookie is `HttpOnly` and marked essential.
-- Sensitive actions are protected with `[Authorize]`, role checks (`Admin`), and ownership checks (`OwnerId` vs current user).
+- Sensitive actions are protected with `[Authorize]`, role checks (`Admin`/`Vendor`), and ownership checks (`OwnerId` vs current user).

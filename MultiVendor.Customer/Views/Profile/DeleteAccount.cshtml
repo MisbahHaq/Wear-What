@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Delete Account";
+}
+
+<h1>Delete Account</h1>
+
+<div class="alert alert-danger">
+    <h4>Are you sure you want to delete your account?</h4>
+    <p>This action cannot be undone. All your shops and products will be deleted.</p>
+</div>
+
+<form asp-action="DeleteAccount">
+    <input type="submit" value="Delete My Account" class="btn btn-outline-danger" />
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

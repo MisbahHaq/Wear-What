@@ -1,0 +1,246 @@
+@model MultiVendor.Core.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+    var primaryImage = !string.IsNullOrEmpty(Model.ProductImageUrl) ? Model.ProductImageUrl : "/images/placeholder.png";
+}
+
+<div class="container checkout-container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb text-muted sm">
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId" class="text-decoration-none text-muted">@Model.ProductName</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+        </ol>
+    </nav>
+
+    @if (TempData["OrderMessage"] != null)
+    {
+        <div class="alert alert-warning">@TempData["OrderMessage"]</div>
+    }
+
+    <h2 class="fw-bold mb-4">Confirm Your Order</h2>
+
+    <div class="row g-5">
+        <div class="col-lg-7">
+            <div class="card border-0 bg-light p-3 mb-4" style="border-radius: 12px;">
+                <h5 class="fw-bold mb-3">Product Details</h5>
+                <div class="d-flex gap-3">
+                    <div class="checkout-summary-img" style="width: 120px; min-height: 120px; flex: 0 0 120px;">
+                        <img src="@primaryImage" alt="@Model.ProductName" />
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="text-success text-uppercase small fw-bold">@(Model.ShopName ?? "Shop")</div>
+                        <div class="checkout-product-title">@Model.ProductName</div>
+                        <div class="text-muted small">Unit Price: $@Model.UnitPrice.ToString("0.00")</div>
+                        <div class="mt-2">
+                            <span class="text-muted small">Quantity:</span>
+                            <span class="qty-pill">@Model.Quantity</span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-muted small">Subtotal</div>
+                        <div class="checkout-price">$@Model.ProductsTotal.ToString("0.00")</div>
+                    </div>
+                </div>
+            </div>
+
+            <form asp-controller="Orders" asp-action="Create" method="post" asp-antiforgery="true" id="checkoutForm">
+                <input type="hidden" name="productId" value="@Model.ProductId" />
+                <input type="hidden" name="quantity" value="@Model.Quantity" />
+                <input type="hidden" name="selectedAddressId" id="selectedAddressId" value="@Model.SelectedAddressId" />
+                <input type="hidden" name="couponCode" id="couponCodeHidden" value="@Model.CouponCode" />
+
+                <h5 class="fw-bold mb-3">Shipping Information</h5>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Full Name</label>
+                    <input type="text" class="form-control" value="@Model.CustomerFullName" readonly />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="contactNumber">Contact Number</label>
+                    <input type="text" class="form-control" id="contactNumber" name="contactNumber" value="@Model.CustomerContactNumber" placeholder="Enter your contact number" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" for="shippingAddress">Shipping Address</label>
+                    <select class="form-control" id="shippingAddress" name="shippingAddress">
+                        <option value="">-- Use saved addresses --</option>
+                        @if (ViewBag.UserAddresses != null)
+                        {
+                            foreach (var addr in (IEnumerable<MultiVendor.Core.Models.UserAddress>)ViewBag.UserAddresses)
+                            {
+                                var full = $"{addr.AddressLine}, {addr.City}, {addr.State} {addr.ZipCode}";
+                                <option value="@full" selected="@(Model.ShippingAddress == full ? "selected" : null)">@full @(addr.IsDefault ? "(Default)" : "")</option>
+                            }
+                        }
+                        <option value="@Model.ShippingAddress" selected="@(!string.IsNullOrEmpty(Model.ShippingAddress))">Other</option>
+                    </select>
+                    <textarea class="form-control mt-2" id="shippingAddressText" name="shippingAddress" rows="2" placeholder="Enter your full shipping address">@Model.ShippingAddress</textarea>
+                </div>
+
+                <h5 class="fw-bold mb-3 mt-4">Delivery Method</h5>
+                <div class="d-flex flex-column gap-2">
+                    <label class="option-card @(Model.DeliveryMethod != "Express" ? "active" : "")">
+                        <input class="form-check-input" type="radio" name="deliveryMethod" value="Standard" data-fee="0" @(Model.DeliveryMethod != "Express" ? "checked" : "") />
+                        <span class="flex-grow-1">
+                            <span class="fw-semibold d-block">Standard Delivery</span>
+                            <span class="text-muted small">Arrives in 5-7 business days</span>
+                        </span>
+                        <span class="fw-semibold">Free</span>
+                    </label>
+                    <label class="option-card @(Model.DeliveryMethod == "Express" ? "active" : "")">
+                        <input class="form-check-input" type="radio" name="deliveryMethod" value="Express" data-fee="150" @(Model.DeliveryMethod == "Express" ? "checked" : "") />
+                        <span class="flex-grow-1">
+                            <span class="fw-semibold d-block">Express Delivery</span>
+                            <span class="text-muted small">Arrives in 1-2 business days</span>
+                        </span>
+                        <span class="fw-semibold">$@CheckoutViewModel.ExpressDeliveryFee</span>
+                    </label>
+                </div>
+
+                <h5 class="fw-bold mb-3 mt-4">Coupon Code</h5>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="couponCode" value="@Model.CouponCode" placeholder="Enter coupon code" />
+                    <button type="button" class="btn btn-outline-dark" id="applyCouponBtn">Apply</button>
+                </div>
+                <div id="couponMessage" class="small mb-3"></div>
+
+                <h5 class="fw-bold mb-3 mt-4">Payment Method</h5>
+                <div class="d-flex flex-column gap-2">
+                    <label class="option-card @(Model.PaymentMethod != "Card" ? "active" : "")">
+                        <input class="form-check-input" type="radio" name="paymentMethod" value="CashOnDelivery" @(Model.PaymentMethod != "Card" ? "checked" : "") />
+                        <span class="flex-grow-1">
+                            <span class="fw-semibold d-block">Cash on Delivery</span>
+                            <span class="text-muted small">Pay when you receive your order</span>
+                        </span>
+                    </label>
+                    <label class="option-card @(Model.PaymentMethod == "Card" ? "active" : "")">
+                        <input class="form-check-input" type="radio" name="paymentMethod" value="Card" @(Model.PaymentMethod == "Card" ? "checked" : "") />
+                        <span class="flex-grow-1">
+                            <span class="fw-semibold d-block">Credit / Debit Card</span>
+                            <span class="text-muted small">Demo only — no real charge</span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="payment-fields border rounded p-3 bg-light mt-2" id="cardFields">
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold small">Card Number</label>
+                        <input type="text" class="form-control" name="cardNumber" placeholder="4242 4242 4242 4242" />
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <label class="form-label fw-semibold small">Expiry</label>
+                            <input type="text" class="form-control" name="cardExpiry" placeholder="MM/YY" />
+                        </div>
+                        <div class="col-6 mb-2">
+                            <label class="form-label fw-semibold small">CVC</label>
+                            <input type="text" class="form-control" name="cardCvc" placeholder="123" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.ProductId" class="btn btn-outline-dark px-4">Back</a>
+                    <button type="submit" class="btn-confirm-order flex-grow-1">Confirm & Place Order</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 bg-light p-4" style="border-radius: 12px; position: sticky; top: 1.5rem;">
+                <h5 class="fw-bold mb-3">Order Summary</h5>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal (@Model.Quantity x $@Model.UnitPrice.ToString("0.00"))</span>
+                    <span>$@Model.ProductsTotal.ToString("0.00")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Delivery</span>
+                    <span class="text-muted" id="summaryDelivery">$@Model.DeliveryFee.ToString("0.00")</span>
+                </div>
+                @if (Model.DiscountAmount > 0)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-success">Discount</span>
+                        <span class="text-success">-$@Model.DiscountAmount.ToString("0.00")</span>
+                    </div>
+                }
+                <hr />
+                <div class="d-flex justify-content-between">
+                    <span class="fw-bold">Total</span>
+                    <span class="fw-bold fs-5" id="summaryTotal">$@(Model.TotalAfterDiscount.ToString("0.00"))</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var expressFee = @CheckoutViewModel.ExpressDeliveryFee;
+        var subtotal = @Model.ProductsTotal;
+
+        function updateOptionCards() {
+            document.querySelectorAll('.option-card').forEach(function (card) {
+                var input = card.querySelector('input[type="radio"]');
+                if (input && input.checked) card.classList.add('active');
+                else card.classList.remove('active');
+            });
+        }
+
+        function updateSummary() {
+            var delivery = 0;
+            var deliveryInput = document.querySelector('input[name="deliveryMethod"]:checked');
+            if (deliveryInput) delivery = parseFloat(deliveryInput.dataset.fee) || 0;
+
+            var total = subtotal + delivery;
+            document.getElementById('summaryDelivery').textContent = '$' + delivery.toFixed(2);
+            document.getElementById('summaryTotal').textContent = '$' + total.toFixed(2);
+
+            var cardInput = document.querySelector('input[name="paymentMethod"]:checked');
+            var showCard = cardInput && cardInput.value === 'Card';
+            document.getElementById('cardFields').style.display = showCard ? 'block' : 'none';
+        }
+
+        document.querySelectorAll('input[type="radio"]').forEach(function (input) {
+            input.addEventListener('change', function () {
+                updateOptionCards();
+                updateSummary();
+            });
+        });
+
+        updateSummary();
+    </script>
+    <script>
+        document.getElementById('shippingAddress')?.addEventListener('change', function () {
+            var val = this.value;
+            document.getElementById('selectedAddressId').value = val && val !== 'Other' ? val.split(' ')[0] : '';
+            var textarea = document.getElementById('shippingAddressText');
+            if (textarea) textarea.style.display = val === 'Other' || !val ? 'block' : 'none';
+        });
+
+        var couponApplied = false;
+        document.getElementById('applyCouponBtn')?.addEventListener('click', async function () {
+            var code = document.querySelector('input[name="couponCode"]').value.trim();
+            if (!code) return;
+            try {
+                var res = await fetch('/Coupons/Validate?code=' + encodeURIComponent(code) + '&orderTotal=' + encodeURIComponent(document.getElementById('summaryTotal').textContent.replace('$','')));
+                var data = await res.json();
+                var msg = document.getElementById('couponMessage');
+                if (data.valid) {
+                    msg.className = 'small text-success';
+                    msg.textContent = 'Coupon applied: -$' + data.discount.toFixed(2);
+                    document.getElementById('couponCodeHidden').value = code;
+                    couponApplied = true;
+                } else {
+                    msg.className = 'small text-danger';
+                    msg.textContent = data.error || 'Invalid coupon';
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        });
+    </script>
+}
+

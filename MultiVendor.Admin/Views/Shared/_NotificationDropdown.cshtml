@@ -1,0 +1,49 @@
+@using Microsoft.EntityFrameworkCore
+@inject MultiVendor.Core.Data.ApplicationDbContext DbContext
+@{
+    var userId = Context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var notifications = new List<Notification>();
+    var unreadCount = 0;
+    if (!string.IsNullOrEmpty(userId))
+    {
+        notifications = DbContext.Notifications
+            .Where(n => n.UserId == userId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Take(8)
+            .ToList();
+        unreadCount = DbContext.Notifications.Count(n => n.UserId == userId && !n.IsRead);
+    }
+}
+
+<div class="dropdown">
+    <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+        @if (unreadCount > 0)
+        {
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">@unreadCount</span>
+        }
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="min-width:320px;">
+        <li><h6 class="dropdown-header">Notifications</h6></li>
+        @if (!notifications.Any())
+        {
+            <li><span class="dropdown-item text-muted">No notifications</span></li>
+        }
+        else
+        {
+            foreach (var n in notifications)
+            {
+                <li>
+                    <a class="dropdown-item @(n.IsRead ? "" : "fw-bold")" href="@(string.IsNullOrEmpty(n.Link) ? "#" : n.Link)">
+                        <div class="small text-muted">@n.CreatedAt.ToString("g")</div>
+                        <div>@n.Message</div>
+                    </a>
+                </li>
+            }
+        }
+        <li><hr class="dropdown-divider" /></li>
+        <li><a class="dropdown-item text-center" asp-controller="Notifications" asp-action="Index">View all</a></li>
+    </ul>
+</div>
+
+

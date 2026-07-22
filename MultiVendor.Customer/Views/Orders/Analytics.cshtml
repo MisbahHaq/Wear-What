@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Sales Analytics";
+    var revenueByDay = ViewBag.RevenueByDay as string ?? "[]";
+    var topProducts = ViewBag.TopProducts as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var totalRevenue = ViewBag.TotalRevenue ?? 0m;
+    var totalOrders = ViewBag.TotalOrders ?? 0;
+}
+
+<h1 class="fw-bold">@ViewData["Title"]</h1>
+<p class="text-muted">Last 30 days</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <p class="display-6">$@(((decimal)totalRevenue).ToString("0.00"))</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <p class="display-6">@totalOrders</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">Revenue Over Time</h5>
+        <canvas id="revenueChart" height="120"></canvas>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">Top Selling Products</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in topProducts)
+                {
+                    <tr>
+                        <td>@p.Product</td>
+                        <td>@p.Quantity</td>
+                        <td>$@(((decimal)p.Revenue).ToString("0.00"))</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const data = @Html.Raw(revenueByDay);
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(d => d.date || d.Date),
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: data.map(d => d.revenue || d.Revenue),
+                    borderColor: '#000',
+                    backgroundColor: 'rgba(0,0,0,0.05)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+}

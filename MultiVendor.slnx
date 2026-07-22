@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MultiVendor.Admin/MultiVendor.Admin.csproj" />
+  <Project Path="MultiVendor.Core/MultiVendor.Core.csproj" />
+  <Project Path="MultiVendor.Vendor/MultiVendor.Vendor.csproj" />
+  <Project Path="MultiVendor.Customer/MultiVendor.Customer.csproj" />
+</Solution>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MultiVendor Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MultiVendor Admin</a>
+
+                <div class="d-flex align-items-center gap-3">
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="nav-link" asp-controller="Admin" asp-action="Index">Dashboard</a>
+                        <a class="nav-link position-relative profile-icon-link" asp-controller="Account" asp-action="Logout" title="Logout">
+                            Logout
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="nav-link" asp-controller="Account" asp-action="Login">Sign In</a>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container" style="max-width: 1400px;">
+        <main role="main" class="py-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer-section mt-auto">
+        <div class="container">
+            <span>&copy; 2026 - MultiVendor Admin. All rights reserved.</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

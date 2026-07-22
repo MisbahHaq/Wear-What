@@ -1,0 +1,32 @@
+@model IEnumerable<MultiVendor.Core.Models.ShopCategory>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Categories</h1>
+    <a asp-action="Create" class="btn btn-primary">Create Category</a>
+</div>
+
+<div class="product-grid">
+@foreach (var item in Model)
+{
+    <a asp-action="Edit" asp-route-id="@item.Id" class="product-card text-decoration-none">
+        @if (!string.IsNullOrEmpty(item.ImageUrl))
+        {
+            <img src="@item.ImageUrl" class="product-card-image" alt="@item.Name" />
+        }
+        else
+        {
+            <div class="product-card-image-placeholder">@(item.Name.Length > 0 ? item.Name[0].ToString().ToUpper() : "?")</div>
+        }
+        <div class="product-card-body">
+            <div class="product-card-title">@item.Name</div>
+            <span class="btn btn-outline-primary btn-sm product-card-btn">Edit</span>
+        </div>
+    </a>
+}
+</div>
+
+

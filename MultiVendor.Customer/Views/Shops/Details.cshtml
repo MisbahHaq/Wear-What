@@ -1,0 +1,121 @@
+@model MultiVendor.Core.Models.ShopItem
+
+@{
+    ViewData["Title"] = Model.Name;
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<div class="shop-profile">
+    @if (!string.IsNullOrEmpty(Model.ProfileBannerUrl))
+    {
+        <div class="shop-banner">
+            <img src="@Model.ProfileBannerUrl" alt="Shop banner" class="img-fluid w-100" style="max-height: 250px; object-fit: cover;" />
+        </div>
+    }
+    <div class="shop-header @(string.IsNullOrEmpty(Model.ProfileBannerUrl) ? "no-banner" : "")">
+        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+        {
+            <img src="@Model.ProfileImageUrl" alt="@Model.Name profile" class="shop-profile-image" />
+        }
+        else
+        {
+            <div class="shop-profile-image-placeholder">@Model.Name[0]</div>
+        }
+        <h1 class="shop-name">@Model.Name</h1>
+    </div>
+    <p class="shop-description">@Model.Description</p>
+    <div class="shop-actions">
+        @if (Model.OwnerId == currentUserId)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit</a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete</a>
+            <a asp-controller="Products" asp-action="Create" class="btn btn-primary">Add Product</a>
+            <a asp-controller="Categories" asp-action="Index" asp-route-shopId="@Model.Id" class="btn btn-outline-secondary">Manage Categories</a>
+        }
+        else if (currentUserId != null)
+        {
+            <form asp-controller="ShopFollow" asp-action="Follow" method="post" class="d-inline">
+                <input type="hidden" name="shopId" value="@Model.Id" />
+                <button type="submit" class="btn btn-outline-primary">Follow Shop</button>
+            </form>
+        }
+    </div>
+
+    @if (Model.Products?.Any() == true)
+    {
+        var grouped = Model.Products!.Where(p => p.Category != null).GroupBy(p => p.Category!).OrderBy(g => g.Key!.Name).ToList();
+        var uncategorized = Model.Products!.Where(p => p.Category == null).ToList();
+
+        if (grouped.Any())
+        {
+            @foreach (var group in grouped)
+            {
+                <h3>@group.Key!.Name</h3>
+                <div class="product-grid">
+                    @foreach (var product in group)
+                    {
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="product-card text-decoration-none">
+                            @if (!string.IsNullOrEmpty(product.ImageUrl1))
+                            {
+                                <img src="@product.ImageUrl1" class="product-card-image" alt="@product.Name" />
+                            }
+                            else
+                            {
+                                <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(product.Name) ? product.Name[0].ToString().ToUpper() : "?")</div>
+                            }
+                            <div class="product-card-body">
+                                <div class="product-card-title">@product.Name</div>
+                                <div class="product-card-description">@product.Description</div>
+                                <div class="product-card-price">$@product.Price.ToString("0.00")</div>
+                                @if (Model.OwnerId == currentUserId)
+                                {
+                                    <div class="d-flex gap-2 mt-2">
+                                        <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-outline-secondary btn-sm flex-fill">Edit</a>
+                                        <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-outline-danger btn-sm flex-fill">Delete</a>
+                                    </div>
+                                }
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        }
+
+        if (uncategorized.Any())
+        {
+            <h3>Uncategorized</h3>
+            <div class="product-grid">
+                @foreach (var product in uncategorized)
+                {
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" class="product-card text-decoration-none">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl1))
+                        {
+                            <img src="@product.ImageUrl1" class="product-card-image" alt="@product.Name" />
+                        }
+                        else
+                        {
+                            <div class="product-card-image-placeholder">@(!string.IsNullOrEmpty(product.Name) ? product.Name[0].ToString().ToUpper() : "?")</div>
+                        }
+                        <div class="product-card-body">
+                            <div class="product-card-title">@product.Name</div>
+                            <div class="product-card-description">@product.Description</div>
+                            <div class="product-card-price">$@product.Price.ToString("0.00")</div>
+                            @if (Model.OwnerId == currentUserId)
+                            {
+                                <div class="d-flex gap-2 mt-2">
+                                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-outline-secondary btn-sm flex-fill">Edit</a>
+                                    <a asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" class="btn btn-outline-danger btn-sm flex-fill">Delete</a>
+                                </div>
+                            }
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <p>No products in this shop yet.</p>
+    }
+}
+

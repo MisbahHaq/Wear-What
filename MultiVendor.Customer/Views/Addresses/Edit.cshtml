@@ -1,0 +1,40 @@
+@model MultiVendor.Core.Models.UserAddress
+
+@{
+    ViewData["Title"] = "Edit Address";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="AddressLine" class="control-label"></label>
+        <input asp-for="AddressLine" class="form-control" />
+        <span asp-validation-for="AddressLine" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="City" class="control-label"></label>
+        <input asp-for="City" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="State" class="control-label"></label>
+        <input asp-for="State" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ZipCode" class="control-label"></label>
+        <input asp-for="ZipCode" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Country" class="control-label"></label>
+        <input asp-for="Country" class="form-control" />
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsDefault" class="form-check-input" />
+        <label asp-for="IsDefault" class="form-check-label">Default address</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+</form>
+
