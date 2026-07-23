@@ -57,10 +57,10 @@ Controllers are being converted to API controllers in isolated steps. Session-ba
 
 | Controller | Status | Notes |
 |---|---|---|
-| `ProductsController` | **API** | `api/Products` — CRUD, related products, DTO responses |
+| `ProductsController` | **API + Views** | `api/Products` for API; MVC views for product listing/details/admin |
 | `OrdersController` | **API** | `api/Orders` — checkout, order list/detail, status updates |
-| `AccountController` | **API** | `api/Account` — login, register, logout, profile (session-based) |
-| `CartController` | **API** | `api/Cart` — guest session + logged-in DB cart, merge, clear |
+| `AccountController` | **API + Views** | `api/Account` for API; MVC views for login/register/profile |
+| `CartController` | **API + Views** | `api/Cart` for API; MVC views for cart/checkout |
 | `AdminController` | MVC | Admin views; order/product endpoints will move to API |
 | `BookmarkController` | MVC | To be converted |
 | `ChatbotController` | MVC / JSON | Already returns JSON; to be converted |
@@ -123,6 +123,26 @@ Nexora/
 | DELETE | `/api/Cart/{cartItemId}` | Remove cart item |
 | DELETE | `/api/Cart/clear` | Clear entire cart |
 | POST | `/api/Cart/merge` | Merge guest session cart into logged-in user's DB cart |
+
+## UI Pages (MVC Views During Migration)
+
+The application currently serves both API endpoints and MVC views. The views act as a temporary frontend until the React app is ready.
+
+| Page | Route | Notes |
+|---|---|---|
+| Home | `/` | Landing page with best sellers |
+| Men | `/Home/Men` | Men's product catalog |
+| Women | `/Home/Women` | Women's product catalog |
+| Vault | `/Home/Vault` | Vault collection |
+| Search | `/Home/Search?q=` | Product search |
+| Product Details | `/Products/Details/{id}` | Single product page |
+| Login | `/Account/Login` | Session-based login |
+| Sign Up | `/Account/SignUp` | Create new account |
+| Profile | `/Account/Profile` | View/edit profile (requires login) |
+| Cart | `/Cart/Index` | Shopping cart |
+| Checkout | `/Cart/Checkout` | Checkout form (requires login) |
+| Order Confirmation | `/Cart/OrderConfirmation/{id}` | After successful checkout |
+| Bookmarks | `/Bookmark/Index` | Saved products (requires login) |
 
 **Swagger UI**: `https://localhost:<port>/swagger`
 

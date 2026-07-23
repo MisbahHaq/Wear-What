@@ -7,9 +7,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Nexora.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
-public class AccountController : ControllerBase
+public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
 
@@ -205,6 +204,129 @@ public class AccountController : ControllerBase
         }
         var isAdmin = HttpContext.Session.GetString("IsAdmin") == "true";
         return Ok(new { authenticated = true, userEmail = userEmail, userName = HttpContext.Session.GetString("UserName") ?? string.Empty, isAdmin = isAdmin });
+    }
+
+    [HttpGet("~/Account/Login")]
+    public IActionResult LoginPage(string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = returnUrl;
+        return View("Login");
+    }
+
+    [HttpGet("~/Account/SignUp")]
+    public IActionResult SignUpPage()
+    {
+        return View("SignUp");
+    }
+
+    [HttpGet("~/Account/Profile")]
+    public IActionResult ProfilePage()
+    {
+        return View("Profile");
+    }
+
+    [HttpGet("~/Account/UpdateUsername")]
+    public IActionResult UpdateUsernamePage()
+    {
+        return View("UpdateUsername");
+    }
+
+    [HttpGet("~/Account/UpdateAddress")]
+    public IActionResult UpdateAddressPage()
+    {
+        return View("UpdateAddress");
+    }
+
+    [HttpPost("~/Account/Login")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> LoginPagePost([FromForm] LoginViewModel model, string? returnUrl = null)
+    {
+        ViewData["ReturnUrl"] = returnUrl;
+        if (!ModelState.IsValid)
+        {
+            return View("Login", model);
+        }
+
+        var dto = new LoginRequestDto { Email = model.Email, Password = model.Password, RememberMe = model.RememberMe };
+        var result = await Login(dto) as OkObjectResult;
+        if (result?.Value is not { } valueObj) return View("Login", model);
+
+        var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(System.Text.Json.JsonSerializer.Serialize(valueObj));
+        if (dict != null && dict.ContainsKey("success") && dict["success"] is bool success && !success)
+        {
+            ModelState.AddModelError(string.Empty, dict.ContainsKey("message") ? dict["message"].ToString()! : "Invalid login.");
+            return View("Login", model);
+        }
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost("~/Account/SignUp")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegisterPagePost([FromForm] SignUpViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("SignUp", model);
+        }
+
+        var dto = new RegisterRequestDto
+        {
+            Name = model.Name,
+            Email = model.Email,
+            DateOfBirth = model.DateOfBirth,
+            Address = model.Address,
+            Password = model.Password,
+            ConfirmPassword = model.ConfirmPassword
+        };
+
+        var result = await Register(dto) as OkObjectResult;
+        if (result?.Value is not { } valueObj) return View("SignUp", model);
+
+        var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(System.Text.Json.JsonSerializer.Serialize(valueObj));
+        if (dict != null && dict.ContainsKey("success") && dict["success"] is bool success && !success)
+        {
+            ModelState.AddModelError(string.Empty, dict.ContainsKey("message") ? dict["message"].ToString()! : "Registration failed.");
+            return View("SignUp", model);
+        }
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost("~/Account/UpdateUsername")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateUsernamePagePost([FromForm] UpdateUsernameViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("UpdateUsername", model);
+        }
+
+        var result = await UpdateProfile(new UpdateProfileDto { Name = model.Username }) as OkObjectResult;
+        if (result?.Value is not { } valueObj) return View("UpdateUsername", model);
+
+        TempData["Success"] = "Username updated.";
+        return RedirectToAction("ProfilePage");
+    }
+
+    [HttpPost("~/Account/UpdateAddress")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateAddressPagePost([FromForm] UpdateAddressViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("UpdateAddress", model);
+        }
+
+        var result = await UpdateProfile(new UpdateProfileDto { Address = model.Address }) as OkObjectResult;
+        if (result?.Value is not { } valueObj) return View("UpdateAddress", model);
+
+        TempData["Success"] = "Address updated.";
+        return RedirectToAction("ProfilePage");
     }
 }
 

@@ -8,7 +8,7 @@ namespace Nexora.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CartController : ControllerBase
+public class CartController : Controller
 {
     private readonly ApplicationDbContext _context;
 
@@ -286,6 +286,269 @@ public class CartController : ControllerBase
 
         var result = await GetCartItemsAsync();
         return Ok(BuildCartDto(result));
+    }
+
+    [HttpGet("~/Cart/Index")]
+    public async Task<IActionResult> Index()
+    {
+        var cartViewItems = await GetCartItemsAsync();
+        var viewModel = new CartViewModel
+        {
+            Items = cartViewItems,
+            TotalAmount = cartViewItems.Sum(item => item.Subtotal)
+        };
+        return View(viewModel);
+    }
+
+    [HttpGet("~/Cart/Checkout")]
+    public async Task<IActionResult> Checkout()
+    {
+        var userEmail = HttpContext.Session.GetString("UserEmail");
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return RedirectToAction("LoginPage", "Account");
+        }
+
+        var cartViewItems = await GetCartItemsAsync();
+        if (!cartViewItems.Any())
+        {
+            return RedirectToAction("Index");
+        }
+
+        var fullName = HttpContext.Session.GetString("UserName") ?? string.Empty;
+        var nameParts = fullName.Split(' ', 2);
+        var firstName = nameParts.Length > 0 ? nameParts[0] : string.Empty;
+        var lastName = nameParts.Length > 1 ? nameParts[1] : string.Empty;
+
+        var viewModel = new CartViewModel
+        {
+            Items = cartViewItems,
+            TotalAmount = cartViewItems.Sum(item => item.Subtotal),
+            FirstName = firstName,
+            LastName = lastName,
+            Email = userEmail,
+            Address = HttpContext.Session.GetString("UserAddress") ?? string.Empty,
+            Country = string.Empty,
+            City = string.Empty
+        };
+
+        return View(viewModel);
+    }
+
+    [HttpGet("~/Cart/OrderConfirmation/{id}")]
+    public async Task<IActionResult> OrderConfirmation(int id)
+    {
+        var order = await _context.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == id);
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        var userEmail = HttpContext.Session.GetString("UserEmail");
+        if (order.UserEmail != userEmail && HttpContext.Session.GetString("IsAdmin") != "true")
+        {
+            return Unauthorized();
+        }
+
+        return View(order);
+    }
+
+    [HttpPost("~/Cart/Add")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddPost(int id, int quantity = 1, string? size = null, string? color = null)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        var normalizedSize = NormalizeSize(size);
+        var normalizedColor = NormalizeColor(color);
+
+        var cart = LoadCart();
+        var cartItem = cart.FirstOrDefault(item => item.ProductId == id && item.Size == normalizedSize && item.Color == normalizedColor);
+
+        var userEmail = HttpContext.Session.GetString("UserEmail");
+        if (!string.IsNullOrEmpty(userEmail))
+        {
+            var dbCartItem = normalizedSize == string.Empty && normalizedColor == string.Empty
+                ? _context.ShoppingCarts.FirstOrDefault(c => c.UserEmail == userEmail && c.ProductId == id && (c.Size == null || c.Size == normalizedSize) && (c.Color == null || c.Color == normalizedColor))
+                : _context.ShoppingCarts.FirstOrDefault(c => c.UserEmail == userEmail && c.ProductId == id && c.Size == normalizedSize && c.Color == normalizedColor);
+            if (dbCartItem != null)
+            {
+                dbCartItem.Quantity += quantity;
+            }
+            else
+            {
+                _context.ShoppingCarts.Add(new ShoppingCart { UserEmail = userEmail, ProductId = id, Quantity = quantity, Size = normalizedSize == string.Empty ? null : normalizedSize, Color = normalizedColor == string.Empty ? null : normalizedColor });
+            }
+            await _context.SaveChangesAsync();
+        }
+
+        if (cartItem != null)
+        {
+            cartItem.Quantity += quantity;
+        }
+        else
+        {
+            cart.Add(new CartItem { ProductId = id, Quantity = quantity, Size = normalizedSize, Color = normalizedColor });
+        }
+        SaveCart(cart);
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("~/Cart/Update/{id}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdatePost(int id, int quantity, string? size = null, string? color = null)
+    {
+        if (quantity <= 0)
+        {
+            return await RemovePost(id, size, color);
+        }
+
+        var normalizedSize = NormalizeSize(size);
+        var normalizedColor = NormalizeColor(color);
+        var cart = LoadCart();
+        var cartItem = cart.FirstOrDefault(item => item.ProductId == id && item.Size == normalizedSize && item.Color == normalizedColor);
+
+        if (cartItem != null)
+        {
+            cartItem.Quantity = quantity;
+            SaveCart(cart);
+
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                var dbCartItem = normalizedSize == string.Empty && normalizedColor == string.Empty
+                    ? _context.ShoppingCarts.FirstOrDefault(c => c.UserEmail == userEmail && c.ProductId == id && (c.Size == null || c.Size == normalizedSize) && (c.Color == null || c.Color == normalizedColor))
+                    : _context.ShoppingCarts.FirstOrDefault(c => c.UserEmail == userEmail && c.ProductId == id && c.Size == normalizedSize && c.Color == normalizedColor);
+                if (dbCartItem != null)
+                {
+                    dbCartItem.Quantity = quantity;
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost("~/Cart/Remove/{id}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RemovePost(int id, string? size = null, string? color = null)
+    {
+        var normalizedSize = NormalizeSize(size);
+        var normalizedColor = NormalizeColor(color);
+        var cart = LoadCart();
+        var cartItem = cart.FirstOrDefault(item => item.ProductId == id && item.Size == normalizedSize && item.Color == normalizedColor);
+
+        if (cartItem != null)
+        {
+            cart.Remove(cartItem);
+            SaveCart(cart);
+
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (!string.IsNullOrEmpty(userEmail))
+            {
+                var dbCartItem = normalizedSize == string.Empty && normalizedColor == string.Empty
+                    ? _context.ShoppingCarts.FirstOrDefault(c => c.UserEmail == userEmail && c.ProductId == id && (c.Size == null || c.Size == normalizedSize) && (c.Color == null || c.Color == normalizedColor))
+                    : _context.ShoppingCarts.FirstOrDefault(c => c.UserEmail == userEmail && c.ProductId == id && c.Size == normalizedSize && c.Color == normalizedColor);
+                if (dbCartItem != null)
+                {
+                    _context.ShoppingCarts.Remove(dbCartItem);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet("~/Cart/GetCount")]
+    public JsonResult GetCount()
+    {
+        var cart = LoadCart();
+        return Json(new { count = cart.Sum(item => item.Quantity) });
+    }
+
+    [HttpPost("~/Cart/Checkout")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CheckoutPost(CartViewModel model, string deliveryMethod, string paymentMethod)
+    {
+        var userEmail = HttpContext.Session.GetString("UserEmail");
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            return RedirectToAction("LoginPage", "Account");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            model.Items = await GetCartItemsAsync();
+            model.TotalAmount = model.Items.Sum(item => item.Subtotal);
+            return View("Checkout", model);
+        }
+
+        var cartItems = await GetCartItemsAsync();
+        if (!cartItems.Any())
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        var subtotal = cartItems.Sum(item => item.Product!.Price * item.Quantity);
+        var deliveryFee = deliveryMethod == "express" ? 500m : 0m;
+        var paymentFee = paymentMethod == "cod" ? 800m : 0m;
+
+        var order = new Order
+        {
+            UserEmail = userEmail,
+            Address = model.Address,
+            Country = model.Country,
+            City = model.City,
+            PhoneNumber = model.Phone,
+            OrderDate = DateTime.UtcNow,
+            Status = "Pending",
+            DeliveryMethod = deliveryMethod,
+            PaymentMethod = paymentMethod,
+            TotalAmount = subtotal + deliveryFee + paymentFee,
+            Items = new List<OrderItem>()
+        };
+
+        foreach (var cartItem in cartItems)
+        {
+            order.Items.Add(new OrderItem
+            {
+                ProductId = cartItem.Product!.Id,
+                ProductName = cartItem.Product.Name,
+                Quantity = cartItem.Quantity,
+                Price = cartItem.Product.Price,
+                ImageUrl = cartItem.Product.ImageUrl,
+                Size = cartItem.Size,
+                Color = cartItem.Color
+            });
+        }
+
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+
+        HttpContext.Session.SetString("UserAddress", model.Address);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+        if (user != null)
+        {
+            user.Address = model.Address;
+            await _context.SaveChangesAsync();
+        }
+
+        var cart = LoadCart();
+        cart.Clear();
+        SaveCart(cart);
+
+        var dbCartItems = _context.ShoppingCarts.Where(c => c.UserEmail == userEmail);
+        _context.ShoppingCarts.RemoveRange(dbCartItems);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("OrderConfirmation", new { id = order.Id });
     }
 
     private List<CartItem> LoadCart()

@@ -7,7 +7,7 @@ namespace Nexora.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class ProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
 
@@ -153,5 +153,139 @@ public class ProductsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpGet("~/Products/Details/{id}")]
+    public async Task<IActionResult> Details(int id)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
+    }
+
+    [HttpGet("~/Products")]
+    public async Task<IActionResult> AdminIndex()
+    {
+        var products = await _context.Products.ToListAsync();
+        return View(products);
+    }
+
+    [HttpGet("~/Products/Create")]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    [HttpPost("~/Products/Create")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([FromForm] CreateProductDto model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var product = new Product
+        {
+            Name = model.Name,
+            Description = model.Description,
+            Price = model.Price,
+            Stock = model.Stock,
+            Gender = model.Gender,
+            ImageUrl = model.ImageUrl,
+            ImageUrls = model.ImageUrls,
+            Tags = model.Tags,
+            Colors = model.Colors
+        };
+
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(AdminIndex));
+    }
+
+    [HttpGet("~/Products/Edit/{id}")]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        var model = new UpdateProductDto
+        {
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            Stock = product.Stock,
+            Gender = product.Gender,
+            ImageUrl = product.ImageUrl,
+            ImageUrls = product.ImageUrls,
+            Tags = product.Tags,
+            Colors = product.Colors
+        };
+
+        ViewBag.ProductId = product.Id;
+        return View(model);
+    }
+
+    [HttpPost("~/Products/Edit/{id}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, [FromForm] UpdateProductDto model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.ProductId = id;
+            return View(model);
+        }
+
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        product.Name = model.Name ?? product.Name;
+        product.Description = model.Description ?? product.Description;
+        product.Price = model.Price ?? product.Price;
+        product.Stock = model.Stock ?? product.Stock;
+        product.Gender = model.Gender ?? product.Gender;
+        product.ImageUrl = model.ImageUrl ?? product.ImageUrl;
+        product.ImageUrls = model.ImageUrls ?? product.ImageUrls;
+        product.Tags = model.Tags ?? product.Tags;
+        product.Colors = model.Colors ?? product.Colors;
+
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(AdminIndex));
+    }
+
+    [HttpGet("~/Products/Delete/{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
+    }
+
+    [HttpPost("~/Products/Delete/{id}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product != null)
+        {
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToAction(nameof(AdminIndex));
     }
 }
