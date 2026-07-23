@@ -1,0 +1,428 @@
+@model Nexora.Controllers.CartController.CartViewModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .cart-page-wrapper {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #000;
+        background-color: #fff;
+        padding-top: 2rem;
+        padding-bottom: 5rem;
+    }
+    .cart-main-title {
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.03em;
+        line-height: 0.9;
+        margin: 0;
+    }
+    .meta-label {
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        color: #888;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    .meta-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #000;
+    }
+    .btn-dashed {
+        background: transparent;
+        border: 1.5px dashed #000;
+        color: #000;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.6rem 1.8rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+    }
+    .btn-dashed:hover {
+        background: #000;
+        color: #fff;
+    }
+    .cart-header-row {
+        border-bottom: 2px solid #000;
+        padding-bottom: 0.75rem;
+    }
+    .cart-item-row {
+        border-bottom: 1px solid #ccc;
+        padding: 1.5rem 0;
+    }
+    .column-title {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #666;
+        letter-spacing: 0.05em;
+    }
+    .product-title-link {
+        font-size: 1.1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #000;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+        display: block;
+        line-height: 1.2;
+    }
+    .product-subtitle {
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #000;
+        margin: 0;
+    }
+    .color-swatch-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 1px solid #ddd;
+        background-color: #555; /* Default fallback color */
+    }
+    .size-display-box {
+        border: 1px solid #ccc;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 36px;
+        text-align: center;
+    }
+    .qty-stepper-container {
+        display: inline-flex;
+        border: 1px solid #000;
+        align-items: center;
+    }
+    .qty-step-btn {
+        background: transparent;
+        border: none;
+        width: 28px;
+        height: 32px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .qty-step-btn:hover {
+        background-color: #f5f5f5;
+    }
+    .qty-stepper-input {
+        width: 35px;
+        height: 32px;
+        border: none;
+        border-left: 1px solid #eee;
+        border-right: 1px solid #eee;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 700;
+        -moz-appearance: textfield;
+    }
+    .qty-stepper-input::-webkit-outer-spin-button,
+    .qty-stepper-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .item-price-text {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #000;
+    }
+    .checkout-banner-btn {
+        background: #000;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 1.2rem;
+        width: 100%;
+        display: block;
+        text-decoration: none;
+        border: none;
+        margin-top: 2rem;
+        transition: background 0.2s ease;
+    }
+    .checkout-banner-btn:hover {
+        background: #222;
+        color: #fff;
+    }
+</style>
+
+<div class="cart-page-wrapper">
+    <div class="container-fluid px-4 px-md-5">
+
+        @if (Model.Items.Count == 0)
+        {
+            <div class="text-center" style="padding: 8rem 0; max-width: 500px; margin: 0 auto;">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛒</div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: .75rem; color: #1a1a1a; text-transform: uppercase;">
+                    Your cart is empty
+                </h2>
+                <p style="color: #888; font-size: .95rem; line-height: 1.7; margin-bottom: 2rem;">
+                    It seems your future purchases haven't arrived yet.
+                </p>
+                <a asp-controller="Products" asp-action="Index"
+                   style="display: inline-block; text-decoration: none; color: #1a1a1a; border-bottom: 2px solid #1a1a1a; padding-bottom: 2px; font-size: .9rem; font-weight:700; letter-spacing: .08em; text-transform: uppercase;">
+                    Start shopping
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Top Dashboard Header Element -->
+            <div class="row align-items-end mb-4 gy-3">
+                <div class="col-12 col-md-4">
+                    <h1 class="cart-main-title">Cart</h1>
+                </div>
+                <div class="col-6 col-md-4 text-md-center">
+                    <div class="meta-label">Total Cost</div>
+                    <div class="meta-value">$@Model.TotalAmount.ToString("N2")</div>
+                </div>
+                <div class="col-6 col-md-4 text-end">
+                    <button id="clearCartBtn" class="btn btn-dashed">Delete All</button>
+                </div>
+            </div>
+
+            <!-- Cart Table Area Container -->
+            <div class="cart-table-container mt-2">
+                
+                @foreach (var item in Model.Items)
+                {
+                    <div class="cart-item-row">
+                        <div class="row align-items-center gy-3 text-start">
+                            
+                            <!-- Image and Title Meta Column Component -->
+                            <div class="col-12 col-md-3 d-flex align-items-center">
+                                <div class="img-container me-3 flex-shrink-0" style="width: 70px; height: 90px; background: #f7f7f5; display: flex; align-items: center; justify-content: center;">
+                                    @{
+                                        var productImage = item.Product.GetImages()?.FirstOrDefault();
+                                    }
+                                    @if (!string.IsNullOrEmpty(productImage))
+                                    {
+                                        <img src="@productImage" alt="@item.Product.Name" style="max-width: 100%; max-height: 100%; object-fit: contain; padding: 0.25rem;" />
+                                    }
+                                </div>
+                                <div>
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Product.Id" class="product-title-link">
+                                        @if(item.Product.Name.Contains("\""))
+                                        {
+                                            @item.Product.Name
+                                        }
+                                        else 
+                                        {
+                                            <!-- Fallback to uppercase design aesthetic naming conventions split -->
+                                            <span class="d-block">@item.Product.Name</span>
+                                        }
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Color Configurator Node Element -->
+                            <div class="col-3 col-md-2">
+                                <div class="column-title mb-2 d-md-block">Color</div>
+                                <div class="size-display-box">@item.Color</div>
+                            </div>
+
+                            <!-- Size Node Column Element -->
+                            <div class="col-3 col-md-1">
+                                <div class="column-title mb-2 d-md-block">Size</div>
+                                <div class="size-display-box">@item.Size</div>
+                            </div>
+
+                            <!-- Quantity Selection Input Components -->
+                            <div class="col-6 col-md-2">
+                                <div class="column-title mb-2 d-md-block">Quantity</div>
+                                <div class="qty-stepper-container">
+                                    <button type="button" class="qty-step-btn minus-btn" data-product-id="@item.Product.Id" data-size="@item.Size" data-color="@item.Color">-</button>
+                                    <input type="number" class="qty-stepper-input quantity-input" data-product-id="@item.Product.Id" data-size="@item.Size" data-color="@item.Color" value="@item.Quantity" min="1" readonly />
+                                    <button type="button" class="qty-step-btn plus-btn" data-product-id="@item.Product.Id" data-size="@item.Size" data-color="@item.Color">+</button>
+                                </div>
+                            </div>
+
+                            <!-- Pricing Breakdown View Component Grid Node -->
+                            <div class="col-6 col-md-2">
+                                <div class="column-title mb-2 d-md-block">Price</div>
+                                <div class="item-price-text">$@item.Subtotal.ToString("N2")</div>
+                            </div>
+
+                            <!-- Individual Item Eraser Command Component -->
+                            <div class="col-6 col-md-2 text-end">
+                                <button class="btn btn-dashed remove-item" data-product-id="@item.Product.Id" data-size="@item.Size" data-color="@item.Color">
+                                    Delete
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            <!-- Full Width Functional Action Callout Footer Area -->
+            <div class="row mt-2">
+                <div class="col-12">
+                    <a asp-controller="Cart" asp-action="Checkout" class="checkout-banner-btn">
+                        Checkout
+                    </a>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-start mt-4">
+                <a asp-controller="Products" asp-action="Index" style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700; color: #666; text-decoration: none; letter-spacing: 0.05em;">
+                    ← Continue Shopping
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Handle Quantity Stepper Adjustments Plus & Minus click events
+            document.querySelectorAll('.qty-step-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const container = this.closest('.qty-stepper-container');
+                    const input = container.querySelector('.quantity-input');
+                    const productId = parseInt(input.getAttribute('data-product-id'));
+                    const size = input.getAttribute('data-size') || '';
+                    const color = input.getAttribute('data-color') || '';
+                    let currentQty = parseInt(input.value);
+
+                    if (this.classList.contains('minus-btn')) {
+                        if (currentQty > 1) {
+                            currentQty--;
+                        } else {
+                            return;
+                        }
+                    } else if (this.classList.contains('plus-btn')) {
+                        currentQty++;
+                    }
+
+                    input.value = currentQty;
+                    executeQuantityUpdate(productId, currentQty, size, color);
+                });
+            });
+
+            function executeQuantityUpdate(productId, quantity, size, color) {
+                fetch('/Cart/Update/' + productId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': getAntiForgeryToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: 'id=' + productId + '&quantity=' + quantity + '&size=' + encodeURIComponent(size) + '&color=' + encodeURIComponent(color)
+                })
+                .then(response => response.json())
+                .then(data => { 
+                    if (data.success) { 
+                        updateCartCount(); 
+                        location.reload(); 
+                    } else { 
+                        alert('Failed to update cart product metrics'); 
+                    } 
+                })
+                .catch(error => { console.error('Error:', error); alert('Network error'); });
+            }
+
+            // Remove single item trigger mapping 
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function () {
+                    if (!confirm('Remove this item from your cart?')) return;
+                    const productId = parseInt(this.getAttribute('data-product-id'));
+                    const size = this.getAttribute('data-size') || '';
+                    const color = this.getAttribute('data-color') || '';
+                    executeItemRemoval(productId, size, color);
+                });
+            });
+
+            // Master Delete All workflow simulation sequence implementation
+            const clearCartBtn = document.getElementById('clearCartBtn');
+            if (clearCartBtn) {
+                clearCartBtn.addEventListener('click', function() {
+                    if (!confirm('Are you sure you want to clear your entire shopping cart?')) return;
+                    
+                    // Multi-drop promise queue execution context strategy mockup
+                    const productRemovals = Array.from(document.querySelectorAll('.remove-item'))
+                                                .map(btn => ({
+                                                    productId: parseInt(btn.getAttribute('data-product-id')),
+                                                    size: btn.getAttribute('data-size') || '',
+                                                    color: btn.getAttribute('data-color') || ''
+                                                }));
+                    
+                    if (productRemovals.length === 0) return;
+
+                    // Sequential process iteration removal patterns chain mapping execution loop
+                    let chain = Promise.resolve();
+                    productRemovals.forEach(item => {
+                        chain = chain.then(() => {
+                            return fetch('/Cart/Remove/' + item.productId, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'RequestVerificationToken': getAntiForgeryToken(),
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: 'id=' + item.productId + '&size=' + encodeURIComponent(item.size) + '&color=' + encodeURIComponent(item.color)
+                            });
+                        });
+                    });
+
+                    chain.then(() => {
+                        updateCartCount();
+                        location.reload();
+                    }).catch(err => {
+                        console.error(err);
+                        location.reload();
+                    });
+                });
+            }
+
+            function executeItemRemoval(productId, size, color) {
+                fetch('/Cart/Remove/' + productId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': getAntiForgeryToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                                body: 'id=' + productId + '&size=' + encodeURIComponent(size) + '&color=' + encodeURIComponent(color)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCartCount();
+                        location.reload();
+                    } else { alert('Failed to remove item layout unit'); }
+                })
+                .catch(error => { console.error('Error:', error); alert('Network error parsing execution parameters'); });
+            }
+
+            function updateCartCount() {
+                fetch('/Cart/GetCount').then(r => r.json()).then(data => {
+                    const el = document.querySelector('#cartLink .badge-count');
+                    if (el) el.textContent = data.count;
+                });
+            }
+
+            function getAntiForgeryToken() {
+                const t = document.querySelector('[name=__RequestVerificationToken]');
+                return t ? t.value : '';
+            }
+        });
+    </script>
+}

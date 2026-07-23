@@ -1,0 +1,504 @@
+/* ═══════════════════════════════════════════════
+   REPRESENT — Luxury Minimalist Design System
+   Inspired by Acne Studios / Fear of God / Apple
+   ═══════════════════════════════════════════════ */
+
+/* ── Base Reset & Typography ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+body {
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  color: #1a1a1a;
+  background: #fff;
+  margin: 0;
+  line-height: 1.6;
+}
+
+main[role="main"] {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+footer {
+  margin-top: 0 !important;
+}
+
+/* ── Editorial Typography Scale ── */
+.text-display {
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 200;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.text-heading {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.text-subheading {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.text-caption {
+  font-size: 0.7rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+/* ── Color Palette ── */
+.bg-primary   { background-color: #fff; }
+.bg-secondary { background-color: #f5f5f3; }
+.bg-tertiary  { background-color: #edeae6; }
+.bg-dark      { background-color: #0d0d0d; }
+.bg-accent    { background-color: #c9a96e; }
+
+.text-primary   { color: #1a1a1a; }
+.text-secondary { color: #666; }
+.text-tertiary  { color: #999; }
+.text-muted     { color: #aaa; }
+.text-accent    { color: #c9a96e; }
+
+/* ── Minimal Button System ── */
+.btn-minimal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 2.2rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: transparent;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  border-radius: 0;
+  min-width: 180px;
+}
+
+.btn-minimal:hover {
+  background: #1a1a1a;
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-minimal.btn-filled {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.btn-minimal.btn-filled:hover {
+  background: transparent;
+  color: #1a1a1a;
+}
+
+.btn-minimal.text-only {
+  border-color: transparent;
+  border-bottom: 1px solid #1a1a1a;
+  border-radius: 0;
+  padding: 0.4rem 0;
+  min-width: auto;
+}
+
+.btn-minimal.text-only:hover {
+  background: transparent;
+  color: #999;
+  border-bottom-color: #999;
+}
+
+/* ── Luxury Hover Utilities ── */
+.hover-lift {
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity   0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+.hover-fade {
+  opacity: 0.55;
+  transition: opacity 0.7s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.hover-fade:hover {
+  opacity: 1;
+}
+
+.hover-reveal {
+  position: relative;
+}
+.hover-reveal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.hover-reveal:hover::after {
+  width: 100%;
+}
+
+/* ── Elegant Image Containers ── */
+.img-container {
+  overflow: hidden;
+  background: #f5f5f3;
+  position: relative;
+}
+
+.img-container img {
+  transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity  0.6s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-container:hover img {
+  transform: scale(1.03);
+}
+
+.img-container.contain img {
+  object-fit: contain;
+}
+
+.img-container.aspect-square { aspect-ratio: 1 / 1; }
+.img-container.aspect-portrait { aspect-ratio: 3 / 4; }
+.img-container.aspect-landscape { aspect-ratio: 4 / 3; }
+
+/* ── Ultra-Minimal Form Controls ── */
+.form-minimal {
+  border: none;
+  border-bottom: 1px solid #ddd;
+  padding: 0.75rem 0;
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  background: transparent;
+  transition: border-color 0.4s ease;
+  border-radius: 0;
+  width: 100%;
+}
+.form-minimal:focus {
+  outline: none;
+  border-bottom-color: #1a1a1a;
+  box-shadow: none;
+}
+
+.form-minimal::placeholder {
+  color: #bbb;
+  font-weight: 300;
+}
+
+/* ── Dividers ── */
+.divider {
+  border: none;
+  border-top: 1px solid #e5e5e3;
+  margin: 2rem 0;
+}
+.divider.thin {
+  margin: 1rem 0;
+  border-top-color: #eee;
+}
+
+/* ── Nav Link Utilities ── */
+.nav-link-minimal {
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+  text-decoration: none;
+  padding: 0;
+  opacity: 0.8;
+  transition: opacity 0.5s ease;
+}
+.nav-link-minimal:hover {
+  opacity: 1;
+  color: #fff;
+}
+.nav-link-minimal.text-dark {
+  color: #1a1a1a;
+}
+.nav-link-minimal.text-dark:hover {
+  color: #1a1a1a;
+}
+
+/* ── Page Sections ── */
+.section-spacer {
+  padding: 6rem 0;
+}
+
+@media (max-width: 767px) {
+  .section-spacer {
+    padding: 3.5rem 1rem;
+  }
+}
+
+/* ── Card Removal / Replacement ── */
+.card,
+.card-body,
+.card-header,
+.card-footer,
+.list-group {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* ── Bootstrap Overrides ── */
+.btn {
+  border-radius: 0;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.btn:hover {
+  transform: none;
+}
+.btn:focus {
+  box-shadow: none;
+}
+
+.btn-primary {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #fff;
+}
+.btn-primary:hover {
+  background-color: #333;
+  border-color: #333;
+}
+
+.btn-outline-dark {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+.btn-outline-dark:hover {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.navbar {
+  border: none;
+  box-shadow: none;
+}
+
+/* ── Slow Fade In Animation ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeIn 1.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.animate-delay-1 { animation-delay: 0.15s; }
+.animate-delay-2 { animation-delay: 0.3s; }
+.animate-delay-3 { animation-delay: 0.45s; }
+.animate-delay-4 { animation-delay: 0.6s; }
+
+/* ── Utility: No Scrollbar (horizontal) ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Selection Color ── */
+::selection {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+/* ── Badge Minimal ── */
+.badge {
+  border-radius: 0;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  font-size: 0.6rem;
+  padding: 0.3em 0.6em;
+}
+
+/* ── Existing Overrides ── */
+.object-fit-cover   { object-fit: cover; }
+.object-fit-contain { object-fit: contain; }
+.object-cover { object-fit: cover; }
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 8%;
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+}
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  opacity: 1;
+}
+
+.collapse:not(.show) { display: none !important; }
+.collapse.show       { display: block !important; }
+
+.bookmark-btn.text-dark svg { fill: currentColor; }
+
+.admin-page-heading {
+  font-size: 1.4rem;
+}
+
+.admin-page-actions .btn {
+  width: 100%;
+}
+
+.admin-table {
+  min-width: 720px;
+}
+
+.admin-status-select {
+  min-width: 150px;
+}
+
+.profile-summary {
+  width: 100%;
+}
+
+.profile-tab-scroll {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.profile-order-card {
+  padding: 1.5rem;
+}
+
+.profile-sidebar {
+  position: sticky;
+}
+
+@media (min-width: 576px) {
+  .admin-page-actions .btn {
+    width: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .admin-page-heading {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .profile-sidebar {
+    position: static;
+  }
+}
+
+.navbar-collapse {
+  padding-top: 1rem;
+}
+
+.navbar .navbar-toggler {
+  border: none;
+  padding: 0.35rem 0.5rem;
+  z-index: 1050;
+}
+
+.navbar .navbar-toggler:focus {
+  box-shadow: none;
+}
+
+.navbar.navbar-toggled .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586l6.293-6.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+}
+
+@media (min-width: 992px) {
+  .navbar .navbar-collapse,
+  .navbar .navbar-collapse:not(.show),
+  .navbar .navbar-collapse.show {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    position: fixed;
+    top: 4.75rem;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: calc(100vh - 4.75rem);
+    overflow-y: auto;
+    background: #0a0a0a;
+    padding: 1.5rem;
+    z-index: 1040;
+  }
+
+  .navbar-collapse.show {
+    display: block !important;
+  }
+
+  .navbar-collapse > .d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .navbar-collapse > .d-flex > .d-flex {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .navbar-collapse .nav-link-minimal {
+    width: 100%;
+    padding: 0.9rem 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #1c1c1c;
+  }
+
+  .navbar-collapse .icon-btn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid #1c1c1c;
+  }
+
+  .navbar-collapse .position-relative > .icon-btn {
+    width: auto;
+    justify-content: center;
+    padding: 0;
+    border-bottom: 0;
+  }
+}

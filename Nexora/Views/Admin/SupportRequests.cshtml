@@ -1,0 +1,185 @@
+@model List<Nexora.Models.SupportRequest>
+@{
+    ViewData["Title"] = "Support Requests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 px-3 px-sm-4">
+    <div class="d-flex justify-content-between align-items-md-center flex-column flex-md-row gap-3 mb-4">
+        <h2 class="text-uppercase mb-0 admin-page-heading">Chatbot Support Requests</h2>
+        <div class="admin-page-actions">
+            <a asp-action="Cancellations" class="btn btn-outline-light">Cancellations</a>
+            <a asp-action="UnreadSupport" class="btn btn-outline-light">Unread Support</a>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <p class="mb-0">No chatbot requests yet.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-striped admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr class="@(request.IsRead ? "" : "table-active")">
+                            <td>
+                                <span class="badge bg-@(request.RequestType == "Cancellation" ? "danger" : "info")">@request.RequestType</span>
+                            </td>
+                            <td>
+                                @if (request.OrderId.HasValue)
+                                {
+                                    @if (request.Order != null)
+                                    {
+                                        <a asp-action="OrderDetail" asp-route-id="@request.Order.Id" class="text-light text-decoration-none">#@request.Order.Id</a>
+                                    }
+                                    else
+                                    {
+                                        <span>#@request.OrderId</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">General</span>
+                                }
+                            </td>
+                            <td>
+                                <div>@request.CustomerName</div>
+                                <small class="text-muted">@request.CustomerEmail</small>
+                            </td>
+                            <td>
+                                <div>@request.Message</div>
+                                @if (!string.IsNullOrWhiteSpace(request.Reason))
+                                {
+                                    <small class="text-muted">Reason: @request.Reason</small>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(request.AdminResponse))
+                                {
+                                    <small class="text-muted d-block mt-1">Admin: @request.AdminResponse</small>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-@(request.Status == "Resolved" ? "success" : "warning")">@request.Status</span>
+                                <span class="badge bg-secondary">@(request.IsRead ? "Read" : "Unread")</span>
+                            </td>
+                            <td>@request.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-light mark-read" data-request-id="@request.Id" @(request.IsRead ? "disabled" : "")>Mark Read</button>
+                                @if (request.RequestType == "Cancellation" && request.Status != "Resolved")
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger cancel-order" data-request-id="@request.Id">Cancel Order</button>
+                                }
+                                <button type="button" class="btn btn-sm btn-outline-light resolve-request" data-request-id="@request.Id" data-bs-toggle="collapse" data-bs-target="#reply-@request.Id">Reply</button>
+                                <div id="reply-@request.Id" class="collapse mt-2">
+                                    <textarea class="form-control form-control-sm mb-2" placeholder="Admin response"></textarea>
+                                    <button type="button" class="btn btn-sm btn-success send-reply" data-request-id="@request.Id">Send Reply</button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function getVerificationToken() {
+            return document.querySelector('[name=__RequestVerificationToken]')?.value || '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.mark-read').forEach(button => {
+                button.addEventListener('click', function() {
+                    const requestId = this.dataset.requestId;
+
+                    fetch('/Admin/MarkSupportRequestRead', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getVerificationToken()
+                        },
+                        body: JSON.stringify({ id: parseInt(requestId) })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll('.cancel-order').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!confirm('Cancel this order and mark the request resolved?')) return;
+
+                    const requestId = this.dataset.requestId;
+
+                    fetch('/Admin/CancelOrderFromChat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getVerificationToken()
+                        },
+                        body: JSON.stringify({ id: parseInt(requestId) })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                });
+            });
+
+            document.querySelectorAll('.send-reply').forEach(button => {
+                button.addEventListener('click', function() {
+                    const requestId = this.dataset.requestId;
+                    const textarea = document.querySelector(`#reply-${requestId} textarea`);
+                    const response = textarea?.value || '';
+
+                    fetch('/Admin/ResolveSupportRequest', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': getVerificationToken()
+                        },
+                        body: JSON.stringify({ id: parseInt(requestId), response })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

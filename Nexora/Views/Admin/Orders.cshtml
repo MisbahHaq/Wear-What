@@ -1,0 +1,88 @@
+@model List<Nexora.Models.Order>
+@{
+    ViewData["Title"] = "Manage Orders";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 px-3 px-sm-4">
+    <div class="d-flex justify-content-between align-items-md-center flex-column flex-md-row gap-3 mb-4">
+        <h2 class="text-uppercase mb-0 admin-page-heading">Manage Orders</h2>
+        <div class="admin-page-actions">
+            <a asp-action="Cancellations" class="btn btn-outline-light">Cancellation Requests</a>
+            <a asp-action="SupportRequests" class="btn btn-outline-light">Chatbot Requests</a>
+            <a asp-action="Dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-striped admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td><a asp-action="OrderDetail" asp-route-id="@order.Id" class="text-light text-decoration-none" style="cursor: pointer;">#@order.Id</a></td>
+                        <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                        <td>@order.UserEmail</td>
+                        <td>$@order.TotalAmount</td>
+                        <td>@order.Items.Count items</td>
+                        <td>
+                            <span class="badge bg-@(order.Status == "Order Received" ? "light text-dark" : order.Status == "Pending" ? "warning" : order.Status == "Out for Delivery" ? "info" : order.Status == "Delivered" ? "success" : "secondary")">
+                                @order.Status
+                            </span>
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm status-select admin-status-select" data-order-id="@order.Id">
+                                <option value="Pending" selected="@(order.Status == "Pending")">Pending</option>
+                                <option value="Order Received" selected="@(order.Status == "Order Received")">Order Received</option>
+                                <option value="Out for Delivery" selected="@(order.Status == "Out for Delivery")">Out for Delivery</option>
+                                <option value="Delivered" selected="@(order.Status == "Delivered")">Delivered</option>
+                                <option value="Cancelled" selected="@(order.Status == "Cancelled")">Cancelled</option>
+                            </select>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const orderId = this.dataset.orderId;
+                    const status = this.value;
+                    
+                    fetch('/Admin/UpdateOrderStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('[name=__RequestVerificationToken]').value
+                        },
+                        body: JSON.stringify({ OrderId: parseInt(orderId), Status: status })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

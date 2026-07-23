@@ -1,0 +1,933 @@
+@model Nexora.Models.Product
+@using Nexora.Models
+
+@{
+    ViewData["Title"] = Model.Name;
+    var images = Model.GetImages() ?? new List<string> { "" };
+    var colors = Model.GetColors() ?? new List<string> { "Black" };
+}
+
+@section Head {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+}
+
+<style type="text/css">
+    /* --- HIGH-FASHION EDITORIAL DETAIL STYLE SYSTEM --- */
+    body {
+        background-color: #e5e7eb;
+        color: #000000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    .editorial-wrapper {
+        background-color: #e5e7eb;
+        padding-bottom: 80px;
+        overflow-x: hidden; /* Contain inner elements */
+    }
+
+    /* --- TWO-COLUMN ASYMMETRIC GRID DISPLAY --- */
+    .product-hero-matrix {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        min-height: 90vh;
+        gap: 0;
+    }
+
+    .media-gallery-pane {
+        background-color: #f3f4f6;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 40px;
+        position: relative;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .main-image-display-frame {
+        width: 100%;
+        height: 72vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .main-image-display-frame img {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: opacity 0.4s ease;
+    }
+
+    .editorial-thumbnails-strip {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+
+    /* Hide scrollbars but preserve functionality */
+    .editorial-thumbnails-strip::-webkit-scrollbar {
+        height: 4px;
+    }
+    .editorial-thumbnails-strip::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.1);
+    }
+
+    .thumb-frame-container {
+        width: 75px;
+        aspect-ratio: 3 / 4;
+        flex-shrink: 0;
+        background-color: #e5e7eb;
+        cursor: pointer;
+        border: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .thumb-frame-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 6px;
+    }
+
+    /* --- RIGHT CONTENT PANEL --- */
+    .product-meta-editorial-pane {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 60px 50px;
+        background-color: #e5e7eb;
+        border-left: 1px solid rgba(0,0,0,0.05);
+        box-sizing: border-box;
+    }
+
+    .meta-header-group h1 {
+        font-size: clamp(2.5rem, 4vw, 4.5rem);
+        font-weight: 800;
+        line-height: 0.9;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+        margin: 0 0 15px 0;
+        word-break: break-word;
+    }
+
+    .editorial-price-badge {
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 50px;
+    }
+
+    .section-editorial-caption {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(0, 0, 0, 0.4);
+        margin-bottom: 12px;
+    }
+
+    /* --- BRUTALIST BUTTON MATRIX FOR OPTIONS --- */
+    .brutalist-option-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 35px;
+    }
+
+    .brutalist-btn {
+        background: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+        color: #000000;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 14px 0;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .brutalist-btn:hover {
+        border-color: #000000;
+    }
+
+    .brutalist-btn.selected-option {
+        background-color: #1a1c23;
+        color: #ffffff;
+        border-color: #1a1c23;
+    }
+
+    .color-flex-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 45px;
+    }
+
+    /* --- HERO ADD TO BAG CTA --- */
+    .velora-monolith-cta {
+        width: 100%;
+        background-color: #1a1c23;
+        color: #ffffff;
+        border: none;
+        padding: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-bottom: 40px;
+        transition: background-color 0.2s ease;
+        box-sizing: border-box; /* Force padding inclusion */
+    }
+
+    .velora-monolith-cta:hover {
+        background-color: #000000;
+    }
+
+    .product-fine-print {
+        font-size: 0.75rem;
+        line-height: 2;
+        color: #4b5563;
+        margin-bottom: 40px;
+    }
+
+    /* --- ACCORDION SIMPLICITY OVERHAUL --- */
+    .editorial-accordion-divider {
+        border-top: 1px solid rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+
+    .accordion-minimal-item {
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .accordion-minimal-btn {
+        width: 100%;
+        background: transparent;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+        color: #000000;
+        text-align: left;
+    }
+
+    .accordion-minimal-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        color: #4b5563;
+    }
+
+    .accordion-minimal-content p {
+        padding-bottom: 20px;
+        margin: 0;
+    }
+
+    /* --- MOTH LOOKBOOK RECOMMENDED GRID --- */
+    .matrix-interstitial-title {
+        font-size: clamp(3rem, 8vw, 7rem);
+        font-weight: 800;
+        line-height: 0.85;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+        padding: 100px 40px 40px 40px;
+    }
+
+    .swiper-editorial-container {
+        padding: 0 40px;
+        position: relative;
+    }
+
+    .matrix-display-node {
+        display: flex;
+        flex-direction: column;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    .matrix-node-image-frame {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .matrix-node-image-frame img {
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+        padding: 0;
+        transition: transform 0.4s ease;
+    }
+
+    .matrix-display-node:hover .matrix-node-image-frame img {
+        transform: scale(1.03);
+    }
+
+    .matrix-node-meta-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        line-height: 1.4;
+    }
+
+    .matrix-node-meta-row .node-price {
+        color: #4b5563;
+        font-weight: 500;
+    }
+
+    .swiper-custom-navigation {
+        display: flex;
+        gap: 12px;
+        position: absolute;
+        top: -80px;
+        right: 40px;
+    }
+
+    .nav-arrow-box {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    .nav-arrow-box:hover {
+        border-color: #000000;
+        background-color: rgba(0,0,0,0.02);
+    }
+
+    /* --- RESPONSIVE MATRIX ADJUSTMENTS --- */
+    @@media (max-width: 1199.98px) {
+        .product-hero-matrix {
+            grid-template-columns: 1.05fr 0.95fr;
+        }
+
+        .product-meta-editorial-pane {
+            padding: 44px 32px;
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+        .editorial-wrapper,
+        .product-hero-matrix,
+        .media-gallery-pane,
+        .product-meta-editorial-pane,
+        .swiper-editorial-container {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .product-hero-matrix {
+            grid-template-columns: 1fr;
+            min-height: auto;
+        }
+
+        .media-gallery-pane {
+            padding: 24px;
+        }
+
+        .main-image-display-frame {
+            height: min(62vh, 620px);
+            min-height: 340px;
+        }
+
+        .editorial-thumbnails-strip {
+            gap: 10px;
+            margin-top: 18px;
+            justify-content: flex-start;
+        }
+
+        .product-meta-editorial-pane {
+            border-left: none;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding: 42px 24px;
+        }
+
+        .meta-header-group h1 {
+            font-size: clamp(2.4rem, 7vw, 4rem);
+        }
+
+        .editorial-price-badge {
+            margin-bottom: 34px;
+        }
+
+        .brutalist-option-grid {
+            grid-template-columns: repeat(3, 1fr);
+            margin-bottom: 30px;
+        }
+
+        .color-flex-row .brutalist-btn {
+            flex: 1 1 calc(33.333% - 8px);
+            min-width: 0;
+            width: auto;
+        }
+
+        .velora-monolith-cta {
+            margin-bottom: 32px;
+        }
+
+        .product-fine-print {
+            margin-bottom: 32px;
+        }
+
+        .matrix-interstitial-title {
+            padding: 64px 24px 32px 24px;
+        }
+
+        .swiper-editorial-container {
+            padding: 0 24px;
+        }
+
+        .swiper-custom-navigation {
+            right: 24px;
+            top: -66px;
+        }
+
+        .swiper-slide {
+            min-width: 0;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .media-gallery-pane {
+            padding: 18px 16px 22px 16px;
+        }
+
+        .main-image-display-frame {
+            height: min(58vh, 560px);
+            min-height: 320px;
+        }
+
+        .product-meta-editorial-pane {
+            padding: 34px 18px;
+        }
+
+        .meta-header-group h1 {
+            font-size: clamp(2.15rem, 9vw, 3.4rem);
+        }
+
+        .editorial-price-badge {
+            font-size: 1.18rem;
+        }
+
+        .brutalist-option-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+        }
+
+        .brutalist-btn {
+            font-size: 0.68rem;
+            padding: 12px 4px;
+        }
+
+        .color-flex-row {
+            gap: 7px;
+        }
+
+        .color-flex-row .brutalist-btn {
+            flex: 1 1 calc(50% - 7px);
+            min-width: 0;
+            width: auto;
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .editorial-wrapper {
+            padding-bottom: 34px;
+        }
+
+        .media-gallery-pane {
+            padding: 12px 12px 18px 12px;
+        }
+
+        .main-image-display-frame {
+            height: auto;
+            min-height: 0;
+            aspect-ratio: 4 / 5;
+            max-height: 72vh;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .editorial-thumbnails-strip {
+            width: calc(100% + 24px);
+            margin: 14px -12px 0 -12px;
+            padding: 0 12px 4px 12px;
+            gap: 8px;
+        }
+
+        .thumb-frame-container {
+            width: 60px;
+        }
+
+        .product-meta-editorial-pane {
+            padding: 30px 16px 22px 16px;
+        }
+
+        .meta-header-group h1 {
+            font-size: clamp(2rem, 11vw, 3rem);
+            margin-bottom: 12px;
+        }
+
+        .editorial-price-badge {
+            font-size: 1.08rem;
+            margin-bottom: 26px;
+        }
+
+        .brutalist-option-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin-bottom: 26px;
+        }
+
+        .brutalist-btn {
+            font-size: 0.66rem;
+            padding: 11px 4px;
+        }
+
+        .color-flex-row {
+            gap: 7px;
+            margin-bottom: 32px;
+        }
+
+        .color-flex-row .brutalist-btn {
+            flex: 1 1 calc(50% - 7px);
+            min-width: 0;
+            width: auto;
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        .velora-monolith-cta {
+            position: static;
+            bottom: auto;
+            z-index: auto;
+            width: 100%;
+            margin: 0 0 28px 0;
+            padding: 16px;
+            box-shadow: none;
+        }
+
+        .product-fine-print {
+            font-size: 0.68rem;
+            line-height: 1.75;
+            margin-bottom: 28px;
+        }
+
+        .accordion-minimal-btn {
+            padding: 16px 0;
+            font-size: 0.68rem;
+        }
+
+        .accordion-minimal-content p {
+            padding-bottom: 16px;
+            font-size: 0.74rem;
+        }
+
+        .matrix-interstitial-title {
+            padding: 48px 16px 22px 16px;
+            font-size: clamp(2.35rem, 12vw, 3.6rem);
+        }
+
+        .swiper-editorial-container {
+            padding: 0 16px;
+        }
+
+        .swiper-custom-navigation {
+            position: static;
+            justify-content: flex-end;
+            margin: 0 0 14px 0;
+            padding-right: 0;
+        }
+
+        .nav-arrow-box {
+            width: 36px;
+            height: 36px;
+        }
+
+        .matrix-node-image-frame {
+            margin-bottom: 10px;
+        }
+
+        .matrix-node-meta-row {
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.68rem;
+        }
+    }
+
+    @@media (max-width: 380px) {
+        .media-gallery-pane {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .main-image-display-frame {
+            aspect-ratio: 1 / 1.15;
+        }
+
+        .editorial-thumbnails-strip {
+            width: calc(100% + 20px);
+            margin-left: -10px;
+            margin-right: -10px;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .thumb-frame-container {
+            width: 54px;
+        }
+
+        .product-meta-editorial-pane {
+            padding-left: 14px;
+            padding-right: 14px;
+        }
+
+        .meta-header-group h1 {
+            font-size: 2rem;
+        }
+
+        .brutalist-btn {
+            font-size: 0.62rem;
+        }
+    }
+</style>
+
+<div class="editorial-wrapper">
+    <div class="product-hero-matrix">
+        
+        <div class="media-gallery-pane">
+            <div class="main-image-display-frame">
+                @if (!string.IsNullOrEmpty(images.FirstOrDefault()))
+                {
+                    <img src="@images.FirstOrDefault()" alt="@Model.Name" id="mainProductImage" />
+                }
+                else
+                {
+                    <div style="font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: #999;">
+                        No Image Available
+                    </div>
+                }
+            </div>
+
+            @if (images.Count > 1)
+            {
+                <div class="editorial-thumbnails-strip">
+                    @for (int i = 0; i < images.Count; i++)
+                    {
+                        <div class="thumb-frame-container" onclick="switchImage('@images[i]', this)">
+                            <img src="@images[i]" alt="Asset @(i + 1)" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="product-meta-editorial-pane">
+            <div>
+                <div class="meta-header-group">
+                    <div class="d-flex justify-content-between align-items-start" style="gap: 15px;">
+                        <h1>@Model.Name</h1>
+                        <button class="border-0 bg-transparent p-0" onclick="toggleBookmark(event, @Model.Id)" id="productBookmarkBtn" data-bookmarked="false" style="cursor: pointer; color: #999; flex-shrink: 0; margin-top: 5px;">
+                            <i class="bi bi-bookmark" style="font-size: 1.4rem;"></i>
+                        </button>
+                    </div>
+                    <div class="editorial-price-badge">
+                        $@Model.Price.ToString("N2")
+                    </div>
+                </div>
+
+                <div id="sizeSection">
+                    <div class="section-editorial-caption">Size selection</div>
+                    <div class="brutalist-option-grid" id="sizeSelectorGroup">
+                        <button type="button" class="brutalist-btn size-btn" data-size="S">S</button>
+                        <button type="button" class="brutalist-btn size-btn" data-size="M">M</button>
+                        <button type="button" class="brutalist-btn size-btn" data-size="L">L</button>
+                    </div>
+                </div>
+
+                <div id="colorSection">
+                    <div class="section-editorial-caption">Color options</div>
+                    <div class="color-flex-row" id="colorSelectorGroup">
+                        @for (int i = 0; i < colors.Count; i++)
+                        {
+                            <button type="button" class="brutalist-btn color-btn @(i == 0 ? "selected-option" : "")" data-color="@colors[i]" style="min-width: 80px;">
+                                @colors[i]
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <button id="addToBagCta" class="velora-monolith-cta">
+                    Select Size And Color
+                </button>
+
+                <div class="product-fine-print">
+                    <div>Model details: 185cm architecture wearing dynamic size Medium</div>
+                    <div>Allocation value: Earn 240 Prestige Points on purchase</div>
+                    <div>Logistics: Complimented delivery over $300 thresholds</div>
+                    <div>Availability Index: @Model.Stock units remain in workspace stock</div>
+                </div>
+            </div>
+
+            <div class="editorial-accordion-divider">
+                <div class="accordion-minimal-item">
+                    <button class="accordion-minimal-btn" onclick="toggleAccordion('collapseDetails')">
+                        <span>Product Specifications</span>
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                    <div id="collapseDetails" class="accordion-minimal-content">
+                        <p>
+                            @if(!string.IsNullOrEmpty(Model.Description)) {
+                                @Model.Description
+                            } else {
+                                <text>Introducing an editorial-cut baseline silhouette. Finished with standard fit structuring and heavyweight premium textiles curated for long-term comfort and seasonal progression matrices.</text>
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div class="accordion-minimal-item">
+                    <button class="accordion-minimal-btn" onclick="toggleAccordion('collapseShipping')">
+                        <span>Fulfillment & Returns</span>
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                    <div id="collapseShipping" class="accordion-minimal-content">
+                        <p>Standard priority dispatch operations settle within 3-5 standard workspace business timelines. Returns are honored within a 30-day window frame.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div>
+        <div class="matrix-interstitial-title">
+            Other Sides
+        </div>
+
+        @if (ViewBag.RelatedProducts is List<Nexora.Models.Product> relatedProducts && relatedProducts.Any())
+        {
+            <div class="swiper-editorial-container">
+                <div class="swiper-custom-navigation">
+                    <div class="nav-arrow-box" id="relatedPrev"><i class="bi bi-arrow-left"></i></div>
+                    <div class="nav-arrow-box" id="relatedNext"><i class="bi bi-arrow-right"></i></div>
+                </div>
+
+                <div class="swiper" id="relatedSwiper">
+                    <div class="swiper-wrapper">
+                        @foreach (var relatedProduct in relatedProducts)
+                        {
+                            var relatedImages2 = relatedProduct.GetImages() ?? new List<string> { "" };
+                            var relatedProductImage2 = relatedImages2.FirstOrDefault() ?? "";
+                            
+                            <div class="swiper-slide">
+                                <a class="matrix-display-node" asp-controller="Products" asp-action="Details" asp-route-id="@relatedProduct.Id">
+                                    <div class="matrix-node-image-frame">
+                                        @if (!string.IsNullOrEmpty(relatedProductImage2))
+                                        {
+                                            <img src="@relatedProductImage2" alt="@relatedProduct.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div style="font-size: 0.65rem; color: #999; letter-spacing: 0.1em; text-transform: uppercase;">Product Node</div>
+                                        }
+                                    </div>
+                                    <div class="matrix-node-meta-row">
+                                        <span>@relatedProduct.Name</span>
+                                        <span class="node-price">$@relatedProduct.Price.ToString("N2")</span>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        function switchImage(src, thumbnailEl) {
+            const mainImg = document.getElementById('mainProductImage');
+            if (!mainImg || !src) return;
+            mainImg.style.opacity = '0';
+            setTimeout(() => {
+                mainImg.src = src;
+                mainImg.style.opacity = '1';
+            }, 200);
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const btn = content.previousElementSibling;
+            const icon = btn.querySelector('i');
+            
+            if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                content.style.maxHeight = '0px';
+                icon.className = 'bi bi-plus-lg';
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.className = 'bi bi-dash-lg';
+            }
+        }
+
+        function isUserLoggedIn() {
+            if (typeof appAuthCache !== 'undefined' && appAuthCache !== null) return Promise.resolve(appAuthCache);
+            return fetch('/Account/CheckAuth')
+                .then(r => r.json())
+                .then(data => { window.appAuthCache = data.authenticated; return data.authenticated; })
+                .catch(() => false);
+        }
+
+        function toggleBookmark(event, productId) {
+            const btn = event.currentTarget || event.target.closest('button');
+            if (!btn) return;
+            isUserLoggedIn().then(loggedIn => {
+                if (!loggedIn) { 
+                    if(confirm('Please log in to bookmark items.')) { window.location.href = '/Account/Login'; }
+                    return; 
+                }
+                const isBookmarked = btn.dataset.bookmarked === 'true';
+                const url = isBookmarked ? '/Bookmark/Remove/' + productId : '/Bookmark/Add/' + productId;
+                btn.disabled = true;
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('[name=__RequestVerificationToken]')?.value || '',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: 'id=' + productId
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const newState = !isBookmarked;
+                        btn.dataset.bookmarked = newState ? 'true' : 'false';
+                        btn.style.color = newState ? '#000000' : '#999999';
+                        btn.querySelector('i').className = newState ? 'bi bi-bookmark-fill' : 'bi bi-bookmark';
+                    }
+                    btn.disabled = false;
+                }).catch(() => btn.disabled = false);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const sizeButtons = document.querySelectorAll('.size-btn');
+            const colorButtons = document.querySelectorAll('.color-btn');
+            const ctaButton = document.getElementById('addToBagCta');
+
+            sizeButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    sizeButtons.forEach(btn => btn.classList.remove('selected-option'));
+                    this.classList.add('selected-option');
+                    updateCtaText();
+                });
+            });
+
+            colorButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    colorButtons.forEach(btn => btn.classList.remove('selected-option'));
+                    this.classList.add('selected-option');
+                    updateCtaText();
+                });
+            });
+
+            function updateCtaText() {
+                const size = document.querySelector('.size-btn.selected-option')?.getAttribute('data-size');
+                const color = document.querySelector('.color-btn.selected-option')?.getAttribute('data-color');
+                if (size && color) {
+                    ctaButton.innerText = 'ADD TO BAG — ' + size + ' / ' + color;
+                } else if (color) {
+                    ctaButton.innerText = 'ADD TO BAG — ' + color;
+                }
+            }
+
+            ctaButton.addEventListener('click', function() {
+                const size = document.querySelector('.size-btn.selected-option')?.getAttribute('data-size');
+                const color = document.querySelector('.color-btn.selected-option')?.getAttribute('data-color');
+                if (!size || !color) { alert('Please choose combinations complete.'); return; }
+                
+                this.innerText = 'PROCESSING...'; this.disabled = true;
+                fetch('/Cart/Add/@Model.Id', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('[name=__RequestVerificationToken]')?.value || '',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: 'id=@Model.Id&quantity=1&size=' + encodeURIComponent(size) + '&color=' + encodeURIComponent(color)
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        this.innerText = 'IN BAG';
+                        if (typeof updateCartCount === 'function') {
+                            updateCartCount();
+                        }
+                        setTimeout(() => { updateCtaText(); this.disabled = false; }, 2000);
+                    } else { this.innerText = 'ERROR'; this.disabled = false; }
+                }).catch(() => { this.innerText = 'ADD TO BAG'; this.disabled = false; });
+            });
+
+            new Swiper('#relatedSwiper', {
+                slidesPerView: 4,
+                spaceBetween: 24,
+                loop: true,
+                navigation: { nextEl: '#relatedNext', prevEl: '#relatedPrev' },
+                breakpoints: {
+                    0: { slidesPerView: 2, spaceBetween: 16 },
+                    768: { slidesPerView: 3, spaceBetween: 20 },
+                    1200: { slidesPerView: 4, spaceBetween: 24 }
+                }
+            });
+        });
+    </script>
+}

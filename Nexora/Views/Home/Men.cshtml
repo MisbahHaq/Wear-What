@@ -1,0 +1,137 @@
+@model IEnumerable<Nexora.Models.Product>
+
+@{
+    ViewData["Title"] = "Men";
+}
+
+<style>
+    /* Completely strip native dropdown styles */
+    .minimal-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        border: none;
+        background: transparent;
+        padding: 0 1.5rem 0 0 !important;
+        margin: 0;
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        outline: none;
+        box-shadow: none !important;
+        text-align: right;
+    }
+
+    /* Elegant custom caret indicator */
+    .select-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .select-wrapper::after {
+        content: "↓";
+        font-size: 0.75rem;
+        font-weight: 300;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        transition: transform 0.2s ease;
+        color: #6c757d;
+    }
+    
+    .select-wrapper:hover::after {
+        color: #000;
+    }
+
+    .men-hero-image {
+        width: 100%;
+        max-height: 520px;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+
+<img src="@Url.Content("~/assets/man.png")" alt="Men" class="men-hero-image" />
+
+<div class="py-5 bg-white">
+    <div class="container-fluid px-4 px-md-5" style="max-width: 1600px;">
+
+        <header class="mb-5 pb-2">
+            <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-3 border-bottom pb-3">
+                <div>
+                    <h1 class="fs-4 fw-light text-uppercase tracking-widest m-0 text-dark">Men</h1>
+                    <span class="text-muted small fw-light">@Model.Count() Styles</span>
+                </div>
+                
+                <div class="select-wrapper">
+                    <select id="sortFilter" class="minimal-select text-uppercase text-muted small">
+                        <option value="newest">Sort By: Newest</option>
+                        <option value="price-low-high">Price: Low - High</option>
+                        <option value="price-high-low">Price: High - Low</option>
+                        <option value="name-a-z">Name: A-Z</option>
+                        <option value="name-z-a">Name: Z-A</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sortFilter = document.getElementById('sortFilter');
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentSort = urlParams.get('sort');
+                if (currentSort) {
+                    sortFilter.value = currentSort;
+                }
+                sortFilter.addEventListener('change', function() {
+                    const sortValue = this.value;
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sort', sortValue);
+                    window.location.href = url.toString();
+                });
+            });
+        </script>
+
+        <div class="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id"
+                       class="d-block text-decoration-none group-hover text-dark">
+
+                        <div class="position-relative overflow-hidden mb-3 bg-neutral-light aspect-ratio-portrait">
+                            @{
+                                var productImage = item.GetImages()?.FirstOrDefault();
+                            }
+                            @if (!string.IsNullOrEmpty(productImage))
+                            {
+                                <img src="@productImage"
+                                     alt="@item.Name"
+                                     class="w-100 h-100 product-img" />
+                            }
+                            else
+                            {
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center text-muted text-uppercase tracking-wider small-caption">
+                                    No Image
+                                </div>
+                            }
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-baseline pt-1">
+                            <h3 class="m-0 text-uppercase tracking-wide product-title fs-6 fw-light">
+                                @item.Name
+                            </h3>
+                            <span class="product-price small text-muted">
+                                $@item.Price.ToString("N0")
+                            </span>
+                        </div>
+
+                    </a>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>

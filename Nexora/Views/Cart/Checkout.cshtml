@@ -1,0 +1,295 @@
+@model Nexora.Controllers.CartController.CartViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="min-height: 100vh; background: #f0f0f0; padding: 3rem 0;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 clamp(1.5rem, 4vw, 4rem);">
+
+        <div class="row gx-5 gy-5">
+
+            <div class="col-12 col-lg-7">
+<form asp-action="Checkout" method="post" id="checkoutForm">
+                            <input type="hidden" id="deliveryMethodInput" name="deliveryMethod" value="standard" />
+                            <input type="hidden" id="paymentMethodInput" name="paymentMethod" value="card" />
+                            <div asp-validation-summary="ModelOnly" class="text-danger" style="font-size: 0.78rem; margin-bottom: 1rem;"></div>
+
+                            <div style="margin-bottom: 3rem;">
+                        <div style="margin-bottom: 2rem;">
+                            <h1 style="font-family: 'Inter', sans-serif; font-size: 1.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #000; margin: 0;">Checkout</h1>
+                        </div>
+
+                        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #000; margin: 0 0 1.5rem 0;">Information</p>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">First name</label>
+                                <input type="text" value="@Model.FirstName" readonly style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #f9f9f9; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Last name</label>
+                                <input type="text" value="@Model.LastName" readonly style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #f9f9f9; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Phone number</label>
+                                <input asp-for="Phone" required placeholder="Phone number" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                                <span asp-validation-for="Phone" class="text-danger" style="font-size: 0.72rem;"></span>
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Email</label>
+                                <input type="email" value="@Model.Email" readonly style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #f9f9f9; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #000; margin: 0 0 1.5rem 0;">Shipping Information</p>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Country / Region</label>
+                                <input asp-for="Country" required placeholder="Country / Region" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                                <span asp-validation-for="Country" class="text-danger" style="font-size: 0.72rem;"></span>
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">City</label>
+                                <input asp-for="City" required placeholder="City" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                                <span asp-validation-for="City" class="text-danger" style="font-size: 0.72rem;"></span>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Address</label>
+                                <input asp-for="Address" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                                <span asp-validation-for="Address" class="text-danger" style="font-size: 0.72rem;"></span>
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Zip / Postal code</label>
+                                <input type="text" placeholder="Zip / Postal code" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <input type="checkbox" id="consent1" checked style="width: 18px; height: 18px; accent-color: #000; cursor: pointer;" />
+                            <label for="consent1" style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #333; cursor: pointer;">I agree to <span style="text-decoration: underline; text-underline-offset: 2px;">data processing</span></label>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 2rem;" />
+
+                        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #000; margin: 0 0 1.5rem 0;">Delivery</p>
+
+                        <div id="deliveryOptions" style="margin-bottom: 2rem;">
+                            <label class="delivery-option" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #eee; cursor: pointer;" data-price="0" data-label="Standart Delivery">
+                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                    <input type="radio" name="delivery" value="standard" checked data-price="0" style="width: 18px; height: 18px; accent-color: #000; cursor: pointer;" />
+                                    <div>
+                                        <div style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">Standart Delivery</div>
+                                        <div style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 300; color: #888; margin-top: 0.15rem;">Delivery within 5-7 days</div>
+                                    </div>
+                                </div>
+                                <span class="delivery-price" style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">Free</span>
+                            </label>
+                            <label class="delivery-option" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #eee; cursor: pointer;" data-price="5" data-label="Express Shipping">
+                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                    <input type="radio" name="delivery" value="express" data-price="5" style="width: 18px; height: 18px; accent-color: #000; cursor: pointer;" />
+                                    <div>
+                                        <div style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">Express Shipping</div>
+                                        <div style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 300; color: #888; margin-top: 0.15rem;">Delivery within 1-3 days</div>
+                                    </div>
+                                </div>
+                                <span class="delivery-price" style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">$5.00</span>
+                            </label>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid #ddd; margin-bottom: 2rem;" />
+
+                        <p style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #000; margin: 0 0 1.5rem 0;">Payment</p>
+
+                        <div id="paymentOptions" style="margin-bottom: 1.5rem;">
+                            <label class="payment-option" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #eee; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                    <input type="radio" name="payment" value="card" checked style="width: 18px; height: 18px; accent-color: #000; cursor: pointer;" />
+                                    <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">Credit card</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <div style="padding: 0.35rem 0.6rem; border: 1px solid #ccc; border-radius: 3px; font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; color: #1a1f71;">VISA</div>
+                                    <div style="padding: 0.35rem 0.6rem; border: 1px solid #ccc; border-radius: 3px; font-family: 'Inter', sans-serif; font-size: 0.65rem; font-weight: 600; letter-spacing: 0.05em; color: #eb001b;">Mastercard</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="cardFields" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; padding-left: 2rem;">
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Card number</label>
+                                <input type="text" placeholder="Card number" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Cardholder name</label>
+                                <input type="text" placeholder="Cardholder name" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">Expiration date (MM/YY)</label>
+                                <input type="text" placeholder="MM/YY" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                            <div>
+                                <label style="display: block; font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #666; margin-bottom: 0.5rem;">CVV</label>
+                                <input type="text" placeholder="CVV" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #000; outline: none;" />
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <label class="payment-option" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #eee; cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                                    <input type="radio" name="payment" value="cod" style="width: 18px; height: 18px; accent-color: #000; cursor: pointer;" />
+                                    <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">Cash on Delivery</span>
+                                </div>
+                                <span style="font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 500; color: #000;">+ $8.00</span>
+                            </label>
+                        </div>
+
+                        <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.75rem;">
+                            <input type="checkbox" id="consent2" checked style="width: 18px; height: 18px; accent-color: #000; cursor: pointer;" />
+                            <label for="consent2" style="font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #333; cursor: pointer;">I agree to <span style="text-decoration: underline; text-underline-offset: 2px;">data processing</span></label>
+                        </div>
+
+                        <button type="submit" style="width: 100%; padding: 1.1rem 1.5rem; background: #000; color: #fff; border: none; font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: opacity 0.3s ease;">
+                            Pay and place order
+                        </button>
+
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="col-12 col-lg-4 offset-lg-1">
+                <div style="position: sticky; top: 1rem;">
+
+                    <div style="margin-bottom: 2rem;">
+                        <h2 style="font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #000; margin: 0 0 1.5rem 0;">Shopping Bag (@Model.Items.Count)</h2>
+
+                        @foreach (var item in Model.Items)
+                        {
+                            <div style="display: flex; gap: 1.25rem; padding: 1.2rem 0; border-bottom: 1px solid #e5e5e5;">
+                                <div style="width: 80px; height: 100px; background: #f5f5f5; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    @{
+                                        var productImage = item.Product.GetImages()?.FirstOrDefault();
+                                    }
+                                    @if (!string.IsNullOrEmpty(productImage))
+                                    {
+                                        <img src="@productImage" alt="@item.Product.Name" style="width: 100%; height: 100%; object-fit: contain; padding: 0.4rem;" />
+                                    }
+                                </div>
+                                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <div style="font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; color: #000; margin-bottom: 0.35rem;">@item.Product.Name</div>
+                                    <div style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 300; color: #888; margin-bottom: 0.25rem;">Black</div>
+                                    <div style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 300; color: #888; margin-bottom: 0.25rem;">Color: @item.Color</div>
+                                    <div style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 300; color: #888; margin-bottom: 0.25rem;">Size: @item.Size</div>
+                                    <div style="font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 300; color: #888;">Qty: @item.Quantity</div>
+                                </div>
+                                <div style="display: flex; align-items: center; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 400; color: #000;">
+                                    $@item.Subtotal.ToString("N2")
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
+                        <input type="text" placeholder="Promocode" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid #ccc; background: #fff; font-family: 'Inter', sans-serif; font-size: 0.82rem; color: #000; outline: none;" />
+                        <button type="button" style="padding: 0.75rem 1.5rem; background: #ccc; border: none; font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #333; cursor: pointer;">Apply</button>
+                    </div>
+
+                    <div style="border-top: 1px solid #ddd; padding-top: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 300; color: #555;">
+                            <span>Subtotal</span>
+                            <span id="subtotalCost" style="color: #000;">$@Model.TotalAmount.ToString("N2")</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 300; color: #555;">
+                            <span>Shipping</span>
+                            <span id="shippingCost" style="color: #000;">Free</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 300; color: #555;">
+                            <span>Delivery fee</span>
+                            <span id="deliveryFee" style="color: #000;">$0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1.25rem; font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 300; color: #555;">
+                            <span>Payment fee</span>
+                            <span id="paymentFee" style="color: #000;">$0.00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 1rem; border-top: 1px solid #ccc;">
+                            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #000;">Total</span>
+                            <span id="totalAmount" style="font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 600; color: #000;">$@Model.TotalAmount.ToString("N2")</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const cartTotal = @Model.TotalAmount;
+
+        function updateTotal() {
+            let deliveryPrice = 0;
+            const checkedDelivery = document.querySelector('input[name="delivery"]:checked');
+            if (checkedDelivery && checkedDelivery.dataset.price) {
+                deliveryPrice = parseFloat(checkedDelivery.dataset.price) || 0;
+            }
+            document.getElementById('deliveryFee').textContent = '$' + deliveryPrice.toFixed(2);
+            document.getElementById('shippingCost').textContent = deliveryPrice > 0 ? '$' + deliveryPrice.toFixed(2) : 'Free';
+            if (checkedDelivery) {
+                document.getElementById('deliveryMethodInput').value = checkedDelivery.value;
+            }
+
+            let paymentFee = 0;
+            const checkedPayment = document.querySelector('input[name="payment"]:checked');
+            if (checkedPayment) {
+                const cardFields = document.getElementById('cardFields');
+                if (checkedPayment.value === 'card') {
+                    cardFields.style.display = 'grid';
+                } else {
+                    cardFields.style.display = 'none';
+                }
+
+                if (checkedPayment.value === 'cod') {
+                    paymentFee = 8;
+                    document.getElementById('paymentFee').textContent = '$8.00';
+                } else {
+                    paymentFee = 0;
+                    document.getElementById('paymentFee').textContent = '$0.00';
+                }
+
+                document.getElementById('paymentMethodInput').value = checkedPayment.value;
+            }
+
+            const total = cartTotal + deliveryPrice + paymentFee;
+            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[name="delivery"], input[name="payment"]').forEach(input => {
+                input.addEventListener('change', updateTotal);
+            });
+
+            document.querySelectorAll('.delivery-option, .payment-option').forEach(label => {
+                label.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio && !radio.checked) {
+                        radio.click();
+                    }
+                });
+            });
+
+            updateTotal();
+        });
+    </script>
+}

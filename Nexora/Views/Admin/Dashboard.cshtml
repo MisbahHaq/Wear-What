@@ -1,0 +1,282 @@
+@model Nexora.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4 px-3 px-sm-4">
+    <div class="d-flex justify-content-between align-items-md-center flex-column flex-md-row gap-3 mb-4">
+        <h2 class="text-uppercase mb-0 admin-page-heading">Admin Dashboard</h2>
+        <div class="admin-page-actions">
+            <form asp-action="Logout" method="post">
+                <button type="submit" class="btn btn-outline-secondary">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h2 class="mb-0">@Model.TotalOrders</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Products</h5>
+                    <h2 class="mb-0">@Model.TotalProducts</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-dark text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Orders</h5>
+                    <h2 class="mb-0">@Model.PendingOrders</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-light text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Order Received</h5>
+                    <h2 class="mb-0">@Model.OrderReceivedOrders</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-info text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Out for Delivery</h5>
+                    <h2 class="mb-0">@Model.OutForDeliveryOrders</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Cancellation Requests</h5>
+                    <h2 class="mb-0">@Model.PendingCancellationRequests</h2>
+                    <a asp-action="Cancellations" class="btn btn-sm btn-outline-light mt-2">View Cancellations</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-info text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">New Chat Requests</h5>
+                    <h2 class="mb-0">@Model.NewChatRequests</h2>
+                    <a asp-action="UnreadSupport" class="btn btn-sm btn-outline-light mt-2">View Unread</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Unread Support</h5>
+                    <h2 class="mb-0">@Model.UnreadSupportRequests</h2>
+                    <a asp-action="UnreadSupport" class="btn btn-sm btn-outline-light mt-2">View Unread</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.RecentSupportRequests.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>Recent Chatbot Requests</h4>
+                    <a asp-action="SupportRequests" class="btn btn-sm btn-outline-light">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped admin-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Order</th>
+                                <th>Customer</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var request in Model.RecentSupportRequests)
+                            {
+                                <tr>
+                                    <td>@request.RequestType</td>
+                                    <td>@(request.OrderId.HasValue ? "#" + request.OrderId : "General")</td>
+                                    <td>@request.CustomerName</td>
+                                    <td>
+                                        <span class="badge bg-@(request.Status == "Resolved" ? "success" : "warning")">@request.Status</span>
+                                        <span class="badge bg-secondary">@(request.IsRead ? "Read" : "Unread")</span>
+                                    </td>
+                                    <td>@request.CreatedAt.ToString("MMM dd, yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.BestSellingProduct != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h5 class="card-title text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.1em; color: #888;">Analytics - Best Selling Product</h5>
+                        <div class="d-flex align-items-center gap-3 flex-column flex-md-row">
+                            @if (!string.IsNullOrEmpty(Model.BestSellingProduct.ImageUrl))
+                            {
+                                <img src="@Model.BestSellingProduct.ImageUrl" alt="@Model.BestSellingProduct.Name" style="width: 80px; height: 80px; object-fit: cover; background: #222;" />
+                            }
+                            <div>
+                                <h4 class="mb-1">@Model.BestSellingProduct.Name</h4>
+                                <p class="mb-0" style="color: #888;">Total Sold: @Model.BestSellingProductQuantity units | Price: $@Model.BestSellingProduct.Price</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.MostBookmarkedProduct != null)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h5 class="card-title text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.1em; color: #888;">Analytics - Most Bookmarked Product</h5>
+                        <div class="d-flex align-items-center gap-3 flex-column flex-md-row">
+                            @if (!string.IsNullOrEmpty(Model.MostBookmarkedProduct.ImageUrl))
+                            {
+                                <img src="@Model.MostBookmarkedProduct.ImageUrl" alt="@Model.MostBookmarkedProduct.Name" style="width: 80px; height: 80px; object-fit: cover; background: #222;" />
+                            }
+                            <div>
+                                <h4 class="mb-1">@Model.MostBookmarkedProduct.Name</h4>
+                                <p class="mb-0" style="color: #888;">Bookmarks: @Model.MostBookmarkedProductCount users | Price: $@Model.MostBookmarkedProduct.Price</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="d-flex justify-content-between align-items-md-center flex-column flex-md-row gap-2 mb-3">
+                <h4>Products</h4>
+                <div class="admin-page-actions">
+                    <a asp-action="CreateProduct" class="btn btn-dark">Add New Product</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-striped admin-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.RecentProducts)
+                        {
+                            <tr>
+                                <td>@product.Name</td>
+                                <td>$@product.Price</td>
+                                <td>@product.Stock</td>
+                                <td>
+                                    <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn btn-sm btn-outline-light">Edit</a>
+                                    <a asp-action="DeleteProduct" asp-route-id="@product.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <a asp-action="Products" class="btn btn-link">View All Products</a>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Recent Orders</h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-striped admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td><a asp-action="OrderDetail" asp-route-id="@order.Id" class="text-light text-decoration-none" style="cursor: pointer;">#@order.Id</a></td>
+                                <td>@order.UserEmail</td>
+                                <td>
+                                    <span class="badge bg-@(order.Status == "Order Received" ? "light text-dark" : order.Status == "Pending" ? "warning" : order.Status == "Out for Delivery" ? "info" : order.Status == "Delivered" ? "success" : "secondary")">
+                                        @order.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm status-select admin-status-select" data-order-id="@order.Id">
+                                        <option value="Pending" selected="@(order.Status == "Pending")">Pending</option>
+                                        <option value="Order Received" selected="@(order.Status == "Order Received")">Order Received</option>
+                                        <option value="Out for Delivery" selected="@(order.Status == "Out for Delivery")">Out for Delivery</option>
+                                        <option value="Delivered" selected="@(order.Status == "Delivered")">Delivered</option>
+                                        <option value="Cancelled" selected="@(order.Status == "Cancelled")">Cancelled</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <a asp-action="Orders" class="btn btn-link">View All Orders</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    const orderId = this.dataset.orderId;
+                    const status = this.value;
+                    
+                    fetch('/Admin/UpdateOrderStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('[name=__RequestVerificationToken]').value
+                        },
+                        body: JSON.stringify({ OrderId: parseInt(orderId), Status: status })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}
