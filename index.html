@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bank App</title>
+  </head>
+
+  <body>
+    <h1 id="message">What do you want to do?</h1>
+
+    <button id="balanceButton">Check Balance</button>
+    <button id="transferButton">Make a transfer</button>
+    <button id="loanButton">Take a loan</button>
+  </body>
+
+  <script>
+    // Accounts
+    var accountBalance = 5000;
+    var loanPayable = 0; // Tracks total debt owed
+    var totalExpenses = 0; // Tracks total spent
+
+    // Check Balance
+    let balanceButton = document.querySelector("#balanceButton");
+
+    balanceButton.addEventListener("click", () => {
+      document.querySelector("#message").textContent =
+        "Bank Balance: $" +
+        accountBalance +
+        " | Total Debt: $" +
+        loanPayable +
+        " | Total Spent: $" +
+        totalExpenses;
+    });
+
+    // Make a Transfer (Money Out)
+    let transferButton = document.querySelector("#transferButton");
+
+    transferButton.addEventListener("click", () => {
+      const transferAmount = Number(prompt("Enter the amount:"));
+
+      if (transferAmount > 0) {
+        // Double Entry: Money leaves Bank (Credit), Expense goes up (Debit)
+        accountBalance = accountBalance - transferAmount;
+        totalExpenses = totalExpenses + transferAmount;
+
+        document.querySelector("#message").textContent =
+          "Transferred $" +
+          transferAmount +
+          " | New Balance: $" +
+          accountBalance;
+      }
+    });
+
+    // Take a Loan (Money In)
+    let loanButton = document.querySelector("#loanButton");
+
+    loanButton.addEventListener("click", () => {
+      const loanAmount = Number(prompt("Enter the amount:"));
+
+      if (loanAmount > 0) {
+        // Double Entry: Money enters Bank (Debit), Loan Debt goes up (Credit)
+        accountBalance = accountBalance + loanAmount;
+        loanPayable = loanPayable + loanAmount;
+
+        document.querySelector("#message").textContent =
+          "Took loan of $" + loanAmount + " | New Balance: $" + accountBalance;
+      }
+    });
+  </script>
+</html>
