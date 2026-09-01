@@ -94,16 +94,14 @@ export default function App() {
     if (user) {
       // 1. Initial starter check
       initializeUserWardrobeIfEmpty(user.uid).then((items) => {
-        if (items && items.length > 0) {
+        if (items) {
           setWardrobe(items);
         }
       });
 
       // 2. Realtime listener for wardrobe
       const unsubWardrobe = subscribeToUserWardrobe(user.uid, (items) => {
-        if (items && items.length > 0) {
-          setWardrobe(items);
-        }
+        setWardrobe(items);
       });
 
       // 3. Realtime listener for weekly plan

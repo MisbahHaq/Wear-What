@@ -3,6 +3,7 @@ import {
   doc,
   setDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   onSnapshot,
   writeBatch,
@@ -103,39 +104,47 @@ export function subscribeToUserWeeklyPlan(
 }
 
 /**
- * Initialize starter wardrobe if user's personal library is empty
+ * Initialize starter wardrobe ONLY for a brand-new user (no existing profile doc).
+ * Returning users keep their closet exactly as-is — even if they deleted everything.
+ * The profile document acts as the "has started before" marker.
  */
 export async function initializeUserWardrobeIfEmpty(userId: string): Promise<ClothingItem[]> {
   try {
     const wardrobeRef = collection(db, 'users', userId, 'wardrobe');
-    const existingSnap = await getDocs(wardrobeRef);
 
-    if (existingSnap.empty) {
-      const batch = writeBatch(db);
-      INITIAL_WARDROBE.forEach((item) => {
-        const itemRef = doc(db, 'users', userId, 'wardrobe', item.id);
-        batch.set(itemRef, cleanForFirestore({ ...item, isCustom: false }));
-      });
+    // A returning user always has a profile document. Only seed for first-timers.
+    const profileRef = doc(db, 'users', userId);
+    const profileDoc = await getDoc(profileRef);
 
-      // Also initialize weekly plan
-      const starterPlan = generateFullWeekPlan(INITIAL_WARDROBE, undefined, DEFAULT_WEEK_WEATHER);
-      DAYS_OF_WEEK.forEach((day) => {
-        const dayRef = doc(db, 'users', userId, 'weeklyPlan', day);
-        batch.set(dayRef, cleanForFirestore(starterPlan[day]));
-      });
-
-      await batch.commit();
-      return INITIAL_WARDROBE;
-    } else {
+    if (profileDoc.exists()) {
+      // Returning user — never re-seed. Return whatever they currently have.
       const items: ClothingItem[] = [];
+      const existingSnap = await getDocs(wardrobeRef);
       existingSnap.forEach((docSnap) => {
         items.push({ ...(docSnap.data() as ClothingItem), id: docSnap.id });
       });
       return items;
     }
+
+    // Brand-new user: seed the starter wardrobe + weekly plan
+    const batch = writeBatch(db);
+    INITIAL_WARDROBE.forEach((item) => {
+      const itemRef = doc(db, 'users', userId, 'wardrobe', item.id);
+      batch.set(itemRef, cleanForFirestore({ ...item, isCustom: false }));
+    });
+
+    // Also initialize weekly plan
+    const starterPlan = generateFullWeekPlan(INITIAL_WARDROBE, undefined, DEFAULT_WEEK_WEATHER);
+    DAYS_OF_WEEK.forEach((day) => {
+      const dayRef = doc(db, 'users', userId, 'weeklyPlan', day);
+      batch.set(dayRef, cleanForFirestore(starterPlan[day]));
+    });
+
+    await batch.commit();
+    return INITIAL_WARDROBE;
   } catch (err) {
     console.error('Failed to initialize user wardrobe:', err);
-    return INITIAL_WARDROBE;
+    return [];
   }
 }
 
