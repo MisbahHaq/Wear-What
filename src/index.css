@@ -1,0 +1,239 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --pink: #FF007A;
+    --blue: #00D1FF;
+    --yellow: #FFF500;
+    --orange: #FF5C00;
+    --ink: #111111;
+    --font-display: 'Shrikhand', 'Arial Black', 'Helvetica Bold', sans-serif;
+    --font-syne: 'Syne', sans-serif;
+    --font-hand: 'Gloria Hallelujah', 'Caveat', cursive;
+    --font-scribble: 'Georgia', serif;
+    --font-mono-funky: 'Space Grotesk', monospace;
+    --font-sans: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #FFF9ED;
+    color: var(--ink);
+    margin: 0;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+}
+
+/* Halftone Texture Overlay */
+.halftone {
+  background-image: radial-gradient(var(--ink) 1px, transparent 1px);
+  background-size: 15px 15px;
+  opacity: 0.12;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.halftone-fixed {
+  background-image: radial-gradient(#111111 1px, transparent 1px);
+  background-size: 15px 15px;
+  opacity: 0.08;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Editorial Typography */
+.big-display {
+  font-family: 'Arial Black', 'Helvetica Bold', var(--font-syne), sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  transform: skewX(-5deg);
+}
+
+.scribble {
+  font-family: var(--font-scribble);
+  font-style: italic;
+  font-weight: normal;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-syne {
+  font-family: var(--font-syne);
+}
+
+.font-hand {
+  font-family: var(--font-hand);
+}
+
+.font-funky {
+  font-family: var(--font-mono-funky);
+}
+
+/* Chunky Shadows from Design System */
+.chunky-shadow {
+  box-shadow: 6px 6px 0px var(--ink);
+}
+
+.chunky-shadow-lg {
+  box-shadow: 8px 8px 0px var(--ink);
+}
+
+.chunky-shadow-xl {
+  box-shadow: 12px 12px 0px var(--ink);
+}
+
+.brutal-shadow {
+  box-shadow: 4px 4px 0px #111111;
+}
+
+.brutal-shadow-lg {
+  box-shadow: 7px 7px 0px #111111;
+}
+
+.brutal-shadow-xl {
+  box-shadow: 10px 10px 0px #111111;
+}
+
+.brutal-shadow-pink {
+  box-shadow: 6px 6px 0px #FF007A;
+}
+
+.brutal-shadow-blue {
+  box-shadow: 6px 6px 0px #00D1FF;
+}
+
+.brutal-shadow-orange {
+  box-shadow: 6px 6px 0px #FF5C00;
+}
+
+.brutal-shadow-yellow {
+  box-shadow: 6px 6px 0px #FFF500;
+}
+
+/* Circular & Skewed Editorial Stickers */
+.sticker {
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  padding: 8px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  transform: rotate(10deg);
+  font-size: 11px;
+  line-height: 1;
+  text-align: center;
+  font-weight: 900;
+  box-shadow: 3px 3px 0px var(--ink);
+  transition: transform 0.2s ease;
+}
+
+.sticker:hover {
+  transform: rotate(4deg) scale(1.08);
+}
+
+/* Washi Tape Strip Styles with Multiply Blending */
+.washi-tape {
+  background: var(--yellow);
+  opacity: 0.85;
+  height: 24px;
+  width: 100px;
+  transform: rotate(-3deg);
+  position: absolute;
+  z-index: 20;
+  mix-blend-mode: multiply;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.washi-tape-pink {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 0, 122, 0.85),
+    rgba(255, 0, 122, 0.85) 10px,
+    rgba(255, 255, 255, 0.95) 10px,
+    rgba(255, 255, 255, 0.95) 20px
+  );
+  mix-blend-mode: multiply;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.washi-tape-yellow {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 245, 0, 0.9),
+    rgba(255, 245, 0, 0.9) 8px,
+    rgba(255, 92, 0, 0.9) 8px,
+    rgba(255, 92, 0, 0.9) 16px
+  );
+  mix-blend-mode: multiply;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.washi-tape-cyan {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(0, 209, 255, 0.9),
+    rgba(0, 209, 255, 0.9) 10px,
+    rgba(255, 255, 255, 0.9) 10px,
+    rgba(255, 255, 255, 0.9) 20px
+  );
+  mix-blend-mode: multiply;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.washi-tape-solid-yellow {
+  background: #FFF500;
+  mix-blend-mode: multiply;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.washi-tape-leopard {
+  background: #FFF500;
+  background-image: radial-gradient(#111111 20%, transparent 20%), radial-gradient(#FF007A 20%, transparent 20%);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+/* Halftone dot pattern overlay */
+.halftone-bg {
+  background-image: radial-gradient(circle, #111111 10%, transparent 11%);
+  background-size: 12px 12px;
+}
+
+/* Marquee infinite scroll */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: 200%;
+  animation: marquee 16s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Sticker peel effect */
+.sticker-badge {
+  filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.9));
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.sticker-badge:hover {
+  transform: scale(1.08) rotate(4deg);
+}
+
+

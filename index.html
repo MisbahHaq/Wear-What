@@ -3,69 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bank App</title>
+    <title>Wear What — Editorial Wardrobe & Weekly Outfit Planner</title>
+    <meta name="description" content="An editorial wardrobe-planning web app with high-impact color blocking, flat-lay scrapbook collage boards, weather adaptation, and daily outfit curation." />
+    <meta property="og:title" content="Wear What — Editorial Wardrobe & Weekly Outfit Planner" />
+    <meta property="og:description" content="An editorial wardrobe-planning web app with high-impact color blocking, flat-lay scrapbook collage boards, weather adaptation, and daily outfit curation." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    <!-- Google Fonts for Editorial Aesthetic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Gloria+Hallelujah&family=Outfit:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Shrikhand&family=Space+Grotesk:wght@500;700;800&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
   </head>
-
-  <body>
-    <h1 id="message">What do you want to do?</h1>
-
-    <button id="balanceButton">Check Balance</button>
-    <button id="transferButton">Make a transfer</button>
-    <button id="loanButton">Take a loan</button>
+  <body class="bg-[#FFF9ED] text-[#111111] antialiased selection:bg-[#FF007A] selection:text-white overflow-x-hidden min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
-
-  <script>
-    // Accounts
-    var accountBalance = 5000;
-    var loanPayable = 0; // Tracks total debt owed
-    var totalExpenses = 0; // Tracks total spent
-
-    // Check Balance
-    let balanceButton = document.querySelector("#balanceButton");
-
-    balanceButton.addEventListener("click", () => {
-      document.querySelector("#message").textContent =
-        "Bank Balance: $" +
-        accountBalance +
-        " | Total Debt: $" +
-        loanPayable +
-        " | Total Spent: $" +
-        totalExpenses;
-    });
-
-    // Make a Transfer (Money Out)
-    let transferButton = document.querySelector("#transferButton");
-
-    transferButton.addEventListener("click", () => {
-      const transferAmount = Number(prompt("Enter the amount:"));
-
-      if (transferAmount > 0) {
-        // Double Entry: Money leaves Bank (Credit), Expense goes up (Debit)
-        accountBalance = accountBalance - transferAmount;
-        totalExpenses = totalExpenses + transferAmount;
-
-        document.querySelector("#message").textContent =
-          "Transferred $" +
-          transferAmount +
-          " | New Balance: $" +
-          accountBalance;
-      }
-    });
-
-    // Take a Loan (Money In)
-    let loanButton = document.querySelector("#loanButton");
-
-    loanButton.addEventListener("click", () => {
-      const loanAmount = Number(prompt("Enter the amount:"));
-
-      if (loanAmount > 0) {
-        // Double Entry: Money enters Bank (Debit), Loan Debt goes up (Credit)
-        accountBalance = accountBalance + loanAmount;
-        loanPayable = loanPayable + loanAmount;
-
-        document.querySelector("#message").textContent =
-          "Took loan of $" + loanAmount + " | New Balance: $" + accountBalance;
-      }
-    });
-  </script>
 </html>
+

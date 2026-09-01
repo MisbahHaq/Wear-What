@@ -1,0 +1,6 @@
+{
+  "name": "Wear What",
+  "description": "An editorial wardrobe-planning web app with high-impact color blocking, flat-lay scrapbook collage boards, weather adaptation, and daily outfit curation.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

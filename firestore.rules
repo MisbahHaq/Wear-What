@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User profile document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // User's personal wardrobe subcollection
+      match /wardrobe/{itemId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // User's personal weekly outfit plans subcollection
+      match /weeklyPlan/{dayId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}

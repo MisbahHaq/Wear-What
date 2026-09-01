@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "entities": {
+    "UserProfile": {
+      "collection": "users",
+      "fields": {
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "photoURL": { "type": "string", "description": "User profile photo URL" },
+        "currentCity": { "type": "string", "description": "User current city for weather" },
+        "createdAt": { "type": "string", "description": "Account creation timestamp" },
+        "updatedAt": { "type": "string", "description": "Last update timestamp" }
+      }
+    },
+    "ClothingItem": {
+      "collection": "users/{userId}/wardrobe",
+      "fields": {
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "name": { "type": "string", "description": "Piece name" },
+        "imageUrl": { "type": "string", "description": "Image data URL or external URL" },
+        "category": { "type": "string", "description": "Clothing category: top, bottom, dress, outerwear, shoes, accessory" },
+        "styleClass": { "type": "string", "description": "Style class: Office Wear, Casual, Weekend Wear, Accessories & Add-ons" },
+        "season": { "type": "string", "description": "Season tag: summer, winter, all-season" },
+        "color": { "type": "string", "description": "Color name" },
+        "colorHex": { "type": "string", "description": "Hex color code" },
+        "subCategory": { "type": "string", "description": "Subcategory" },
+        "notes": { "type": "string", "description": "Styling notes" },
+        "vibeTag": { "type": "string", "description": "Vibe tag" },
+        "favorite": { "type": "boolean", "description": "Favorite status" },
+        "isCustom": { "type": "boolean", "description": "Whether uploaded by user" },
+        "dateAdded": { "type": "string", "description": "ISO date string" }
+      }
+    },
+    "WeeklyOutfit": {
+      "collection": "users/{userId}/weeklyPlan",
+      "fields": {
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "day": { "type": "string", "description": "Day of week: Mon, Tue, etc." },
+        "dayName": { "type": "string", "description": "Full day name" },
+        "dateLabel": { "type": "string", "description": "Date label" },
+        "dayType": { "type": "string", "description": "Day type" },
+        "weather": { "type": "map", "description": "Weather object" },
+        "topId": { "type": "string", "description": "Top item ID" },
+        "bottomId": { "type": "string", "description": "Bottom item ID" },
+        "dressId": { "type": "string", "description": "Dress item ID" },
+        "outerwearId": { "type": "string", "description": "Outerwear item ID" },
+        "shoesId": { "type": "string", "description": "Shoes item ID" },
+        "accessoryIds": { "type": "array", "description": "Array of accessory IDs" },
+        "notes": { "type": "string", "description": "Daily styling notes" },
+        "isLocked": { "type": "boolean", "description": "Lock status" },
+        "status": { "type": "string", "description": "planned, worn, loved" }
+      }
+    }
+  }
+}
