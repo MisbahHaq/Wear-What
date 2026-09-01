@@ -1,12 +1,12 @@
 {
-  "projectId": "integral-reporter-fgtt6",
-  "appId": "1:647380074852:web:3e961c2ef2e3b4ed2fba71",
-  "apiKey": "AIzaSyBFCTb-3KN7KAFXSG9GOKi9WIGXucgGOgI",
-  "authDomain": "integral-reporter-fgtt6.firebaseapp.com",
+  "projectId": "wearwhat-c9406",
+  "appId": "1:1096761050834:web:7ce62bcd3fb170867b8f0b",
+  "apiKey": "AIzaSyAigbN8N3snzO27hpKJ_-SFpCR20JOhyw8",
+  "authDomain": "wearwhat-c9406.firebaseapp.com",
   "firestoreDatabaseId": "ai-studio-wearwhat-867ab643-3b10-4335-b284-aa729e3c6543",
-  "storageBucket": "integral-reporter-fgtt6.firebasestorage.app",
-  "messagingSenderId": "647380074852",
-  "measurementId": "",
+  "storageBucket": "wearwhat-c9406.firebasestorage.app",
+  "messagingSenderId": "1096761050834",
+  "measurementId": "G-FYYEXQP11F",
   "oAuthClientId": "647380074852-d6ea3bcnd2jtlntbp942opfkt6r5pc9e.apps.googleusercontent.com",
   "recaptchaSiteKey": ""
 }

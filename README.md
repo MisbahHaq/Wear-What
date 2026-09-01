@@ -32,10 +32,37 @@ Deployed on **Google Cloud Run** via AI Studio, with the Gemini API key injected
 
 ## Run Locally
 
-**Prerequisites:** Node.js
+**Prerequisites:** Node.js (and the [Firebase CLI](https://firebase.google.com/docs/firebase-cli) + Java **only** if you use the emulators below), plus a Gemini API key.
 
 1. Install dependencies:
    `npm install`
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+> By default the app uses the **real** Firebase project on `localhost`. Firebase projects authorize `localhost` by default, so Google sign-in usually works right away.
+
+### When you see `auth/unauthorized-domain` locally
+
+This happens when the address you open the app on (`localhost`, `127.0.0.1`, a LAN IP, or a custom host) isn't in your Firebase project's **Authorized domains**. Easiest local fix: run the Firebase emulators, which let Google sign-in work regardless of the domain.
+
+1. Enable the emulators in `.env.local`:
+   ```
+   VITE_USE_FIREBASE_EMULATOR=true
+   ```
+2. In a separate terminal, start both emulators:
+   `npm run emulators`
+3. Run the app:
+   `npm run dev`
+
+> The emulators run Auth (port `9099`) and Firestore (port `8080`) locally. Set `VITE_USE_FIREBASE_EMULATOR=false` (or remove it) to use the real Firebase project again.
+
+### Google login in production
+
+The Firebase popup flow requires the **deployed domain** to be listed as an authorized domain in your Firebase project. This is a project setting (not something the code can set):
+
+1. Open the [Firebase Console](https://console.firebase.google.com/) → project `integral-reporter-fgtt6` → **Authentication** → **Settings** ⚙️ → **Authorized domains**.
+2. Add your production host — for AI Studio / Cloud Run this is the service URL (e.g. `https://<service>-<hash>-uc.a.run.app`), and for AI Studio apps also `studio.firebase.google.com`.
+3. Redeploy.
+
+

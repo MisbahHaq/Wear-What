@@ -45,6 +45,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     if (code === 'auth/popup-closed-by-user') {
       return 'Google sign-in popup was closed before completing.';
     }
+    if (code === 'auth/unauthorized-domain' || code === 'auth/invalid-origin') {
+      return (
+        'The current website address isn’t authorized for Firebase sign-in. ' +
+        'Add this domain to your Firebase project’s Authentication → Authorized domains list ' +
+        '(or, for local testing, start the emulators: npm run emulators, and set ' +
+        'VITE_USE_FIREBASE_EMULATOR=true in .env.local).'
+      );
+    }
     return err?.message || 'Authentication failed. Please try again.';
   };
 
